@@ -31,11 +31,12 @@ import com.waz.api.Message;
 import com.waz.api.UpdateListener;
 import com.waz.api.User;
 import com.waz.zclient.R;
+import com.waz.zclient.common.views.ChatheadView;
+import com.waz.zclient.ui.animation.WidthEvaluator;
+import com.waz.zclient.ui.text.TypefaceTextView;
 import com.waz.zclient.ui.utils.ColorUtils;
 import com.waz.zclient.ui.utils.ResourceUtils;
 import com.waz.zclient.utils.ViewUtils;
-import com.waz.zclient.ui.animation.WidthEvaluator;
-import com.waz.zclient.ui.text.TypefaceTextView;
 
 public class MessageNotificationChatheadView extends FrameLayout implements UpdateListener {
     private static final double MAX_WIDTH_TO_SCREEN_RATION = 0.70;

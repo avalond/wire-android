@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/wire__padding__big"
-            android:paddingLeft="@dimen/wire__padding__big"
+            android:paddingStart="@dimen/wire__padding__big"
             />
 
         <include layout="@layout/rl__participants__header" />
@@ -68,8 +68,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/wire__padding__regular"
         android:layout_marginBottom="@dimen/wire__padding__small"
-        android:paddingLeft="@dimen/wire__padding__big"
-        android:paddingRight="@dimen/wire__text_size__big"
+        android:paddingStart="@dimen/wire__padding__big"
+        android:paddingEnd="@dimen/wire__text_size__big"
         />
 
     <!-- Wrapper with height of accept menu to ensure Common user view stays in fixed position when toggling between Footer & Accept menu -->
@@ -83,8 +83,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginBottom="@dimen/connect_request__footer_menu__padding_bottom"
-            android:paddingRight="@dimen/wire__padding__big"
-            android:paddingLeft="@dimen/wire__padding__big"
+            android:paddingStart="@dimen/wire__padding__big"
+            android:paddingEnd="@dimen/wire__padding__big"
             >
 
             <LinearLayout
@@ -100,7 +100,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/framework_confirmation_menu_button_height"
                     android:layout_weight="1"
-                    android:layout_marginRight="@dimen/connect_request__common_users__chathead__vertical_padding"
+                    android:layout_marginEnd="@dimen/connect_request__common_users__chathead__vertical_padding"
                     android:gravity="center"
                     android:text="@string/connect_request__ignore_button__text"
                     app:font="@string/wire__typeface__light"
@@ -114,7 +114,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/framework_confirmation_menu_button_height"
                     android:layout_weight="1"
-                    android:layout_marginLeft="@dimen/connect_request__common_users__chathead__vertical_padding"
+                    android:layout_marginStart="@dimen/connect_request__common_users__chathead__vertical_padding"
                     android:gravity="center"
                     android:text="@string/send_connect_request__connect_button__text"
                     app:font="@string/wire__typeface__light"

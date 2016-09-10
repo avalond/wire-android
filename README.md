@@ -1,6 +1,6 @@
 # Wire™
 
-![Wire logo](https://github.com/wireapp/wire/blob/master/assets/logo.png?raw=true)
+[![Wire logo](https://github.com/wireapp/wire/blob/master/assets/header-small.png?raw=true)](https://wire.com/jobs/)
 
 This repository is part of the source code of Wire. You can find more information at [wire.com](https://wire.com) or by contacting opensource@wire.com.
 
@@ -16,14 +16,14 @@ For clarity, if you compile the open source software that we make available from
 
 No license is granted to the Wire trademark and its associated logos, all of which will continue to be owned exclusively by Wire Swiss GmbH. Any use of the Wire trademark and/or its associated logos is expressly prohibited without the express prior written consent of Wire Swiss GmbH.
 
-# How to build the open source client
+# Wire for Android
 
 ## What is included in the open source client
 
 The project in this repository contains the Wire for Android client project. You can build the project yourself. However, there are some differences with the binary Wire client available on the Play Store. 
 These differences are:
 - the open source project does not include the API keys of YouTube, Localytics, HockeyApp and other 3rd party services.
-- the open source project links agains the open source Wire audio-video-signaling (AVS) library. The binary Play Store client links against an AVS version that contains proprietary improvements for the call quality.
+- the open source project links against the open source Wire audio-video-signaling (AVS) library. The binary Play Store client links against an AVS version that contains proprietary improvements for the call quality.
 
 ## Prerequisites
 In order to build Wire for Android locally, it is necessary to install the following tools on the local machine:
@@ -32,12 +32,15 @@ In order to build Wire for Android locally, it is necessary to install the follo
 
 ## How to build locally
 1. Check out the wire-android repository. 
-2. From the checkout folder, run `./gradlew assembleProdRelease`. This will pull in all the necessary dependencies from Maven.
+2. Switch to latest relase branch `rel/x.x.x`
+3. From the checkout folder, run `./gradlew assembleProdRelease`. This will pull in all the necessary dependencies from Maven.
 
-These steps will build only the Wire client UI, pulling in all other Wire frameworks from Maven. If you want to modify the source/debug other Wire frameworks, you can check project dependencies and build other wire projects separately. The most interresting projects to check are: 
+These steps will build only the Wire client UI, pulling in all other Wire frameworks from Maven. If you want to modify the source/debug other Wire frameworks, you can check project dependencies and build other wire projects separately. The most interesting projects to check are: 
 
-- [zmessaging-android](https://github.com/wireapp/zmessaging-android)
-- [avs](https://github.com/wireapp/avs)
+- [Sync Engine](https://github.com/wireapp/wire-android-sync-engine)
+- [Audio Video Signaling](https://github.com/wireapp/avs)
 - [generic-message-proto](https://github.com/wireapp/generic-message-proto)
 - [wiretranslations-android](https://github.com/wireapp/wiretranslations-android)
 
+## Android Studio
+When importing project in Android Studio **do not allow** gradle plugin update. Our build setup requires Android Plugin for Gradle version 1.5. 

@@ -18,11 +18,9 @@
 package com.waz.zclient.controllers.mentioning;
 
 import android.support.annotation.NonNull;
-import com.waz.annotations.Controller;
 import com.waz.api.IConversation;
 import com.waz.api.User;
 
-@Controller
 public interface IMentioningController {
     void addObserver(MentioningObserver observer);
 

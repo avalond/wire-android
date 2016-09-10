@@ -26,13 +26,16 @@ import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.waz.api.Asset;
 import com.waz.api.AssetStatus;
 import com.waz.api.Message;
 import com.waz.zclient.R;
-import com.waz.zclient.controllers.selection.MessageActionModeController;
+import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
+import com.waz.zclient.controllers.tracking.events.conversation.ReactedToMessageEvent;
+import com.waz.zclient.controllers.userpreferences.IUserPreferencesController;
 import com.waz.zclient.core.api.scala.ModelObserver;
 import com.waz.zclient.core.controllers.tracking.events.filetransfer.OpenedFileEvent;
 import com.waz.zclient.core.controllers.tracking.events.filetransfer.SavedFileEvent;
@@ -41,11 +44,10 @@ import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewCont
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
 import com.waz.zclient.ui.utils.AssetDialogUtils;
 import com.waz.zclient.ui.utils.TextViewUtils;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
 import com.waz.zclient.utils.AssetUtils;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.AssetActionButton;
+import com.waz.zclient.views.OnDoubleClickListener;
 import timber.log.Timber;
 
 import java.util.Locale;
@@ -53,10 +55,10 @@ import java.util.Locale;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class FileMessageViewController extends MessageViewController implements MessageActionModeController.Selectable {
+public class FileMessageViewController extends MessageViewController implements AccentColorObserver {
 
     private Asset asset;
-    private TouchFilterableLayout view;
+    private View view;
 
     private ProgressDotsView progressDotsView;
     private AssetActionButton actionButton;
@@ -65,7 +67,7 @@ public class FileMessageViewController extends MessageViewController implements 
     private TextView fileNameTextView;
     private TextView fileInfoTextView;
 
-    private TouchFilterableLinearLayout selectionContainer;
+    private LinearLayout selectionContainer;
 
     private int failedTextColor;
     private Uri localAssetUri;
@@ -83,12 +85,6 @@ public class FileMessageViewController extends MessageViewController implements 
         @Override
         public void updated(Asset asset) {
             Timber.i("Asset %s status %s", asset.getName(), asset.getStatus());
-            actionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onActionButtonClicked();
-                }
-            });
             setProgressDotsVisible(receivingMessage(asset));
             FileMessageViewController.this.asset = asset;
             updateFileStatus();
@@ -160,19 +156,44 @@ public class FileMessageViewController extends MessageViewController implements 
         }
     };
 
+    private final View.OnClickListener actionButtonOnClickListener = new OnDoubleClickListener() {
+        @Override
+        public void onDoubleClick() {
+            toggleMessageLikeStatusViaDoubleTap();
+        }
+
+        @Override
+        public void onSingleClick() {
+            onActionButtonClicked();
+        }
+    };
+
+    private final View.OnClickListener containerOnClickListener = new OnDoubleClickListener() {
+        @Override
+        public void onDoubleClick() {
+            toggleMessageLikeStatusViaDoubleTap();
+        }
+
+        @Override
+        public void onSingleClick() {
+            if (footerActionCallback != null) {
+                footerActionCallback.toggleVisibility();
+            }
+        }
+    };
+
     public FileMessageViewController(Context context, MessageViewsContainer messageViewContainer) {
         super(context, messageViewContainer);
-        view = (TouchFilterableLayout) View.inflate(context, R.layout.row_conversation_file, null);
-        selectionContainer = ViewUtils.getView(view.getLayout(),
-                                               R.id.ll__row_conversation__file__message_container);
-        progressDotsView = ViewUtils.getView(view.getLayout(), R.id.pdv__row_conversation__file_placeholder_dots);
-
-        actionButton = ViewUtils.getView(view.getLayout(), R.id.aab__row_conversation__action_button);
-        downloadDoneIndicatorView = ViewUtils.getView(view.getLayout(),
-                                                      R.id.gtv__row_conversation__download_done_indicator);
-
-        fileNameTextView = ViewUtils.getView(view.getLayout(), R.id.ttv__row_conversation__file__filename);
-        fileInfoTextView = ViewUtils.getView(view.getLayout(), R.id.ttv__row_conversation__file__fileinfo);
+        view = View.inflate(context, R.layout.row_conversation_file, null);
+        selectionContainer = ViewUtils.getView(view, R.id.ll__row_conversation__file__message_container);
+        selectionContainer.setOnLongClickListener(this);
+        selectionContainer.setOnClickListener(containerOnClickListener);
+        progressDotsView = ViewUtils.getView(view, R.id.pdv__row_conversation__file_placeholder_dots);
+        actionButton = ViewUtils.getView(view, R.id.aab__row_conversation__action_button);
+        actionButton.setOnClickListener(actionButtonOnClickListener);
+        downloadDoneIndicatorView = ViewUtils.getView(view, R.id.gtv__row_conversation__download_done_indicator);
+        fileNameTextView = ViewUtils.getView(view, R.id.ttv__row_conversation__file__filename);
+        fileInfoTextView = ViewUtils.getView(view, R.id.ttv__row_conversation__file__fileinfo);
 
         failedTextColor = ContextCompat.getColor(context, R.color.accent_red);
     }
@@ -181,17 +202,18 @@ public class FileMessageViewController extends MessageViewController implements 
     protected void onSetMessage(Separator separator) {
         messageObserver.setAndUpdate(message);
         actionButton.setMessage(message);
+        messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(this);
     }
 
     @Override
     public void recycle() {
+        if (!messageViewsContainer.isTornDown()) {
+            messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
+        }
         messageObserver.clear();
         assetObserver.clear();
         message = null;
         localAssetUri = null;
-        selectionContainer.setFilterAllClickEvents(false);
-        selectionContainer.setOnClickListener((TouchFilterableLayout.OnClickListener) null);
-        selectionContainer.setOnLongClickListener((TouchFilterableLayout.OnLongClickListener) null);
         fileNameTextView.setText("");
         fileInfoTextView.setText("");
         downloadDoneIndicatorView.setVisibility(GONE);
@@ -200,12 +222,11 @@ public class FileMessageViewController extends MessageViewController implements 
 
     @Override
     public void onAccentColorHasChanged(Object sender, int color) {
-        super.onAccentColorHasChanged(sender, color);
         actionButton.setProgressColor(color);
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 
@@ -220,29 +241,6 @@ public class FileMessageViewController extends MessageViewController implements 
                                                                 false));
         actionButton.setFileExtension(getFileExtension(asset));
         downloadDoneIndicatorView.setVisibility(asset.getStatus() == AssetStatus.DOWNLOAD_DONE ? VISIBLE : GONE);
-
-        if (message.getMessageStatus() != Message.Status.PENDING &&
-            message.getMessageStatus() != Message.Status.FAILED) {
-            selectionContainer.setFilterAllClickEvents(true);
-        }
-        selectionContainer.setOnClickListener(new TouchFilterableLayout.OnClickListener() {
-            @Override
-            public void onClick() {
-                onMessageContentClicked();
-            }
-        });
-        selectionContainer.setOnLongClickListener(new TouchFilterableLayout.OnLongClickListener() {
-            @Override
-            public void onLongClick() {
-                if (message == null ||
-                    messageViewsContainer == null ||
-                    messageViewsContainer.getControllerFactory() == null ||
-                    messageViewsContainer.getControllerFactory().isTornDown()) {
-                    return;
-                }
-                messageViewsContainer.getControllerFactory().getMessageActionModeController().selectMessage(message);
-            }
-        });
     }
 
     private void onActionButtonClicked() {
@@ -417,4 +415,18 @@ public class FileMessageViewController extends MessageViewController implements 
                R.string.content__file__status__default__size_and_extension;
     }
 
+    private void toggleMessageLikeStatusViaDoubleTap() {
+        if (message.isLikedByThisUser()) {
+            message.unlike();
+            messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.unlike(message.getConversation(),
+                                                                                                                       message,
+                                                                                                                       ReactedToMessageEvent.Method.DOUBLE_TAP));
+        } else {
+            message.like();
+            messageViewsContainer.getControllerFactory().getUserPreferencesController().setPerformedAction(IUserPreferencesController.LIKED_MESSAGE);
+            messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.like(message.getConversation(),
+                                                                                                                     message,
+                                                                                                                     ReactedToMessageEvent.Method.DOUBLE_TAP));
+        }
+    }
 }

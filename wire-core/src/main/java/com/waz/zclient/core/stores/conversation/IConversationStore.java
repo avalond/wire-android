@@ -17,7 +17,6 @@
  */
 package com.waz.zclient.core.stores.conversation;
 
-import com.waz.annotations.Store;
 import com.waz.api.AssetForUpload;
 import com.waz.api.AudioAssetForUpload;
 import com.waz.api.IConversation;
@@ -27,7 +26,6 @@ import com.waz.api.SyncState;
 import com.waz.api.User;
 import com.waz.zclient.core.stores.IStore;
 
-@Store
 public interface IConversationStore extends IStore {
 
     /**

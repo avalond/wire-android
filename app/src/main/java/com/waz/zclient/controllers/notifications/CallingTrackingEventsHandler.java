@@ -40,11 +40,11 @@ import com.waz.zclient.controllers.tracking.events.calling.ReceivedCallEvent;
 import com.waz.zclient.controllers.tracking.events.calling.ReceivedVideoCallEvent;
 import com.waz.zclient.controllers.tracking.events.calling.StartedCallEvent;
 import com.waz.zclient.controllers.tracking.events.calling.StartedVideoCallEvent;
-import com.waz.zclient.core.controllers.tracking.attributes.CompletedMediaType;
-import com.waz.zclient.core.controllers.tracking.events.media.CompletedMediaActionEvent;
 import com.waz.zclient.controllers.vibrator.IVibratorController;
+import com.waz.zclient.core.controllers.tracking.attributes.CompletedMediaType;
 import com.waz.zclient.core.controllers.tracking.attributes.RangedAttribute;
-import com.waz.zclient.core.stores.media.IMediaStore;
+import com.waz.zclient.core.controllers.tracking.events.media.CompletedMediaActionEvent;
+import com.waz.zclient.core.stores.IStoreFactory;
 import timber.log.Timber;
 
 public class CallingTrackingEventsHandler implements CallingEventsHandler {
@@ -52,17 +52,17 @@ public class CallingTrackingEventsHandler implements CallingEventsHandler {
     private static final String TAG = CallingTrackingEventsHandler.class.getName();
 
     private ZMessagingApi zMessagingApi;
-    private IMediaStore mediaStore;
+    private IStoreFactory storeFactory;
     private IVibratorController vibratorController;
     private ITrackingController trackingController;
     private boolean vibrationEnabled;
 
     public CallingTrackingEventsHandler(ZMessagingApi zMessagingApi,
-                                        IMediaStore mediaStore,
+                                        IStoreFactory storeFactory,
                                         IVibratorController vibratorController,
                                         ITrackingController trackingController) {
         this.zMessagingApi = zMessagingApi;
-        this.mediaStore = mediaStore;
+        this.storeFactory = storeFactory;
         this.vibratorController = vibratorController;
         this.trackingController = trackingController;
         this.vibrationEnabled = true;
@@ -123,7 +123,7 @@ public class CallingTrackingEventsHandler implements CallingEventsHandler {
             return;
         }
 
-        mediaStore.playSound(R.raw.ringing_from_them);
+        storeFactory.getMediaStore().playSound(R.raw.ringing_from_them);
         if (vibrationEnabled) {
             vibratorController.vibrate(R.array.ringing_from_them, true);
         }
@@ -131,9 +131,9 @@ public class CallingTrackingEventsHandler implements CallingEventsHandler {
 
     private void onOutgoingRingingStarted(OutgoingRingingStarted callingEvent) {
         if (callingEvent.isVideoCall()) {
-            mediaStore.playSound(R.raw.ringing_from_me_video);
+            storeFactory.getMediaStore().playSound(R.raw.ringing_from_me_video);
         } else {
-            mediaStore.playSound(R.raw.ringing_from_me);
+            storeFactory.getMediaStore().playSound(R.raw.ringing_from_me);
         }
         logToAvs("onOutgoingRingingStarted");
         if (callingEvent.isVideoCall()) {
@@ -150,15 +150,15 @@ public class CallingTrackingEventsHandler implements CallingEventsHandler {
     }
 
     private void onIncomingRingingEnded() {
-        mediaStore.stopSound(R.raw.ringing_from_them);
-        mediaStore.stopSound(R.raw.ringing_from_them_incall);
+        storeFactory.getMediaStore().stopSound(R.raw.ringing_from_them);
+        storeFactory.getMediaStore().stopSound(R.raw.ringing_from_them_incall);
         vibratorController.stopVibrate();
         logToAvs("onIncomingRingingEnded");
     }
 
     private void onOutgoingRingingEnded() {
-        mediaStore.stopSound(R.raw.ringing_from_me);
-        mediaStore.stopSound(R.raw.ringing_from_me_video);
+        storeFactory.getMediaStore().stopSound(R.raw.ringing_from_me);
+        storeFactory.getMediaStore().stopSound(R.raw.ringing_from_me_video);
         vibratorController.stopVibrate();
         logToAvs("onOutgoingRingingEnded");
     }
@@ -172,7 +172,7 @@ public class CallingTrackingEventsHandler implements CallingEventsHandler {
     }
 
     private void onCallEstablished(CallEstablished callingEvent) {
-        mediaStore.playSound(R.raw.ready_to_talk);
+        storeFactory.getMediaStore().playSound(R.raw.ready_to_talk);
         if (vibrationEnabled) {
             vibratorController.vibrate(R.array.ready_to_talk);
         }
@@ -187,7 +187,7 @@ public class CallingTrackingEventsHandler implements CallingEventsHandler {
     }
 
     private void onCallEnded(CallEnded callingEvent) {
-        mediaStore.playSound(R.raw.talk_later);
+        storeFactory.getMediaStore().playSound(R.raw.talk_later);
         if (vibrationEnabled) {
             vibratorController.vibrate(R.array.talk_later);
         }
@@ -200,7 +200,7 @@ public class CallingTrackingEventsHandler implements CallingEventsHandler {
     }
 
     private void onCallDropped(CallDropped callingEvent) {
-        mediaStore.playSound(R.raw.call_drop);
+        storeFactory.getMediaStore().playSound(R.raw.call_drop);
         if (vibrationEnabled) {
             vibratorController.vibrate(R.array.call_dropped);
         }
@@ -213,7 +213,7 @@ public class CallingTrackingEventsHandler implements CallingEventsHandler {
     }
 
     private void onCallTransferred() {
-        mediaStore.playSound(R.raw.pull_voice);
+        storeFactory.getMediaStore().playSound(R.raw.pull_voice);
         if (vibrationEnabled) {
             vibratorController.vibrate(R.array.pull_voice);
         }
@@ -232,7 +232,7 @@ public class CallingTrackingEventsHandler implements CallingEventsHandler {
 
     public void tearDown() {
         zMessagingApi = null;
-        mediaStore = null;
+        storeFactory = null;
         vibratorController = null;
     }
 }

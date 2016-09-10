@@ -50,6 +50,7 @@ import android.widget.TextView;
 import com.waz.api.CredentialsUpdateListener;
 import com.waz.zclient.R;
 import com.waz.zclient.core.stores.appentry.AppEntryError;
+import com.waz.zclient.newreg.fragments.country.Country;
 import com.waz.zclient.newreg.fragments.country.CountryController;
 import com.waz.zclient.pages.BaseDialogFragment;
 import com.waz.zclient.ui.utils.DrawableUtils;
@@ -57,7 +58,7 @@ import com.waz.zclient.ui.utils.MathUtils;
 import com.waz.zclient.utils.PermissionUtils;
 import com.waz.zclient.utils.ViewUtils;
 
-public class AddPhoneNumberPreferenceDialogFragment extends BaseDialogFragment<AddPhoneNumberPreferenceDialogFragment.Container> {
+public class AddPhoneNumberPreferenceDialogFragment extends BaseDialogFragment<AddPhoneNumberPreferenceDialogFragment.Container> implements CountryController.Observer {
 
     public static final String TAG = AddPhoneNumberPreferenceDialogFragment.class.getSimpleName();
     private static final String ARG_PHONE = "ARG_PHONE";
@@ -74,6 +75,7 @@ public class AddPhoneNumberPreferenceDialogFragment extends BaseDialogFragment<A
     private EditText phoneEditText;
     private EditText countryEditText;
     private TextView errorView;
+    private CountryController countryController;
 
     public static Fragment newInstance() {
         return newInstance(null);
@@ -102,7 +104,7 @@ public class AddPhoneNumberPreferenceDialogFragment extends BaseDialogFragment<A
         containerView = ViewUtils.getView(view, R.id.ll__preferences__container);
         errorView = ViewUtils.getView(view, R.id.tv__preferences__error);
         errorView.setVisibility(View.GONE);
-        final CountryController countryController = new CountryController(getActivity());
+        countryController = new CountryController(getActivity());
 
         countryEditText = ViewUtils.getView(view, R.id.acet__preferences__country);
         phoneEditText = ViewUtils.getView(view, R.id.acet__preferences__phone);
@@ -164,6 +166,7 @@ public class AddPhoneNumberPreferenceDialogFragment extends BaseDialogFragment<A
                 handleInput();
             }
         });
+        countryController.addObserver(this);
     }
 
     private void setSimPhoneNumber() {
@@ -179,6 +182,12 @@ public class AddPhoneNumberPreferenceDialogFragment extends BaseDialogFragment<A
         phoneEditText.setText(rawPhoneNumber);
         phoneEditText.setSelection(rawPhoneNumber.length());
         countryEditText.setText(String.format("+%s", countryCode.replace("+", "")));
+    }
+
+    @Override
+    public void onStop() {
+        countryController.removeObserver(this);
+        super.onStop();
     }
 
     @Override
@@ -394,6 +403,18 @@ public class AddPhoneNumberPreferenceDialogFragment extends BaseDialogFragment<A
             // is limited.
             editText.setBackgroundDrawable(newBg);
         }
+    }
+
+    @Override
+    public void onCountryHasChanged(Country country) {
+        final String phoneNumber = getArguments().getString(ARG_PHONE, "");
+        final String number = countryController.getPhoneNumberWithoutCountryCode(phoneNumber);
+        final String countryCode = phoneNumber.substring(0, phoneNumber.length() - number.length()).replace("+", "");
+        if (!TextUtils.isEmpty(countryCode)) {
+            return;
+        }
+
+        countryEditText.setText(String.format("+%s", country.getCountryCode()));
     }
 
     public interface Container {

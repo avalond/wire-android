@@ -21,7 +21,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <com.waz.zclient.ui.text.GlyphTextView
-        android:id="@+id/gtv__camera__top_control__flash_light"
+        android:id="@+id/gtv__camera__top_control__flash_setting"
         android:layout_width="@dimen/touch_target_buttons"
         android:layout_height="@dimen/touch_target_buttons"
         android:layout_gravity="center_vertical|left"
@@ -35,7 +35,7 @@
 
 
     <com.waz.zclient.ui.text.GlyphTextView
-        android:id="@+id/gtv__camera__top_control__back_camera"
+        android:id="@+id/gtv__camera__top_control__change_camera"
         android:layout_width="@dimen/touch_target_buttons"
         android:layout_height="@dimen/touch_target_buttons"
         android:layout_gravity="center_vertical|right"

@@ -31,7 +31,17 @@
     <item name="cursor_menu_item_file" type="id" />
     <item name="cursor_menu_item_audio_message" type="id" />
     <item name="cursor_menu_item_more" type="id" />
+    <item name="cursor_menu_item_less" type="id" />
     <item name="cursor_menu_item_dummy" type="id" />
+
+    <item name="message_bottom_menu_item_forward" type="id" />
+    <item name="message_bottom_menu_item_copy" type="id" />
+    <item name="message_bottom_menu_item_delete_local" type="id" />
+    <item name="message_bottom_menu_item_delete_global" type="id" />
+    <item name="message_bottom_menu_item_edit" type="id" />
+    <item name="message_bottom_menu_item_like" type="id" />
+    <item name="message_bottom_menu_item_unlike" type="id" />
+    <item name="message_bottom_menu_item_save" type="id" />
 
     <item name="video_calling_view" type="id" />
 </resources>

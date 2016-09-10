@@ -29,7 +29,6 @@ import com.waz.zclient.utils.ViewUtils;
 import org.threeten.bp.Instant;
 
 public class VoiceFilterLayout extends FrameLayout implements VoiceFilterController.RecordingObserver {
-    public static final String TAG = VoiceFilterLayout.class.getSimpleName();
     private final VoiceFilterController voiceFilterController;
 
     private VoiceFilterContent voiceFilterContent;

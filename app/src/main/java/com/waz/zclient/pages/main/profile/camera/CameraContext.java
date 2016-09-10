@@ -19,15 +19,9 @@ package com.waz.zclient.pages.main.profile.camera;
 
 public enum CameraContext {
 
-    SETTINGS(CameraType.NORMAL),
-    SIGN_UP(CameraType.NORMAL),
-    MESSAGE(CameraType.NORMAL);
-
-    public CameraType cameraType;
-
-    CameraContext(CameraType cameraType) {
-        this.cameraType = cameraType;
-    }
+    SETTINGS(),
+    SIGN_UP(),
+    MESSAGE();
 
     public static CameraContext getFromOrdinal(int ordinal) {
         return values()[ordinal];

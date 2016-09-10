@@ -22,92 +22,41 @@
              xmlns:text="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
-    <!-- surface view with camera -->
-    <FrameLayout
-        android:id="@+id/fl__camera__container"
+    <com.waz.zclient.camera.views.CameraPreviewTextureView
+        android:id="@+id/cptv__camera_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
 
-    <!-- top control -->
+    <com.waz.zclient.ui.text.TypefaceTextView
+        android:id="@+id/ttv__camera_not_available_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/camera_not_available"
+        android:textColor="@color/white"
+        android:textSize="@dimen/wire__text_size__regular"
+        android:visibility="gone"
+        />
+
     <com.waz.zclient.pages.main.profile.camera.controls.CameraTopControl
-        android:id="@+id/ctp"
+        android:id="@+id/ctp_top_controls"
         android:layout_width="match_parent"
         android:layout_height="@dimen/camera_top_controls__height"
         />
 
-    <!-- preview -->
     <FrameLayout
         android:id="@+id/fl__preview_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/framework__camera__preview_image_background_color"
-        >
-
-        <com.waz.zclient.views.images.ImageAssetView
-            android:id="@+id/iv__preview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitCenter"
-            android:background="@color/black"
-            />
-
-        <FrameLayout
-            android:id="@+id/ttv__camera__conversation__container"
-            android:layout_width="match_parent"
-            android:layout_gravity="top"
-            android:background="@color/camera__control__color"
-            style="@style/message_stream__header__base"
-            >
-
-            <com.waz.zclient.ui.text.TypefaceTextView
-                android:id="@+id/ttv__camera__conversation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="@dimen/wire__padding__small"
-                android:inputType="none"
-                android:clickable="false"
-                text:font="@string/conversation__header__font"
-                style="@style/message_stream__header__text__dark"
-                />
-
-        </FrameLayout>
-
-        <com.waz.zclient.ui.text.GlyphTextView
-            android:id="@+id/gtv__sketch_image_paint_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right|bottom"
-            android:padding="@dimen/wire__padding__12"
-            android:layout_marginRight="@dimen/camera__sketch_button_margin_right"
-            android:layout_marginBottom="@dimen/camera__sketch_button_margin_bottom"
-            android:gravity="center"
-            android:text="@string/glyph__paint"
-            android:textColor="@color/white"
-            android:textSize="@dimen/camera__sketch_button_size"
-            />
-
-    </FrameLayout>
-
-    <ImageView
-        android:id="@+id/v__color_filter_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         />
 
-    <ImageView
-        android:id="@+id/iv__vignette_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        />
-
-    <!-- bottom controls -->
     <com.waz.zclient.pages.main.profile.camera.controls.CameraBottomControl
-        android:id="@+id/cbc__camera"
+        android:id="@+id/cbc__bottom_controls"
         android:layout_width="match_parent"
         android:layout_height="@dimen/camera__control__height"
         android:layout_gravity="bottom"

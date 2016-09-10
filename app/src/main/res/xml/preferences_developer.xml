@@ -39,7 +39,6 @@
     <Preference
         android:key="@string/pref_dev_avs_last_call_session_id_key"
         android:title="@string/pref_dev_avs_last_call_session_id_title"
-        android:summary="@string/pref_dev_status_bar_summary"
         />
 
     <CheckBoxPreference
@@ -47,6 +46,11 @@
         android:key="@string/pref_dev_auto_answer_call_key"
         android:title="@string/pref_dev_auto_answer_call_title"
         android:summary="@string/pref_dev_auto_answer_call_summary"
+        />
+
+    <Preference
+        android:key="@string/pref_dev_version_info_id_key"
+        android:title="@string/pref_dev_version_info_id_title"
         />
 
 </PreferenceScreen>

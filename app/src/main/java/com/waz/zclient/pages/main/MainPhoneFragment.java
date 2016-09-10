@@ -156,7 +156,7 @@ public class MainPhoneFragment extends BaseFragment<MainPhoneFragment.Container>
         }
 
         // Clear any overlays
-        dismissOnboardingHint(OnBoardingHintType.NONE);
+        dismissOnBoardingHint(OnBoardingHintType.NONE);
 
         if (getChildFragmentManager().getBackStackEntryCount() > 0) {
             Fragment topFragment = getChildFragmentManager().findFragmentByTag(getChildFragmentManager().getBackStackEntryAt(
@@ -203,7 +203,7 @@ public class MainPhoneFragment extends BaseFragment<MainPhoneFragment.Container>
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void dismissOnboardingHint(OnBoardingHintType requestedType) {
+    public void dismissOnBoardingHint(OnBoardingHintType requestedType) {
         getControllerFactory().getOnboardingController().hideOnboardingHint(requestedType);
     }
 

@@ -63,7 +63,7 @@ public class ScalaStoreFactory extends StoreFactory {
 
     @Override
     protected INetworkStore createNetworkStore() {
-        return new ScalaNetworkStore(context, getZMessagingApiStore().getApi());
+        return new ScalaNetworkStore(getZMessagingApiStore().getApi());
     }
 
     @Override

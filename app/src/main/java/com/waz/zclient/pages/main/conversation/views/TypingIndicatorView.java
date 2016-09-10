@@ -34,7 +34,7 @@ import com.waz.zclient.ui.animation.interpolators.penner.Quart;
 import com.waz.zclient.ui.cursor.TypingIndicator;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.chathead.ChatheadImageView;
-import com.waz.zclient.views.chathead.ChatheadView;
+import com.waz.zclient.common.views.ChatheadView;
 
 import java.util.HashMap;
 import java.util.Iterator;

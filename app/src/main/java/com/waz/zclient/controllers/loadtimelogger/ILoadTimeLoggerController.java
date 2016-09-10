@@ -17,9 +17,6 @@
  */
 package com.waz.zclient.controllers.loadtimelogger;
 
-import com.waz.annotations.Controller;
-
-@Controller(customInit = true)
 public interface ILoadTimeLoggerController {
 
     void tearDown();

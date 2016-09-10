@@ -28,14 +28,9 @@ import com.waz.api.LogLevel;
 import com.waz.api.NotificationsHandler;
 import com.waz.api.TrackingEventsHandler;
 import com.waz.api.impl.AccentColors;
-import com.waz.service.BackendConfig;
-import com.waz.service.ZMessaging;
-import com.waz.zclient.api.scala.ScalaStoreFactory;
-import com.waz.zclient.controllers.DefaultControllerFactory;
 import com.waz.zclient.controllers.IControllerFactory;
-import com.waz.zclient.controllers.notifications.CallingTrackingEventsHandler;
-import com.waz.zclient.controllers.notifications.INotificationsController;
 import com.waz.zclient.controllers.notifications.AppTrackingEventsHandler;
+import com.waz.zclient.controllers.notifications.CallingTrackingEventsHandler;
 import com.waz.zclient.core.stores.IStoreFactory;
 import com.waz.zclient.ui.text.TypefaceFactory;
 import com.waz.zclient.ui.text.TypefaceLoader;
@@ -58,8 +53,6 @@ public class ZApplication extends WireApplication implements NotificationsHandle
     private CallingEventsHandler callingEventsHandler;
     private TrackingEventsHandler trackingEventsHandler;
 
-    private IControllerFactory controllerFactory;
-    private IStoreFactory storeFactory;
     private TypefaceLoader typefaceloader = new TypefaceLoader() {
 
         private Map<String, Typeface> typefaceMap = new HashMap<>();
@@ -114,8 +107,7 @@ public class ZApplication extends WireApplication implements NotificationsHandle
 
     @Override
     public void onCreate() {
-        BackendConfig backendConfig = BuildConfigUtils.getBackendConfig(this);
-        ZMessaging.useBackend(backendConfig);
+        super.onCreate();
 
         if (com.waz.zclient.BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
@@ -128,11 +120,6 @@ public class ZApplication extends WireApplication implements NotificationsHandle
         AndroidThreeTen.init(this);
         TypefaceFactory.getInstance().init(typefaceloader);
 
-        storeFactory = new ScalaStoreFactory(getApplicationContext());
-        controllerFactory = new DefaultControllerFactory(getApplicationContext());
-
-        storeFactory.getZMessagingApiStore().getAvs().setLogLevel(BuildConfigUtils.getLogLevelAVS(this));
-
         Thread.setDefaultUncaughtExceptionHandler(new WireUncaughtExceptionHandler(getControllerFactory(),
                                                                                    Thread.getDefaultUncaughtExceptionHandler()));
         // refresh
@@ -141,21 +128,13 @@ public class ZApplication extends WireApplication implements NotificationsHandle
         // Register LocalyticsActivityLifecycleCallbacks
         registerActivityLifecycleCallbacks(new LocalyticsActivityLifecycleCallbacks(this));
         Localytics.setPushDisabled(false);
-
-        //TODO put this back to the top - need to reorganise WireApplication
-        super.onCreate();
-    }
-
-    @Override
-    public INotificationsController getNotificationsHandler() {
-        return getControllerFactory().getNotificationsController();
     }
 
     @Override
     public CallingEventsHandler getCallingEventsHandler() {
         if (callingEventsHandler == null) {
             callingEventsHandler = new CallingTrackingEventsHandler(getStoreFactory().getZMessagingApiStore().getApi(),
-                                                                    getStoreFactory().getMediaStore(),
+                                                                    getStoreFactory(),
                                                                     getControllerFactory().getVibratorController(),
                                                                     getControllerFactory().getTrackingController());
         }
@@ -171,22 +150,13 @@ public class ZApplication extends WireApplication implements NotificationsHandle
     }
 
     @Override
-    public void onTerminate() {
-        getControllerFactory().tearDown();
-        getStoreFactory().tearDown();
-        storeFactory = null;
-        controllerFactory = null;
-        super.onTerminate();
-    }
-
-    @Override
     public IStoreFactory getStoreFactory() {
-        return storeFactory;
+        return storeFactory();
     }
 
     @Override
     public IControllerFactory getControllerFactory() {
-        return controllerFactory;
+        return controllerFactory();
     }
 
 }

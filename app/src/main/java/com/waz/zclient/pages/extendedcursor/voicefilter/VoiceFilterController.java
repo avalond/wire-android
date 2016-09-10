@@ -35,7 +35,6 @@ import java.util.List;
 public class VoiceFilterController implements
                                    RecordingCallback,
                                    Asset.LoadCallback<AudioAssetForUpload> {
-    public static final String TAG = VoiceFilterController.class.getSimpleName();
     private static final long UPDATE_PLAY_TIME = 40;
 
     public List<RecordingObserver> recordingObservers = new ArrayList<>();

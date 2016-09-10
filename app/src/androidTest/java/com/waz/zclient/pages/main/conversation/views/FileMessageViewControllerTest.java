@@ -67,17 +67,18 @@ public class FileMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__action_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__close))).check(isVisible());
         onView(withId(R.id.aab__row_conversation__action_button)).perform(click());
+        Thread.sleep(400);
 
         verify(asset.getUploadProgress()).cancel();
     }
 
     @Test
-    public void verifyRetryUpload() {
+    public void verifyRetryUpload() throws InterruptedException {
         Message message = createMockMessage(Message.Status.FAILED);
         User user = createMockUser();
         Asset asset = createMockAsset(AssetStatus.UPLOAD_IN_PROGRESS);
@@ -91,11 +92,12 @@ public class FileMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__action_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__redo))).check(isVisible());
         onView(withId(R.id.aab__row_conversation__action_button)).perform(click());
+        Thread.sleep(400);
 
         verify(message).retry();
     }
@@ -114,7 +116,7 @@ public class FileMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__action_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__close))).check(isVisible()); //best way to check if progress bar is displayed is to check the file placeholder isn't yet shown
@@ -134,7 +136,7 @@ public class FileMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__action_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__close))).check(isVisible()); //best way to check if progress bar is displayed is to check the file placeholder isn't yet shown
@@ -154,7 +156,7 @@ public class FileMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.pdv__row_conversation__file_placeholder_dots)).check(isVisible());
     }
@@ -174,7 +176,7 @@ public class FileMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__action_button)).check(isVisible());
         onView(withId(R.id.aab__row_conversation__action_button)).check(matches(withText(""))); //the `glyph_file` string is actually used as a background...
@@ -196,7 +198,7 @@ public class FileMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         String fileExtension = mimeTypeMap.getExtensionFromMimeType(asset.getMimeType());
@@ -222,7 +224,7 @@ public class FileMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         String label = activity.getString(R.string.content__file__status__uploading__minimized);
 

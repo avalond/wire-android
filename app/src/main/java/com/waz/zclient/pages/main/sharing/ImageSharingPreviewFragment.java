@@ -22,31 +22,24 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.FrameLayout;
 import com.waz.api.IConversation;
 import com.waz.api.ImageAsset;
 import com.waz.api.ImageAssetFactory;
 import com.waz.zclient.R;
-import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.controllers.sharing.SharedContentType;
 import com.waz.zclient.pages.BaseFragment;
-import com.waz.zclient.ui.utils.TextViewUtils;
-import com.waz.zclient.ui.views.ZetaButton;
+import com.waz.zclient.pages.extendedcursor.image.ImagePreviewLayout;
+import com.waz.zclient.utils.TrackingUtils;
 import com.waz.zclient.utils.ViewUtils;
-import com.waz.zclient.views.images.ImageAssetView;
 
 import java.util.List;
 
-public class ImageSharingPreviewFragment extends BaseFragment<ImageSharingPreviewFragment.Container> implements AccentColorObserver {
+public class ImageSharingPreviewFragment extends BaseFragment<ImageSharingPreviewFragment.Container> implements ImagePreviewLayout.Callback  {
 
     public static final String TAG = ImageSharingPreviewFragment.class.getName();
 
-
-    private ImageAssetView previewImageAssetView;
-    private ZetaButton confirmButton;
-    private ZetaButton cancelButton;
-    private TextView previewTitle;
-
+    private FrameLayout imagePreviewContainer;
 
     public static ImageSharingPreviewFragment newInstance() {
         return new ImageSharingPreviewFragment();
@@ -61,28 +54,7 @@ public class ImageSharingPreviewFragment extends BaseFragment<ImageSharingPrevie
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sharing, container, false);
-        previewImageAssetView = ViewUtils.getView(view, R.id.iv__image_sharing__preview);
-        previewTitle = ViewUtils.getView(view, R.id.ttv__image_sharing__title);
-
-        confirmButton = ViewUtils.getView(view, R.id.positive);
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                confirmShareImages();
-            }
-        });
-
-        cancelButton = ViewUtils.getView(view, R.id.negative);
-        cancelButton.setIsFilled(false);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isDetached()) {
-                    return;
-                }
-                getActivity().finish();
-            }
-        });
+        imagePreviewContainer = ViewUtils.getView(view, R.id.fl__preview_container);
         return view;
     }
 
@@ -90,40 +62,6 @@ public class ImageSharingPreviewFragment extends BaseFragment<ImageSharingPrevie
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         showShareImagePreview();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        getControllerFactory().getAccentColorController().addAccentColorObserver(this);
-    }
-
-    @Override
-    public void onStop() {
-        getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroyView() {
-        previewImageAssetView = null;
-        previewTitle = null;
-        confirmButton = null;
-        cancelButton = null;
-        super.onDestroyView();
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  AccentColorObserver
-    //
-    //////////////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void onAccentColorHasChanged(Object sender, int color) {
-        confirmButton.setAccentColor(color);
-        cancelButton.setAccentColor(color);
-        cancelButton.setTextColor(color);
     }
 
     private void showShareImagePreview() {
@@ -139,16 +77,43 @@ public class ImageSharingPreviewFragment extends BaseFragment<ImageSharingPrevie
         switch (sharedContentType) {
             case IMAGE:
                 title = String.format(getString(R.string.sharing__image_preview__title__single),
-                                      currentConversation.getName().toUpperCase(
-                                          getResources().getConfiguration().locale));
+                                      currentConversation.getName().toUpperCase(getResources().getConfiguration().locale));
                 break;
         }
-        previewTitle.setText(title);
-        TextViewUtils.highlightAndBoldText(previewTitle,
-                                           getResources().getColor(R.color.sharing__image_preview__title__color));
 
+        ImagePreviewLayout imagePreview = (ImagePreviewLayout) LayoutInflater.from(getContext()).inflate(
+            R.layout.fragment_cursor_images_preview,
+            imagePreviewContainer,
+            false);
+        imagePreview.showSketch(false);
         ImageAsset imageAsset = ImageAssetFactory.getImageAsset(previewImageUri);
-        previewImageAssetView.setImageAsset(imageAsset);
+        imagePreview.setImageAsset(imageAsset,
+                                   ImagePreviewLayout.Source.CAMERA,
+                                   this);
+        imagePreview.setAccentColor(getControllerFactory().getAccentColorController().getAccentColor().getColor());
+        imagePreview.setTitle(title);
+        imagePreview.hightlightTitle();
+        imagePreview.setTitleIsSingleLine(false);
+
+        imagePreviewContainer.addView(imagePreview);
+    }
+
+    @Override
+    public void onCancelPreview() {
+        if (isDetached()) {
+            return;
+        }
+        getActivity().finish();
+    }
+
+    @Override
+    public void onSketchPictureFromPreview(ImageAsset imageAsset, ImagePreviewLayout.Source source) {
+        // No sketch supported for sharing atm
+    }
+
+    @Override
+    public void onSendPictureFromPreview(ImageAsset imageAsset, ImagePreviewLayout.Source source) {
+        confirmShareImages();
     }
 
     private void confirmShareImages() {
@@ -162,6 +127,8 @@ public class ImageSharingPreviewFragment extends BaseFragment<ImageSharingPrevie
         switch (sharedContentType) {
             case IMAGE:
                 getStoreFactory().getConversationStore().sendMessage(destination, ImageAssetFactory.getImageAsset(sharedImageUris.get(0)));
+                TrackingUtils.onSentPhotoMessageFromSharing(getControllerFactory().getTrackingController(),
+                                                            destination);
                 break;
         }
         getControllerFactory().getSharingController().onContentShared(getActivity(), destination);

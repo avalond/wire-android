@@ -18,10 +18,8 @@
 package com.waz.zclient.controllers.theme;
 
 import android.support.annotation.StyleRes;
-import com.waz.annotations.Controller;
 import com.waz.zclient.ui.theme.OptionsTheme;
 
-@Controller
 public interface IThemeController {
 
     void toggleTheme(boolean fromPreferences);

@@ -22,26 +22,18 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.widget.Toast;
 import com.waz.api.AvsLogLevel;
 import com.waz.api.LogLevel;
 import com.waz.service.BackendConfig;
 import com.waz.zclient.BuildConfig;
 import com.waz.zclient.R;
-import org.json.JSONArray;
-import org.json.JSONException;
 import timber.log.Timber;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class BuildConfigUtils {
 
     public static final String TAG = BuildConfigUtils.class.getName();
-    private static final String CUSTOM_BACKEND_FILE_NAME = "customBackend.json";
 
     public static boolean isHockeyUpdateEnabled() {
         return BuildConfig.USE_HOCKEY_UPDATE && !fileExists("disableHockeyUpdates");
@@ -70,6 +62,9 @@ public class BuildConfigUtils {
     }
 
     public static LogLevel getLogLevelSE(Context context) {
+        if (BuildConfig.LOG_LEVEL_SE == context.getResources().getInteger(R.integer.log_level_supress)) {
+            return LogLevel.SUPPRESS;
+        }
         if (BuildConfig.LOG_LEVEL_SE == context.getResources().getInteger(R.integer.log_level_verbose)) {
             return LogLevel.VERBOSE;
         }
@@ -85,7 +80,8 @@ public class BuildConfigUtils {
         if (BuildConfig.LOG_LEVEL_SE == context.getResources().getInteger(R.integer.log_level_error)) {
             return LogLevel.ERROR;
         }
-        return LogLevel.SUPPRESS;
+        return LogLevel.ASSERT;
+
     }
 
     public static AvsLogLevel getLogLevelAVS(Context context) {
@@ -107,59 +103,13 @@ public class BuildConfigUtils {
         return AvsLogLevel.ERROR;
     }
 
-    public static BackendConfig getBackendConfig(Context context) {
-        if (TestingGalleryUtils.isCustomGalleryInstalled(context.getPackageManager())) {
-            Toast.makeText(context, "Using staging backend with TestingGallery", Toast.LENGTH_LONG).show();
-            return BackendConfig.DevBackend();
-        }
-        BackendConfig backendConfig = getCustomBackendConfig();
-        if (backendConfig != null) {
-            Toast.makeText(context, "Using custom backend " + backendConfig.baseUrl(), Toast.LENGTH_LONG).show();
-            return backendConfig;
-        } else if (BuildConfig.USE_EDGE_BACKEND) {
+    public static BackendConfig defaultBackend() {
+        if (BuildConfig.USE_EDGE_BACKEND) {
             return BackendConfig.EdgeBackend();
         } else if (BuildConfig.USE_STAGING_BACKEND) {
             return BackendConfig.DevBackend();
         } else {
             return BackendConfig.ProdBackend();
         }
-    }
-    
-    private static BackendConfig getCustomBackendConfig() {
-        BackendConfig config = null;
-        try {
-            JSONArray jsonConfig = getCustomBackendConfigFile();
-            if (jsonConfig == null) {
-                return null;
-            }
-            String baseUrl = jsonConfig.getString(0);
-            String pushUrl = jsonConfig.getString(1);
-            String gcmSender = jsonConfig.getString(2);
-            String environment = "prod";
-            try {
-                environment = jsonConfig.getString(3);
-            } catch (JSONException e) {
-                // Environment parameter is optional in json, do not throw exception
-            }
-            config = new BackendConfig(baseUrl, pushUrl, gcmSender, environment);
-        } catch (Throwable t) {
-            Timber.e(t, "Unable to set custom backend");
-        }
-        return config;
-    }
-
-    private static JSONArray getCustomBackendConfigFile() throws IOException, JSONException {
-        File path = Environment.getExternalStorageDirectory();
-        File file = new File(path, CUSTOM_BACKEND_FILE_NAME);
-        if (!file.exists()) {
-            return null;
-        }
-        InputStream stream = new BufferedInputStream(new FileInputStream(file));
-        int size = stream.available();
-        byte[] buffer = new byte[size];
-        stream.read(buffer);
-        stream.close();
-        String rawJson = new String(buffer);
-        return new JSONArray(rawJson);
     }
 }

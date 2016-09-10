@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.waz.api.NetworkMode;
 import com.waz.zclient.R;
 import com.waz.zclient.core.stores.network.NetworkAction;
 import com.waz.zclient.controllers.tracking.screens.RegistrationScreen;
@@ -85,6 +86,8 @@ public class WelcomeEmailFragment extends BaseFragment<WelcomeEmailFragment.Cont
 
         signInZetaButton.setOnClickListener(this);
         createAccountZetaButton.setOnClickListener(this);
+
+        getStoreFactory().getNetworkStore(); // pre-initialize network store, to ensure that internet connection check works on button press
     }
 
     @Override
@@ -118,9 +121,9 @@ public class WelcomeEmailFragment extends BaseFragment<WelcomeEmailFragment.Cont
     }
 
     private void signUpOrSignIn(final boolean signIn) {
-        getStoreFactory().getNetworkStore().doIfNetwork(new NetworkAction() {
+        getStoreFactory().getNetworkStore().doIfHasInternetOrNotifyUser(new NetworkAction() {
             @Override
-            public void execute() {
+            public void execute(NetworkMode networkMode) {
                 if (signIn) {
                     signIn();
                 } else {

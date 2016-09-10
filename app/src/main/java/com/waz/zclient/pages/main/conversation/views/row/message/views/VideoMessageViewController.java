@@ -20,12 +20,9 @@ package com.waz.zclient.pages.main.conversation.views.row.message.views;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.v4.content.ContextCompat;
 import android.text.format.Formatter;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -36,41 +33,41 @@ import com.waz.api.AssetStatus;
 import com.waz.api.ImageAsset;
 import com.waz.api.LoadHandle;
 import com.waz.api.Message;
+import com.waz.api.NetworkMode;
 import com.waz.api.ProgressIndicator;
 import com.waz.zclient.R;
-import com.waz.zclient.controllers.selection.MessageActionModeController;
-import com.waz.zclient.core.controllers.tracking.events.media.PlayedVideoMessageEvent;
+import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
+import com.waz.zclient.controllers.tracking.events.conversation.ReactedToMessageEvent;
+import com.waz.zclient.controllers.userpreferences.IUserPreferencesController;
 import com.waz.zclient.core.api.scala.ModelObserver;
+import com.waz.zclient.core.controllers.tracking.events.media.PlayedVideoMessageEvent;
+import com.waz.zclient.core.stores.network.DefaultNetworkAction;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
-import com.waz.zclient.ui.utils.ColorUtils;
-import com.waz.zclient.ui.views.TouchFilterableFrameLayout;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
 import com.waz.zclient.utils.AssetUtils;
 import com.waz.zclient.utils.StringUtils;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.GlyphProgressView;
+import com.waz.zclient.views.OnDoubleClickListener;
 import timber.log.Timber;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class VideoMessageViewController extends MessageViewController implements View.OnClickListener,
-                                                                                 ImageAsset.BitmapCallback,
-                                                                                 View.OnLongClickListener,
-                                                                                 MessageActionModeController.Selectable {
+public class VideoMessageViewController extends MessageViewController implements ImageAsset.BitmapCallback,
+                                                                                 AccentColorObserver {
 
     private static final String INFO_DIVIDER = " · ";
     private static final int DEFAULT_ASPECT_RATIO_WIDTH = 4;
     private static final int DEFAULT_ASPECT_RATIO_HEIGHT = 3;
 
-    private TouchFilterableFrameLayout view;
+    private View view;
     private ImageView previewImage;
     private GlyphProgressView actionButton;
     private final ProgressDotsView placeHolderDots;
     private TextView videoInfoText;
-    private FrameLayout selectionContainer;
+    private FrameLayout videoPreviewContainer;
 
     private Asset asset;
 
@@ -130,20 +127,54 @@ public class VideoMessageViewController extends MessageViewController implements
         }
     };
 
+    private final OnDoubleClickListener imageOnDoubleClickListener = new OnDoubleClickListener() {
+        @Override
+        public void onDoubleClick() {
+            if (message.isLikedByThisUser()) {
+                message.unlike();
+                messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.unlike(message.getConversation(),
+                                                                                                                           message,
+                                                                                                                           ReactedToMessageEvent.Method.DOUBLE_TAP));
+            } else {
+                message.like();
+                messageViewsContainer.getControllerFactory().getUserPreferencesController().setPerformedAction(IUserPreferencesController.LIKED_MESSAGE);
+                messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.like(message.getConversation(),
+                                                                                                                         message,
+                                                                                                                         ReactedToMessageEvent.Method.DOUBLE_TAP));
+            }
+        }
+
+        @Override
+        public void onSingleClick() {
+            if (footerActionCallback != null) {
+                footerActionCallback.toggleVisibility();
+            }
+        }
+    };
+
+    private final View.OnClickListener actionButtinOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            onActionClick();
+        }
+    };
+
     public VideoMessageViewController(Context context, MessageViewsContainer messageViewContainer) {
         super(context, messageViewContainer);
-        view = (TouchFilterableFrameLayout) View.inflate(context, R.layout.row_conversation_video_message, null);
+        view = View.inflate(context, R.layout.row_conversation_video_message, null);
 
         previewImage = ViewUtils.getView(view, R.id.biv__row_conversation__video_image);
+        previewImage.setOnClickListener(imageOnDoubleClickListener);
+        previewImage.setOnLongClickListener(this);
         actionButton = ViewUtils.getView(view, R.id.gpv__row_conversation__video_button);
         placeHolderDots = ViewUtils.getView(view, R.id.pdv__row_conversation__video_placeholder_dots);
         videoInfoText = ViewUtils.getView(view, R.id.ttv__row_conversation__video_info);
-        selectionContainer = ViewUtils.getView(view, R.id.fl__video_message_container);
+        videoPreviewContainer = ViewUtils.getView(view, R.id.fl__video_message_container);
 
         normalButtonBackground = context.getResources().getDrawable(R.drawable.selector__icon_button__background__video_message);
         errorButtonBackground = context.getResources().getDrawable(R.drawable.selector__icon_button__background__video_message__error);
 
-        actionButton.setOnClickListener(this);
+        actionButton.setOnClickListener(actionButtinOnClickListener);
         actionButton.setProgressColor(messageViewsContainer.getControllerFactory().getAccentColorController().getColor());
         actionButton.setBackground(normalButtonBackground);
     }
@@ -151,7 +182,7 @@ public class VideoMessageViewController extends MessageViewController implements
     @Override
     protected void onSetMessage(Separator separator) {
         messageObserver.setAndUpdate(message);
-        selectionContainer.setOnLongClickListener(this);
+        messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(this);
         if (messageViewsContainer.getControllerFactory().getThemeController().isDarkTheme()) {
             videoInfoText.setTextColor(context.getResources().getColor(R.color.white));
         } else {
@@ -160,13 +191,15 @@ public class VideoMessageViewController extends MessageViewController implements
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 
     @Override
     public void recycle() {
-        selectionContainer.setOnLongClickListener(null);
+        if (!messageViewsContainer.isTornDown()) {
+            messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
+        }
         messageObserver.clear();
         assetObserver.clear();
         progressIndicatorObserver.clear();
@@ -184,7 +217,6 @@ public class VideoMessageViewController extends MessageViewController implements
 
     @Override
     public void onAccentColorHasChanged(Object sender, int color) {
-        super.onAccentColorHasChanged(sender, color);
         actionButton.setProgressColor(color);
     }
 
@@ -264,8 +296,6 @@ public class VideoMessageViewController extends MessageViewController implements
         }
     }
 
-
-
     private void updateViews(String action, Drawable background, ProgressIndicator progressIndicator) {
         placeHolderDots.setVisibility(GONE);
         actionButton.setVisibility(VISIBLE);
@@ -288,8 +318,7 @@ public class VideoMessageViewController extends MessageViewController implements
     }
 
 
-    @Override
-    public void onClick(View v) {
+    private void onActionClick() {
         switch (asset.getStatus()) {
             case UPLOAD_FAILED:
                 if (message.getMessageStatus() != Message.Status.SENT) {
@@ -312,27 +341,29 @@ public class VideoMessageViewController extends MessageViewController implements
                     messageViewsContainer.isTornDown()) {
                     return;
                 }
-                if (messageViewsContainer.getStoreFactory().getNetworkStore().hasInternetConnection()) {
-                    asset.getContentUri(new Asset.LoadCallback<Uri>() {
-                        @Override
-                        public void onLoaded(Uri uri) {
-                            if (messageViewsContainer == null || messageViewsContainer.isTornDown()) {
-                                return;
-                            }
-                            messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(new PlayedVideoMessageEvent(
-                                (int) asset.getDuration().getSeconds(),
-                                !message.getUser().isMe(),
-                                getConversationTypeString()));
-                            final Intent intent = AssetUtils.getOpenFileIntent(uri, asset.getMimeType());
-                            context.startActivity(intent);
-                        }
 
-                        @Override
-                        public void onLoadFailed() {}
-                    });
-                } else {
-                    messageViewsContainer.getStoreFactory().getNetworkStore().notifyNetworkAccessFailed();
-                }
+                messageViewsContainer.getStoreFactory().getNetworkStore().doIfHasInternetOrNotifyUser(new DefaultNetworkAction() {
+                    @Override
+                    public void execute(NetworkMode networkMode) {
+                        asset.getContentUri(new Asset.LoadCallback<Uri>() {
+                            @Override
+                            public void onLoaded(Uri uri) {
+                                if (messageViewsContainer == null || messageViewsContainer.isTornDown()) {
+                                    return;
+                                }
+                                messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(new PlayedVideoMessageEvent(
+                                    (int) asset.getDuration().getSeconds(),
+                                    !message.getUser().isMe(),
+                                    messageViewsContainer.getStoreFactory().getConversationStore().getCurrentConversation()));
+                                final Intent intent = AssetUtils.getOpenFileIntent(uri, asset.getMimeType());
+                                context.startActivity(intent);
+                            }
+
+                            @Override
+                            public void onLoadFailed() {}
+                        });
+                    }
+                });
                 break;
             case DOWNLOAD_DONE:
                 asset.getContentUri(new Asset.LoadCallback<Uri>() {
@@ -344,7 +375,7 @@ public class VideoMessageViewController extends MessageViewController implements
                         messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(new PlayedVideoMessageEvent(
                             (int) asset.getDuration().getSeconds(),
                             !message.getUser().isMe(),
-                            messageViewsContainer.getConversationType().name()));
+                            messageViewsContainer.getStoreFactory().getConversationStore().getCurrentConversation()));
                         final Intent intent = AssetUtils.getOpenFileIntent(uri, asset.getMimeType());
                         context.startActivity(intent);
                     }
@@ -373,11 +404,10 @@ public class VideoMessageViewController extends MessageViewController implements
         layoutParams.width = displayWidth;
         layoutParams.height = finalHeight;
         previewImage.setLayoutParams(layoutParams);
-        layoutParams = selectionContainer.getLayoutParams();
+        layoutParams = videoPreviewContainer.getLayoutParams();
         layoutParams.width = displayWidth;
         layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
-        selectionContainer.setLayoutParams(layoutParams);
-
+        videoPreviewContainer.setLayoutParams(layoutParams);
     }
 
     @Override
@@ -401,35 +431,4 @@ public class VideoMessageViewController extends MessageViewController implements
         // noop
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        if (message == null ||
-            messageViewsContainer == null ||
-            messageViewsContainer.getControllerFactory() == null ||
-            messageViewsContainer.getControllerFactory().isTornDown()) {
-            return false;
-        }
-        messageViewsContainer.getControllerFactory().getMessageActionModeController().selectMessage(message);
-        return true;
-    }
-
-    @Override
-    protected void setSelected(boolean selected) {
-        super.setSelected(selected);
-        if (message == null ||
-            messageViewsContainer == null ||
-            messageViewsContainer.isTornDown() ||
-            getSelectionView() == null) {
-            return;
-        }
-        final int accentColor = messageViewsContainer.getControllerFactory().getAccentColorController().getColor();
-        int targetAccentColor;
-        if (selected) {
-            targetAccentColor = ColorUtils.injectAlpha(selectionAlpha, accentColor);
-        } else {
-            targetAccentColor = ContextCompat.getColor(context, R.color.transparent);
-        }
-        selectionContainer.setForeground(new ColorDrawable(targetAccentColor));
-        selectionContainer.setForegroundGravity(Gravity.FILL);
-    }
 }

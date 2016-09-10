@@ -22,7 +22,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import com.waz.zclient.R;
-import com.waz.zclient.pages.main.profile.camera.manager.CameraDirection;
+import com.waz.zclient.camera.CameraFacing;
 import timber.log.Timber;
 
 import java.util.UUID;
@@ -102,14 +102,14 @@ public class UserPreferencesController implements IUserPreferencesController {
     }
 
     @Override
-    public void setRecentCameraDirection(CameraDirection cameraDirection) {
-        userPreferences.edit().putInt(USER_PREFS_RECENT_CAMERA_DIRECTION, cameraDirection.id).apply();
+    public void setRecentCameraDirection(CameraFacing cameraFacing) {
+        userPreferences.edit().putInt(USER_PREFS_RECENT_CAMERA_DIRECTION, cameraFacing.facing).apply();
     }
 
     @Override
-    public CameraDirection getRecentCameraDirection() {
-        return CameraDirection.getDirection(userPreferences.getInt(USER_PREFS_RECENT_CAMERA_DIRECTION,
-                                                                   CameraDirection.BACK_FACING.id));
+    public CameraFacing getRecentCameraDirection() {
+        return CameraFacing.getFacing(userPreferences.getInt(USER_PREFS_RECENT_CAMERA_DIRECTION,
+                                                             CameraFacing.BACK.facing));
     }
 
     @Override

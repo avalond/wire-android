@@ -23,6 +23,7 @@ import _root_.com.waz.RobolectricUtils
 import _root_.com.waz.testutils.TestWireContext
 import android.app.Activity
 import android.content.Context
+import com.waz.zclient.common.controllers._
 import junit.framework.Assert.{assertFalse, assertTrue}
 import org.junit.runner.RunWith
 import org.junit.{Before, Test}
@@ -61,36 +62,36 @@ class PermissionsControllerTest extends JUnitSuite with RobolectricUtils with In
 
   @Test
   def alreadyGrantedPermissionShouldPerformOnGranted(): Unit = {
-    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(Camera.name))).thenReturn(true)
+    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(CameraPermission.name))).thenReturn(true)
     var permGranted = false
-    Await.ready(controller.requiring(Set(Camera))((permGranted = true))(_ => permGranted = false), Duration(1000, TimeUnit.MILLISECONDS))
+    Await.ready(controller.requiring(Set(CameraPermission))((permGranted = true))(-1, -1, (permGranted = false)), Duration(1000, TimeUnit.MILLISECONDS))
     assertTrue(permGranted)
   }
 
   @Test
   def notGrantedPermissionShouldRequestPermission(): Unit = {
-    val permissions = Set[Permission](Camera)
-    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(Camera.name))).thenReturn(false)
-    controller.requiring(permissions) {} { _ => }
+    val permissions = Set[Permission](CameraPermission)
+    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(CameraPermission.name))).thenReturn(false)
+    controller.requiring(permissions) {} (-1, -1, ())
     verify(mockPermissionsWrapper).requestPermissions(activity, permissions, PermissionsController.startingRequestCode)
   }
 
   @Test
   def requestMultiplePermissionsAtOnce(): Unit = {
-    val permissions = Set[Permission](Camera, RecordAudio)
-    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(Camera.name))).thenReturn(false)
-    controller.requiring(permissions) {} { _ => }
+    val permissions = Set[Permission](CameraPermission, RecordAudioPermission)
+    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(CameraPermission.name))).thenReturn(false)
+    controller.requiring(permissions) {} (-1, -1, ())
     verify(mockPermissionsWrapper).requestPermissions(activity, permissions, PermissionsController.startingRequestCode)
   }
 
   @Test
   def onPermissionGrantedByUserPerformOnGranted(): Unit = {
-    val permissions = Set[Permission](Camera)
-    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(Camera.name))).thenReturn(false)
+    val permissions = Set[Permission](CameraPermission)
+    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(CameraPermission.name))).thenReturn(false)
     var permGranted = false
-    val future = controller.requiring(permissions)((permGranted = true))(_ => permGranted = false)
+    val future = controller.requiring(permissions)((permGranted = true))(-1, -1, (permGranted = false))
     //user grants permission
-    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(Camera.name))).thenReturn(true)
+    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(CameraPermission.name))).thenReturn(true)
     activity.onRequestPermissionsResult(PermissionsController.startingRequestCode, permissions.map(_.name).toArray, Array(1))
 
     awaitUiFuture(future)
@@ -100,18 +101,18 @@ class PermissionsControllerTest extends JUnitSuite with RobolectricUtils with In
 
   @Test
   def multiplePermissionRequestsInSeriesRemainDistinctRequests(): Unit = {
-    val permissions1 = Set[Permission](Camera)
-    val permissions2 = Set[Permission](RecordAudio)
+    val permissions1 = Set[Permission](CameraPermission)
+    val permissions2 = Set[Permission](RecordAudioPermission)
 
     when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), any(classOf[String]))).thenReturn(false)
     var perm1Granted = false
-    val future1 = controller.requiring(permissions1)((perm1Granted = true))(_ => perm1Granted = false)
+    val future1 = controller.requiring(permissions1)((perm1Granted = true))(-1, -1, (perm1Granted = false))
 
     var perm2Granted = false
-    val future2 = controller.requiring(permissions2)((perm2Granted = true))(_ => perm2Granted = false)
+    val future2 = controller.requiring(permissions2)((perm2Granted = true))(-1, -1, (perm2Granted = false))
 
     //user grants permission1
-    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(Camera.name))).thenReturn(true)
+    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(CameraPermission.name))).thenReturn(true)
     activity.onRequestPermissionsResult(PermissionsController.startingRequestCode, permissions1.map(_.name).toArray, Array(1))
 
     awaitUiFuture(future1)
@@ -120,7 +121,7 @@ class PermissionsControllerTest extends JUnitSuite with RobolectricUtils with In
     assertFalse(perm2Granted)
 
     //user grants permission2
-    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(RecordAudio.name))).thenReturn(true)
+    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(RecordAudioPermission.name))).thenReturn(true)
     activity.onRequestPermissionsResult(PermissionsController.startingRequestCode + 1, permissions2.map(_.name).toArray, Array(1))
 
     awaitUiFuture(future2)
@@ -131,13 +132,13 @@ class PermissionsControllerTest extends JUnitSuite with RobolectricUtils with In
 
   @Test(expected = classOf[TimeoutException])
   def incomingResultFromAnotherRequesterDoesNotInterfere(): Unit = {
-    val permissions = Set[Permission](Camera)
-    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(Camera.name))).thenReturn(false)
+    val permissions = Set[Permission](CameraPermission)
+    when(mockPermissionsWrapper.checkSelfPermission(any(classOf[Context]), same(CameraPermission.name))).thenReturn(false)
     var permGranted = false
-    val future = controller.requiring(permissions)((permGranted = true))(_ => permGranted = false)
+    val future = controller.requiring(permissions)((permGranted = true))(-1, -1, (permGranted = false))
 
     //Some other request is granted from a different place in the app
-    activity.onRequestPermissionsResult(1945, Array(RecordAudio.name), Array(1))
+    activity.onRequestPermissionsResult(1945, Array(RecordAudioPermission.name), Array(1))
 
     //give some time to allow the EventStream to fire
     awaitUiFuture(future)(Duration(200, TimeUnit.MILLISECONDS))

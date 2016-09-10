@@ -17,7 +17,7 @@
  */
 package com.waz.zclient;
 
-import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -42,22 +42,26 @@ import com.waz.api.CommonConnections;
 import com.waz.api.ConversationsList;
 import com.waz.api.IConversation;
 import com.waz.api.MessagesList;
+import com.waz.api.NetworkMode;
 import com.waz.api.Self;
 import com.waz.api.SyncState;
 import com.waz.api.User;
 import com.waz.api.Verification;
 import com.waz.api.VoiceChannel;
+import com.waz.model.ConvId;
+import com.waz.zclient.calling.CallingActivity;
+import com.waz.zclient.calling.controllers.CallPermissionsController;
 import com.waz.zclient.controllers.accentcolor.AccentColorChangeRequester;
 import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.controllers.calling.CallingObserver;
 import com.waz.zclient.controllers.navigation.NavigationControllerObserver;
 import com.waz.zclient.controllers.navigation.Page;
-import com.waz.zclient.controllers.notifications.NotificationsController;
 import com.waz.zclient.controllers.tracking.events.connect.AcceptedGenericInviteEvent;
 import com.waz.zclient.controllers.tracking.events.exception.ExceptionEvent;
 import com.waz.zclient.controllers.tracking.events.otr.VerifiedConversationEvent;
 import com.waz.zclient.controllers.tracking.events.profile.SignOut;
 import com.waz.zclient.controllers.tracking.screens.ApplicationScreen;
+import com.waz.zclient.controllers.userpreferences.UserPreferencesController;
 import com.waz.zclient.core.api.scala.AppEntryStore;
 import com.waz.zclient.core.controllers.tracking.attributes.RangedAttribute;
 import com.waz.zclient.core.controllers.tracking.events.Event;
@@ -68,6 +72,7 @@ import com.waz.zclient.core.stores.connect.ConnectStoreObserver;
 import com.waz.zclient.core.stores.connect.IConnectStore;
 import com.waz.zclient.core.stores.conversation.ConversationChangeRequester;
 import com.waz.zclient.core.stores.conversation.ConversationStoreObserver;
+import com.waz.zclient.core.stores.network.NetworkAction;
 import com.waz.zclient.core.stores.profile.ProfileStoreObserver;
 import com.waz.zclient.pages.main.MainPhoneFragment;
 import com.waz.zclient.pages.main.MainTabletFragment;
@@ -82,6 +87,7 @@ import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.PhoneUtils;
 import com.waz.zclient.utils.PhoneUtils.PhoneState;
 import com.waz.zclient.utils.ViewUtils;
+import net.hockeyapp.android.NativeCrashManager;
 import timber.log.Timber;
 
 import java.util.List;
@@ -200,11 +206,13 @@ public class MainActivity extends BaseActivity implements MainPhoneFragment.Cont
         getControllerFactory().getNavigationController().addNavigationControllerObserver(this);
         getControllerFactory().getCallingController().addCallingObserver(this);
         getStoreFactory().getConversationStore().addConversationStoreObserver(this);
-        dismissAndroidNotifications();
         handleInvite();
         handleReferral();
 
         super.onStart();
+
+        //This is needed to drag the user back to the calling activity if they open the app again during a call
+        CallingActivity.startIfCallIsActive(this);
     }
 
     @Override
@@ -212,9 +220,17 @@ public class MainActivity extends BaseActivity implements MainPhoneFragment.Cont
         Timber.i("onResume");
         super.onResume();
         verifyGooglePlayServicesStatus();
-        HockeyCrashReporting.checkForCrashes(getApplicationContext(),
-                                             getControllerFactory().getUserPreferencesController().getDeviceId(),
-                                             getControllerFactory().getTrackingController());
+        final boolean trackingEnabled = getSharedPreferences(UserPreferencesController.USER_PREFS_TAG, Context.MODE_PRIVATE)
+            .getBoolean(getString(R.string.pref_advanced_analytics_enabled_key), true);
+
+        if (trackingEnabled) {
+            HockeyCrashReporting.checkForCrashes(getApplicationContext(),
+                                                 getControllerFactory().getUserPreferencesController().getDeviceId(),
+                                                 getControllerFactory().getTrackingController());
+        } else {
+            HockeyCrashReporting.deleteCrashReports(getApplicationContext());
+            NativeCrashManager.deleteDumpFiles(getApplicationContext());
+        }
         getControllerFactory().getTrackingController().appResumed();
         Localytics.setInAppMessageDisplayActivity(this);
         Localytics.handleTestMode(getIntent());
@@ -355,16 +371,9 @@ public class MainActivity extends BaseActivity implements MainPhoneFragment.Cont
         getControllerFactory().getNavigationController().setIsLandscape(ViewUtils.isInLandscape(this));
     }
 
-    private void dismissAndroidNotifications() {
-        ((NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE)).cancel(
-            NotificationsController.ZETA_MESSAGE_NOTIFICATION_ID);
-    }
-
     private void verifyGooglePlayServicesStatus() {
         int deviceGooglePlayServicesState = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
-        if (deviceGooglePlayServicesState == ConnectionResult.SERVICE_MISSING ||
-            deviceGooglePlayServicesState == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED ||
-            deviceGooglePlayServicesState == ConnectionResult.SERVICE_DISABLED) {
+        if (deviceGooglePlayServicesState == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
             GooglePlayServicesUtil.getErrorDialog(deviceGooglePlayServicesState,
                                                   this,
                                                   REQUEST_CODE_GOOGLE_PLAY_SERVICES_DIALOG)
@@ -749,35 +758,12 @@ public class MainActivity extends BaseActivity implements MainPhoneFragment.Cont
     }
 
     private void handleOnStartCall(final boolean withVideo) {
-
-        if (!getStoreFactory().getNetworkStore().hasInternetConnection()) {
-            cannotStartNoInternet();
-        } else if (PhoneUtils.getPhoneState(this) == PhoneState.IDLE && getActiveVoiceChannels().hasOngoingCall()) {
+        if (PhoneUtils.getPhoneState(this) == PhoneState.IDLE && getActiveVoiceChannels().hasOngoingCall()) {
             cannotStartAlreadyHaveVoiceActive(withVideo);
         } else if (PhoneUtils.getPhoneState(this) != PhoneState.IDLE) {
             cannotStartGSM();
-        } else if (withVideo && !getStoreFactory().getNetworkStore().hasInternetConnectionWith3GAndHigher()) {
-            // Show alert about slow connection but still allow user to place a video call
-            ViewUtils.showAlertDialog(this,
-                                      R.string.calling__slow_connection__title,
-                                      R.string.calling__video_call__slow_connection__message,
-                                      R.string.calling__slow_connection__button,
-                                      new DialogInterface.OnClickListener() {
-                                          @Override
-                                          public void onClick(DialogInterface dialogInterface, int i) {
-                                              startCall(true);
-                                          }
-                                      },
-                                      true);
-        } else if (!getStoreFactory().getNetworkStore().hasInternetConnectionWith2GAndHigher()) {
-            ViewUtils.showAlertDialog(this,
-                                      R.string.calling__slow_connection__title,
-                                      R.string.calling__slow_connection__message,
-                                      R.string.calling__slow_connection__button,
-                                      null,
-                                      true);
         } else {
-            startCall(withVideo);
+            startCallIfInternet(withVideo);
         }
     }
 
@@ -800,7 +786,7 @@ public class MainActivity extends BaseActivity implements MainPhoneFragment.Cont
                                       true);
             return;
         }
-        startCall(voiceChannel.getConversation().getId(), withVideo);
+        injectJava(CallPermissionsController.class).startCall(new ConvId(voiceChannel.getConversation().getId()), withVideo);
     }
 
 
@@ -855,17 +841,55 @@ public class MainActivity extends BaseActivity implements MainPhoneFragment.Cont
                                   true);
     }
 
-    private void cannotStartNoInternet() {
-        getStoreFactory().getNetworkStore().notifyNetworkAccessFailed();
-        ViewUtils.showAlertDialog(this,
-                                  R.string.alert_dialog__no_network__header,
-                                  R.string.calling__call_drop__message,
-                                  R.string.alert_dialog__confirmation,
-                                  new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                      }
-                                  }, false);
+    private void startCallIfInternet(final boolean withVideo) {
+        getStoreFactory().getNetworkStore().doIfHasInternetOrNotifyUser(new NetworkAction() {
+            @Override
+            public void execute(NetworkMode networkMode) {
+                switch (networkMode) {
+                    case _2G:
+                        ViewUtils.showAlertDialog(MainActivity.this,
+                                                  R.string.calling__slow_connection__title,
+                                                  R.string.calling__slow_connection__message,
+                                                  R.string.calling__slow_connection__button,
+                                                  null,
+                                                  true);
+                        break;
+                    case EDGE:
+                        if (withVideo) {
+                            ViewUtils.showAlertDialog(MainActivity.this,
+                                                      R.string.calling__slow_connection__title,
+                                                      R.string.calling__video_call__slow_connection__message,
+                                                      R.string.calling__slow_connection__button,
+                                                      new DialogInterface.OnClickListener() {
+                                                          @Override
+                                                          public void onClick(DialogInterface dialogInterface, int i) {
+                                                              startCall(true);
+                                                          }
+                                                      },
+                                                      true);
+                            break;
+                        }
+                    case _3G:
+                    case _4G:
+                    case WIFI:
+                        startCall(withVideo);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNoNetwork() {
+                ViewUtils.showAlertDialog(MainActivity.this,
+                                          R.string.alert_dialog__no_network__header,
+                                          R.string.calling__call_drop__message,
+                                          R.string.alert_dialog__confirmation,
+                                          new DialogInterface.OnClickListener() {
+                                              @Override
+                                              public void onClick(DialogInterface dialog, int which) {
+                                              }
+                                          }, false);
+            }
+        });
     }
 
     @Override

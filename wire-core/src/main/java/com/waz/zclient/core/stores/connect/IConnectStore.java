@@ -17,14 +17,12 @@
  */
 package com.waz.zclient.core.stores.connect;
 
-import com.waz.annotations.Store;
 import com.waz.api.CommonConnections;
 import com.waz.api.IConversation;
 import com.waz.api.Invitations;
 import com.waz.api.User;
 import com.waz.zclient.core.stores.IStore;
 
-@Store
 public interface IConnectStore extends IStore {
 
     enum UserRequester {

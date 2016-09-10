@@ -18,9 +18,7 @@
 package com.waz.zclient.controllers.confirmation;
 
 import android.support.annotation.IntDef;
-import com.waz.annotations.Controller;
 
-@Controller
 public interface IConfirmationController {
 
     @IntDef({BLOCK_PENDING,

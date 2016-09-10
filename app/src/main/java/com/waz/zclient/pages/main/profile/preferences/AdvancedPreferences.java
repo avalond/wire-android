@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.preference.Preference;
+import com.localytics.android.Localytics;
 import com.waz.zclient.BuildConfig;
 import com.waz.zclient.R;
 import com.waz.zclient.controllers.tracking.ITrackingController;
@@ -81,6 +82,7 @@ public class AdvancedPreferences extends BasePreferenceFragment<AdvancedPreferen
             boolean enableTracking = sharedPreferences.getBoolean(key, false);
             if (enableTracking) {
                 event = new OptIn();
+                Localytics.setOptedOut(false);
             } else {
                 // To force disable the tracking controller and flush the current queue
                 getControllerFactory().getTrackingController();
@@ -95,6 +97,7 @@ public class AdvancedPreferences extends BasePreferenceFragment<AdvancedPreferen
                 trackingController.setActivity(getActivity());
                 trackingController.tagEvent(new OptOut());
                 trackingController.tearDown();
+                Localytics.setOptedOut(true);
             }
         }
         return event;

@@ -21,7 +21,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -32,9 +34,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.waz.api.IConversation;
+import com.waz.api.Message;
+import com.waz.api.MessageContent;
 import com.waz.zclient.ui.R;
 import com.waz.zclient.ui.animation.interpolators.penner.Expo;
 import com.waz.zclient.ui.animation.interpolators.penner.Quart;
@@ -44,10 +48,11 @@ import com.waz.zclient.utils.ViewUtils;
 import java.util.Arrays;
 import java.util.List;
 
-public class CursorLayout extends LinearLayout implements
+public class CursorLayout extends FrameLayout implements
                                                TextView.OnEditorActionListener,
                                                TextWatcher,
                                                CursorToolbar.Callback,
+                                               EditMessageCursorToolbar.Callback,
                                                View.OnClickListener {
     private static final long TOOLTIP_DURATION = 1500;
 
@@ -63,8 +68,9 @@ public class CursorLayout extends LinearLayout implements
                                                                              CursorMenuItem.DUMMY,
                                                                              CursorMenuItem.DUMMY,
                                                                              CursorMenuItem.DUMMY,
-                                                                             CursorMenuItem.MORE);
+                                                                             CursorMenuItem.LESS);
 
+    private View editMessageBackgroundView;
     private TypingIndicatorContainer typingIndicatorContainer;
     private CursorToolbarFrame cursorToolbarFrame;
     private CursorEditText newCursorEditText;
@@ -72,13 +78,16 @@ public class CursorLayout extends LinearLayout implements
     private View giphyButton;
     private CursorToolbar mainToolbar;
     private CursorToolbar secondaryToolbar;
+    private EditMessageCursorToolbar editMessageCursorToolbar;
     private View topBorder;
     private TextView tooltip;
     private TextView hintView;
+    private View dividerView;
 
     private CursorCallback cursorCallback;
     private boolean giphyEnabled;
     private boolean tooltipEnabled;
+    private boolean isEditingMessage;
     private int anchorPositionPx2;
     private int maxLines = 2;
     private boolean keyboardIsVisible;
@@ -88,6 +97,11 @@ public class CursorLayout extends LinearLayout implements
     private ObjectAnimator showSecondaryToolbarAnimator;
     private ObjectAnimator hideMainToolbarAnimator;
     private ObjectAnimator hideSecondaryToolbarAnimator;
+    private ObjectAnimator showEditMessageToolbarAnimator;
+    private ObjectAnimator hideEditMessageToolbarAnimator;
+    private Message message;
+    private int defaultEditTextColor;
+    private int defaultDividerColor;
 
     public CursorLayout(Context context) {
         this(context, null);
@@ -139,6 +153,7 @@ public class CursorLayout extends LinearLayout implements
     protected void onFinishInflate() {
         super.onFinishInflate();
 
+        editMessageBackgroundView = ViewUtils.getView(this, R.id.fl__edit_message__background);
         typingIndicatorContainer = ViewUtils.getView(this, R.id.tic__cursor);
         cursorToolbarFrame = ViewUtils.getView(this, R.id.cal__cursor);
         newCursorEditText = ViewUtils.getView(this, R.id.cet__cursor);
@@ -146,12 +161,16 @@ public class CursorLayout extends LinearLayout implements
         shieldViewWithBanner = ViewUtils.getView(this, R.id.svwb);
         mainToolbar = ViewUtils.getView(this, R.id.c__cursor__main);
         secondaryToolbar = ViewUtils.getView(this, R.id.c__cursor__secondary);
+        editMessageCursorToolbar = ViewUtils.getView(this, R.id.emct__edit_message__toolbar);
         topBorder = ViewUtils.getView(this, R.id.v__top_bar__cursor);
         tooltip = ViewUtils.getView(this, R.id.ctv__cursor);
         hintView = ViewUtils.getView(this, R.id.ttv__cursor_hint);
+        dividerView = ViewUtils.getView(this, R.id.v__cursor__divider);
 
         mainToolbar.setCursorItems(mainCursorItems);
         secondaryToolbar.setCursorItems(secondaryCursorItems);
+        editMessageCursorToolbar.setVisibility(GONE);
+        editMessageCursorToolbar.setCallback(this);
 
         cursorHeight = getResources().getDimensionPixelSize(R.dimen.new_cursor_height);
         secondaryToolbar.setTranslationY(2 * cursorHeight);
@@ -159,7 +178,11 @@ public class CursorLayout extends LinearLayout implements
         tooltip.setVisibility(View.GONE);
         connectEditText();
         giphyButton.setVisibility(View.INVISIBLE);
+        editMessageBackgroundView.setVisibility(GONE);
 
+        defaultEditTextColor = newCursorEditText.getCurrentTextColor();
+        ColorDrawable dividerBg = (ColorDrawable) dividerView.getBackground();
+        defaultDividerColor = dividerBg.getColor();
     }
 
     public void setCursorCallback(CursorCallback cursorCallback) {
@@ -170,6 +193,7 @@ public class CursorLayout extends LinearLayout implements
 
     public void setAccentColor(int accentColor) {
         newCursorEditText.setAccentColor(accentColor);
+        mainToolbar.setAccentColor(accentColor);
     }
 
     private void connectEditText() {
@@ -204,6 +228,16 @@ public class CursorLayout extends LinearLayout implements
      */
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        if (isEditingMessage()) {
+            if (message == null) {
+                return;
+            }
+            boolean enableControls = !TextUtils.equals(newCursorEditText.getText(), message.getBody());
+            hintView.setVisibility(View.GONE);
+            editMessageCursorToolbar.enableEditControls(enableControls);
+            return;
+        }
+
         String text = charSequence.toString();
         if (cursorCallback != null) {
             cursorCallback.onEditTextHasChanged(newCursorEditText.getSelectionStart(), text);
@@ -232,6 +266,12 @@ public class CursorLayout extends LinearLayout implements
     public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEND ||
                 (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
+
+            if (isEditingMessage()) {
+                onApproveEditMessage();
+                return true;
+            }
+
             String sendText = textView.getText().toString();
             if (TextUtils.isEmpty(sendText)) {
                 return false;
@@ -250,6 +290,9 @@ public class CursorLayout extends LinearLayout implements
         }
         giphyEnabled = enable;
         if (enable) {
+            if (isEditingMessage()) {
+                return;
+            }
             int duration = getResources().getInteger(R.integer.animation_duration_medium);
             giphyButton.setVisibility(View.VISIBLE);
             giphyButton.setAlpha(0);
@@ -340,10 +383,8 @@ public class CursorLayout extends LinearLayout implements
     public void setConversation(IConversation conversation) {
         shieldViewWithBanner.setConversation(conversation);
         enableMessageWriting();
-        mainToolbar.setTranslationY(0);
-        mainToolbar.setVisibility(VISIBLE);
-        secondaryToolbar.setTranslationY(2 * cursorHeight);
-        secondaryToolbar.setVisibility(GONE);
+        resetMainAndSecondaryToolbars();
+        closeEditMessage(false);
     }
 
     @Override
@@ -355,12 +396,9 @@ public class CursorLayout extends LinearLayout implements
             cursorCallback.onCursorButtonClicked(item);
         }
         if (item == CursorMenuItem.MORE) {
-            if (mainToolbar.getVisibility() == VISIBLE) {
-                showSecondaryCursorToolbar();
-            } else {
-                hideSecondaryCursorToolbar();
-            }
-
+            showSecondaryCursorToolbar();
+        } else if (item == CursorMenuItem.LESS) {
+            hideSecondaryCursorToolbar();
         }
     }
 
@@ -427,6 +465,83 @@ public class CursorLayout extends LinearLayout implements
         }, TOOLTIP_DURATION);
     }
 
+    @Override
+    public void onCloseEditMessage() {
+        closeEditMessage(true);
+    }
+
+    @Override
+    public void onResetEditMessage() {
+        if (message == null) {
+            return;
+        }
+        newCursorEditText.setText(message.getBody());
+        newCursorEditText.setSelection(newCursorEditText.getText().length());
+    }
+
+    @Override
+    public void onApproveEditMessage() {
+        if (TextUtils.isEmpty(newCursorEditText.getText().toString().trim())) {
+            message.recall();
+            Toast.makeText(getContext(), R.string.conversation__message_action__delete__confirmation, Toast.LENGTH_SHORT).show();
+        } else {
+            message.update(new MessageContent.Text(newCursorEditText.getText().toString()));
+        }
+
+        if (cursorCallback != null) {
+            cursorCallback.onApprovedMessageEditing(message);
+        }
+        closeEditMessage(true);
+    }
+
+    public boolean isEditingMessage() {
+        return isEditingMessage;
+    }
+
+    public void editMessage(Message message) {
+        isEditingMessage = true;
+        this.message = message;
+        newCursorEditText.setText(message.getBody());
+        newCursorEditText.setSelection(newCursorEditText.getText().length());
+
+        if (giphyEnabled) {
+            enableGiphyButton(false);
+        }
+        setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
+        ViewUtils.fadeInView(editMessageBackgroundView);
+        newCursorEditText.setTextColor(ContextCompat.getColor(getContext(), R.color.text__primary_light));
+        dividerView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.separator_light));
+
+        showEditMessageToolbar();
+    }
+
+    public void closeEditMessage(boolean animated) {
+        if (!isEditingMessage) {
+            return;
+        }
+        message = null;
+        newCursorEditText.setText("");
+        hintView.setVisibility(VISIBLE);
+        isEditingMessage = false;
+
+        if (animated) {
+            hideEditMessageToolbar();
+            ViewUtils.fadeOutView(editMessageBackgroundView);
+        } else {
+            editMessageCursorToolbar.setVisibility(GONE);
+            editMessageBackgroundView.setVisibility(GONE);
+            resetMainAndSecondaryToolbars();
+        }
+
+        setBackgroundColor(ContextCompat.getColor(getContext(), R.color.transparent));
+        newCursorEditText.setTextColor(defaultEditTextColor);
+        dividerView.setBackgroundColor(defaultDividerColor);
+
+        if (cursorCallback != null) {
+            cursorCallback.onClosedMessageEditing();
+        }
+    }
+
     private void dismissToolbar() {
         if (!tooltipEnabled) {
             return;
@@ -444,6 +559,41 @@ public class CursorLayout extends LinearLayout implements
                 });
     }
 
+    private void hideEditMessageToolbar() {
+        if (showMainToolbarAnimator == null) {
+            showMainToolbarAnimator = getShowToolbarAnimator(mainToolbar, -cursorHeight, 0);
+        }
+
+        if (hideEditMessageToolbarAnimator == null) {
+            hideEditMessageToolbarAnimator = getHideToolbarAnimator(editMessageCursorToolbar, 0, 2 * cursorHeight);
+        }
+
+        mainToolbar.setVisibility(VISIBLE);
+        showMainToolbarAnimator.start();
+        hideEditMessageToolbarAnimator.start();
+    }
+
+    private void showEditMessageToolbar() {
+        ObjectAnimator hideAnimator;
+        if (mainToolbar.getVisibility() == VISIBLE) {
+            if (hideMainToolbarAnimator == null) {
+                hideMainToolbarAnimator = getHideToolbarAnimator(mainToolbar, 0, -cursorHeight);
+            }
+            hideAnimator = hideMainToolbarAnimator;
+        } else {
+            if (hideSecondaryToolbarAnimator == null) {
+                hideSecondaryToolbarAnimator = getHideToolbarAnimator(secondaryToolbar, 0, 2 * cursorHeight);
+            }
+            hideAnimator = hideSecondaryToolbarAnimator;
+        }
+
+        if (showEditMessageToolbarAnimator == null) {
+            showEditMessageToolbarAnimator = getShowToolbarAnimator(editMessageCursorToolbar, 2 * cursorHeight, 0);
+        }
+        editMessageCursorToolbar.setVisibility(VISIBLE);
+        hideAnimator.start();
+        showEditMessageToolbarAnimator.start();
+    }
 
     private void showSecondaryCursorToolbar() {
         if (hideMainToolbarAnimator == null) {
@@ -476,6 +626,7 @@ public class CursorLayout extends LinearLayout implements
     private ObjectAnimator getShowToolbarAnimator(View view, float fromValue, float toValue) {
         ObjectAnimator animator = ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, fromValue, toValue);
         animator.setDuration(cursorToolbarAnimationDuration);
+        animator.setStartDelay(getResources().getInteger(R.integer.animation_delay_short));
         animator.setInterpolator(new Expo.EaseOut());
         return animator;
     }
@@ -483,7 +634,7 @@ public class CursorLayout extends LinearLayout implements
     private ObjectAnimator getHideToolbarAnimator(final View view, float fromValue, float toValue) {
         ObjectAnimator animator = ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, fromValue, toValue);
         animator.setDuration(cursorToolbarAnimationDuration);
-        animator.setInterpolator(new Expo.EaseOut());
+        animator.setInterpolator(new Expo.EaseIn());
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationCancel(Animator animation) {
@@ -515,5 +666,16 @@ public class CursorLayout extends LinearLayout implements
         } else {
             topBorder.setVisibility(View.INVISIBLE);
         }
+    }
+
+    public void onExtendedCursorClosed() {
+        mainToolbar.unselectItems();
+    }
+
+    private void resetMainAndSecondaryToolbars() {
+        mainToolbar.setTranslationY(0);
+        mainToolbar.setVisibility(VISIBLE);
+        secondaryToolbar.setTranslationY(2 * cursorHeight);
+        secondaryToolbar.setVisibility(GONE);
     }
 }

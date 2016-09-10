@@ -32,7 +32,9 @@ import com.waz.service.call.{FlowManagerService, VoiceChannelContent, VoiceChann
 import com.waz.testutils.TestUtils.{PrintSignalVals, signalTest}
 import com.waz.testutils.{MockZMessaging, TestWireContext}
 import com.waz.utils.events.Signal
-import com.waz.zclient.{GlobalCallingController, Module, PermissionsController, R}
+import com.waz.zclient.calling.controllers.{GlobalCallingController, CurrentCallController}
+import com.waz.zclient.common.controllers.PermissionsController
+import com.waz.zclient.{Module, R}
 import org.junit.runner.RunWith
 import org.junit.{Before, Test}
 import org.mockito.Matchers.{any, anyInt}
@@ -62,6 +64,7 @@ class CurrentCallControllerTest extends JUnitSuite {
   lazy val mockTopChannels = Signal[(Option[VoiceChannelData], Option[VoiceChannelData])]
   lazy val currentChannelSignal = Signal[VoiceChannelData]
   lazy val stateOfReceivedVideo = Signal[StateOfReceivedVideo](UnknownState)
+  lazy val cameraFailed = Signal[Boolean](false)
 
   lazy val selfUser = UserData("Self user")
   lazy val user2 = UserData("User 2")
@@ -97,6 +100,7 @@ class CurrentCallControllerTest extends JUnitSuite {
     when(zMessaging.voiceContent.ongoingAndTopIncomingChannel).thenReturn(mockTopChannels)
     when(zMessaging.voice.voiceChannelSignal(any(classOf[ConvId]))).thenReturn(currentChannelSignal)
     when(zMessaging.flowmanager.stateOfReceivedVideo).thenReturn(stateOfReceivedVideo)
+    when(zMessaging.flowmanager.cameraFailedSig).thenReturn(cameraFailed)
 
     setTablet(false)
     controller = new CurrentCallController()
@@ -212,6 +216,16 @@ class CurrentCallControllerTest extends JUnitSuite {
     signalTest(controller.stateMessageText)(_.getOrElse("") equals (expectedMessage)) {
       pushChannel(OngoingVideoCall(oneToOneConv))
       stateOfReceivedVideo ! StateAndReason(AvsVideoState.STOPPED, AvsVideoReason.BAD_CONNECTION)
+    }
+  }
+
+  @Test
+  def failingCameraOnOutgoingCallShouldShowCameraFailedMessage(): Unit = {
+    val expectedMessage = s"CAMERA NOT AVAILABLE"
+    when(context.getString(R.string.calling__self_preview_unavailable_long)).thenReturn(expectedMessage)
+    signalTest(controller.stateMessageText)(_.getOrElse("") equals (expectedMessage)) {
+      pushChannel(OutgoingVideoCall(oneToOneConv))
+      cameraFailed ! true
     }
   }
 

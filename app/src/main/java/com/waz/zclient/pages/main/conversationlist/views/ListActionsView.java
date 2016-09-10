@@ -25,6 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.waz.zclient.R;
 import com.waz.zclient.ui.text.GlyphTextView;
+import com.waz.zclient.ui.views.CircleView;
 import com.waz.zclient.ui.views.FilledCircularBackgroundDrawable;
 import com.waz.zclient.utils.ViewUtils;
 
@@ -32,6 +33,7 @@ public class ListActionsView extends FrameLayout implements View.OnClickListener
 
     private GlyphTextView avatar;
     private GlyphTextView settings;
+    private CircleView indicatorDot;
     private TextView contacts;
     private View bottomBorder;
 
@@ -59,6 +61,8 @@ public class ListActionsView extends FrameLayout implements View.OnClickListener
         settings = ViewUtils.getView(this, R.id.gtv__list_actions__settings);
         settings.setOnClickListener(this);
         bottomBorder = ViewUtils.getView(this, R.id.v_conversation_list_bottom_border);
+        indicatorDot = ViewUtils.getView(this, R.id.cv__list_actions__settings_indicator);
+        indicatorDot.setVisibility(GONE);
     }
 
     public void setCallback(Callback callback) {
@@ -67,6 +71,7 @@ public class ListActionsView extends FrameLayout implements View.OnClickListener
 
     public void setAccentColor(int color) {
         avatar.setBackground(new FilledCircularBackgroundDrawable(color));
+        indicatorDot.setAccentColor(color);
     }
 
     @Override
@@ -86,11 +91,11 @@ public class ListActionsView extends FrameLayout implements View.OnClickListener
     }
 
     public void setScrolledToBottom(boolean scrolledToBottom) {
-        if (scrolledToBottom) {
-            bottomBorder.setVisibility(GONE);
-        } else {
-            bottomBorder.setVisibility(VISIBLE);
-        }
+        bottomBorder.setVisibility(scrolledToBottom ? GONE : VISIBLE);
+    }
+
+    public void showIndicatorDot(boolean show) {
+        indicatorDot.setVisibility(show ? VISIBLE : GONE);
     }
 
     public interface Callback {

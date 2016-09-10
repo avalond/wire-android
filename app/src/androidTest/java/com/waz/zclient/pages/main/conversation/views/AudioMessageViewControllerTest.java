@@ -69,7 +69,7 @@ public class AudioMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__audio_button)).check(isVisible());
         GlyphProgressView glyphProgressView = ViewUtils.getView(activity, R.id.aab__row_conversation__audio_button);
@@ -92,10 +92,11 @@ public class AudioMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__audio_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__close))).perform(click());
+        Thread.sleep(400);
 
         verify(progressIndicator).cancel();
     }
@@ -115,14 +116,14 @@ public class AudioMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__audio_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__redo))).check(isVisible());
     }
 
     @Test
-    public void verifyRetryUpload() {
+    public void verifyRetryUpload() throws InterruptedException {
         Message message = createMockMessage(Message.Status.FAILED);
         User user = createMockUser();
         Asset asset = createMockAsset(AssetStatus.UPLOAD_FAILED);
@@ -136,11 +137,12 @@ public class AudioMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__audio_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__redo))).check(isVisible());
         onView(withId(R.id.aab__row_conversation__audio_button)).perform(click());
+        Thread.sleep(400);
 
         verify(message).retry();
     }
@@ -163,7 +165,7 @@ public class AudioMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__audio_button)).check(isVisible());
         GlyphProgressView glyphProgressView = ViewUtils.getView(activity, R.id.aab__row_conversation__audio_button);
@@ -187,10 +189,11 @@ public class AudioMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__audio_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__close))).perform(click());
+        Thread.sleep(400);
 
         verify(progressIndicator).cancel();
     }
@@ -210,7 +213,7 @@ public class AudioMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__audio_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__redo))).check(isVisible());
@@ -232,10 +235,11 @@ public class AudioMessageViewControllerTest extends ViewTest<MainTestActivity> {
 
         viewController.setMessage(message, mock(Separator.class));
 
-        setView(viewController.getView().getLayout());
+        setView(viewController.getView());
 
         onView(withId(R.id.aab__row_conversation__audio_button)).check(isVisible());
         onView(withText(activity.getString(R.string.glyph__redo))).perform(click());
+        Thread.sleep(400);
 
         verify(asset).getPlaybackControls(any(Asset.LoadCallback.class));
     }

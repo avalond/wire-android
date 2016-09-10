@@ -31,7 +31,7 @@ import com.waz.zclient.ui.text.TextTransform;
 import com.waz.zclient.ui.text.TypefaceTextView;
 import com.waz.zclient.ui.theme.ThemeUtils;
 import com.waz.zclient.utils.ViewUtils;
-import com.waz.zclient.views.chathead.ChatheadView;
+import com.waz.zclient.common.views.ChatheadView;
 
 public class ChatheadWithTextFooter extends LinearLayout implements UserRowView {
 

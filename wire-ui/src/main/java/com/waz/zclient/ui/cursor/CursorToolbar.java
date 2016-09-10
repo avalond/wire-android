@@ -35,7 +35,6 @@ import com.waz.zclient.ui.views.CursorIconButton;
 
 import java.util.List;
 
-
 public class CursorToolbar extends LinearLayout {
 
     private Callback callback;
@@ -45,8 +44,15 @@ public class CursorToolbar extends LinearLayout {
     private GestureDetectorCompat detector;
     private List<CursorMenuItem> cursorItems;
 
+    private CursorIconButton cursorIconButtonCamera;
+    private CursorIconButton cursorIconButtonAudio;
 
-    private GestureDetector.OnGestureListener gestureListener =  new GestureDetector.SimpleOnGestureListener() {
+    public void setAccentColor(int accentColor) {
+        cursorIconButtonCamera.setTextColor(accentColor);
+        cursorIconButtonAudio.setTextColor(accentColor);
+    }
+
+    private GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
         public boolean onDown(MotionEvent e) {
@@ -71,6 +77,17 @@ public class CursorToolbar extends LinearLayout {
             if (callback != null) {
                 CursorMenuItem item = (CursorMenuItem) touchedButtonContainer.getTag();
                 callback.onCursorButtonClicked(item);
+
+                switch (item) {
+                    case CAMERA:
+                        cursorIconButtonCamera.setSelected(true);
+                        cursorIconButtonAudio.setSelected(false);
+                        break;
+                    case AUDIO_MESSAGE:
+                        cursorIconButtonCamera.setSelected(false);
+                        cursorIconButtonAudio.setSelected(true);
+                        break;
+                }
             }
             return true;
         }
@@ -127,6 +144,15 @@ public class CursorToolbar extends LinearLayout {
             cursorIconButton.setText(item.glyphResId);
             cursorIconButton.setAccentColor(ContextCompat.getColor(getContext(), R.color.light_graphite));
 
+            switch (item) {
+                case CAMERA:
+                    cursorIconButtonCamera = cursorIconButton;
+                    break;
+                case AUDIO_MESSAGE:
+                    cursorIconButtonAudio = cursorIconButton;
+                    break;
+            }
+
             if (item == CursorMenuItem.DUMMY) {
                 cursorIconButton.setTextColor(ContextCompat.getColor(getContext(), R.color.transparent));
                 cursorIconButton.setAccentColor(ContextCompat.getColor(getContext(), R.color.transparent));
@@ -163,6 +189,11 @@ public class CursorToolbar extends LinearLayout {
             }
             addView(buttonContainer, params);
         }
+    }
+
+    public void unselectItems() {
+        cursorIconButtonCamera.setSelected(false);
+        cursorIconButtonAudio.setSelected(false);
     }
 
     public interface Callback {

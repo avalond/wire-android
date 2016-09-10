@@ -17,9 +17,11 @@
  */
 package com.waz.zclient.core.stores.network;
 
+import com.waz.api.NetworkMode;
+
 public interface NetworkAction {
 
-    void execute();
+    void execute(NetworkMode networkMode);
 
     void onNoNetwork();
 }

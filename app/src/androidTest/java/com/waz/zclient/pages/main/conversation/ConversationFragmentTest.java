@@ -17,23 +17,40 @@
  */
 package com.waz.zclient.pages.main.conversation;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
+import com.waz.api.AccentColor;
 import com.waz.api.IConversation;
 import com.waz.zclient.MainTestActivity;
 import com.waz.zclient.R;
+import com.waz.zclient.controllers.accentcolor.IAccentColorController;
 import com.waz.zclient.controllers.calling.ICallingController;
 import com.waz.zclient.pages.main.conversation.controller.IConversationScreenController;
 import com.waz.zclient.testutils.CustomViewAssertions;
 import com.waz.zclient.testutils.FragmentTest;
 import com.waz.zclient.testutils.MockHelper;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.swipeLeft;
+import static android.support.test.espresso.intent.Intents.intending;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasType;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.waz.zclient.testutils.CustomViewAssertions.isGone;
 import static com.waz.zclient.testutils.CustomViewAssertions.isVisible;
+import static org.hamcrest.Matchers.allOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -184,6 +201,9 @@ public class ConversationFragmentTest extends FragmentTest<MainTestActivity> {
         MockHelper.setupConversationMocks(mockConversation, activity);
         attachFragment(ConversationFragment.newInstance(), ConversationFragment.TAG);
 
+        Thread.sleep(500);
+        onView(withId(R.id.cursor_menu_item_more)).perform(click());
+        Thread.sleep(500);
         onView(withId(R.id.cursor_menu_item_file)).check(isVisible());
     }
 
@@ -197,6 +217,9 @@ public class ConversationFragmentTest extends FragmentTest<MainTestActivity> {
         MockHelper.setupConversationMocks(mockConversation, activity);
         attachFragment(ConversationFragment.newInstance(), ConversationFragment.TAG);
 
+        Thread.sleep(500);
+        onView(withId(R.id.cursor_menu_item_more)).perform(click());
+        Thread.sleep(500);
         onView(withId(R.id.cursor_menu_item_file)).check(isVisible());
     }
 
@@ -225,4 +248,85 @@ public class ConversationFragmentTest extends FragmentTest<MainTestActivity> {
 
         onView(withId(R.id.cursor_menu_item_audio_message)).check(isVisible());
     }
+
+    @Test
+    public void assertCursorImagesVisible() throws Exception {
+        IConversation mockConversation = mock(IConversation.class);
+        when(mockConversation.getType()).thenReturn(IConversation.Type.GROUP);
+        when(mockConversation.isMemberOfConversation()).thenReturn(true);
+        when(mockConversation.isActive()).thenReturn(true);
+
+        MockHelper.setupConversationMocks(mockConversation, activity);
+        attachFragment(ConversationFragment.newInstance(), ConversationFragment.TAG);
+
+        onView(withId(R.id.cursor_menu_item_camera)).check(isVisible());
+        onView(withId(R.id.cursor_menu_item_camera)).perform(click());
+
+        Thread.sleep(500);
+        onView(withId(R.id.rv__cursor_images)).check(isVisible());
+    }
+
+    @Test
+    public void assertCursorImagesBackButtonVisible() throws Exception {
+        IConversation mockConversation = mock(IConversation.class);
+        when(mockConversation.getType()).thenReturn(IConversation.Type.GROUP);
+        when(mockConversation.isMemberOfConversation()).thenReturn(true);
+        when(mockConversation.isActive()).thenReturn(true);
+
+        MockHelper.setupConversationMocks(mockConversation, activity);
+        attachFragment(ConversationFragment.newInstance(), ConversationFragment.TAG);
+
+        onView(withId(R.id.cursor_menu_item_camera)).check(isVisible());
+        onView(withId(R.id.cursor_menu_item_camera)).perform(click());
+        Thread.sleep(500);
+
+        onView(withId(R.id.rv__cursor_images)).check(isVisible());
+        onView(withId(R.id.gtv__cursor_image__nav_camera_back)).check(isGone());
+
+        onView(withId(R.id.rv__cursor_images)).perform(swipeLeft());
+        Thread.sleep(200);
+
+        onView(withId(R.id.gtv__cursor_image__nav_camera_back)).check(isVisible());
+    }
+
+    @Test
+    public void assertCursorImagesBackButtonShowsCamera() throws Exception {
+        // wait for camera changes
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @Test
+    public void assertCursorImagesGalleryButton() throws Exception {
+        IConversation mockConversation = mock(IConversation.class);
+        when(mockConversation.getType()).thenReturn(IConversation.Type.GROUP);
+        when(mockConversation.isMemberOfConversation()).thenReturn(true);
+        when(mockConversation.isActive()).thenReturn(true);
+        IAccentColorController mockAccentColorController = activity.getControllerFactory().getAccentColorController();
+        AccentColor mockAccentColor = mock(AccentColor.class);
+        when(mockAccentColor.getColor()).thenReturn(Color.RED);
+        when(mockAccentColorController.getAccentColor()).thenReturn(mockAccentColor);
+
+        String action = Intent.ACTION_OPEN_DOCUMENT;
+        Matcher<Intent> expectedIntent = allOf(hasAction(action), hasType("image/*"));
+        Intent intent = new Intent();
+        intent.setData(Uri.parse("file:///tmp/whatever.txt"));
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, intent);
+        intending(expectedIntent).respondWith(result);
+
+        MockHelper.setupConversationMocks(mockConversation, activity);
+        attachFragment(ConversationFragment.newInstance(), ConversationFragment.TAG);
+
+        onView(withId(R.id.cursor_menu_item_camera)).check(isVisible());
+        onView(withId(R.id.cursor_menu_item_camera)).perform(click());
+        Thread.sleep(500);
+
+        onView(withId(R.id.rv__cursor_images)).check(isVisible());
+        onView(withId(R.id.gtv__cursor_image__nav_open_gallery)).check(isVisible());
+
+        onView(withId(R.id.gtv__cursor_image__nav_open_gallery)).perform(click());
+    }
+
+
+
+
 }

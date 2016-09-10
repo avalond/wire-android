@@ -29,11 +29,13 @@
     <!--<rule ref="rulesets/java/controversial.xml" />-->
     <rule ref="rulesets/java/empty.xml">
         <exclude name="EmptyCatchBlock" />
+        <exclude name="EmptyStatementNotInLoop" />
     </rule>
     <rule ref="rulesets/java/finalizers.xml" />
     <rule ref="rulesets/java/imports.xml">
         <!-- Espresso is designed this way !-->
         <exclude name="TooManyStaticImports" />
+        <exclude name="DontImportJavaLang" />
     </rule>
     <rule ref="rulesets/java/optimizations.xml">
         <exclude name="AvoidInstantiatingObjectsInLoops" />

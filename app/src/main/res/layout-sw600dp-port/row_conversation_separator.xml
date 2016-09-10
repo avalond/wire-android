@@ -18,12 +18,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                      xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                      xmlns:tools="http://schemas.android.com/tools"
-                                                      android:layout_width="match_parent"
-                                                      android:layout_height="match_parent"
-                                                      android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
     >
 
     <LinearLayout
@@ -51,8 +51,8 @@
                     android:id="@+id/iv__row_conversation__unread_dot"
                     android:layout_width="@dimen/content__separator__chathead__size"
                     android:layout_height="@dimen/content__separator__chathead__size"
-                    android:layout_gravity="right|center_vertical"
-                    android:layout_marginRight="@dimen/content__divider__padding_left"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="@dimen/content__divider__padding_left"
                     android:scaleType="center"
                     android:visibility="gone"
                     />
@@ -97,6 +97,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
+        android:baselineAligned="false"
         >
 
         <FrameLayout
@@ -109,25 +110,51 @@
                 android:id="@+id/civ__row_conversation__separator_chathead"
                 android:layout_width="@dimen/content__separator__chathead__size"
                 android:layout_height="@dimen/content__separator__chathead__size"
-                android:layout_gravity="right"
-                android:layout_marginRight="@dimen/content__divider__padding_left"
+                android:layout_gravity="end"
+                android:layout_marginEnd="@dimen/content__divider__padding_left"
                 />
 
         </FrameLayout>
 
-        <com.waz.zclient.ui.text.TypefaceTextView
-            android:id="@+id/ttv__row_conversation__separator__name"
+        <LinearLayout
             android:layout_width="@dimen/content__separator__label_container__width"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textColor="@color/text__secondary_light"
-            android:includeFontPadding="false"
-            android:textSize="@dimen/wire__text_size__small"
-            android:visibility="gone"
-            android:textAllCaps="true"
-            app:font="@string/wire__typeface__light"
-            style="?wireBackground"
-            />
+            android:gravity="start|center_horizontal"
+            >
+
+            <com.waz.zclient.ui.text.TypefaceTextView
+                android:id="@+id/ttv__row_conversation__separator__name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text__secondary_light"
+                android:includeFontPadding="false"
+                android:textSize="@dimen/wire__text_size__small"
+                android:visibility="gone"
+                android:textAllCaps="true"
+                app:font="@string/wire__typeface__light"
+                style="?wireBackground"
+                />
+
+            <com.waz.zclient.ui.text.GlyphTextView
+                android:id="@+id/gtv__message_recalled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/glyph__trash"
+                android:visibility="gone"
+                style="?messageStreamSeparatorRecalled"
+                />
+
+            <com.waz.zclient.ui.text.GlyphTextView
+                android:id="@+id/gtv__message_edited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/glyph__edit"
+                android:visibility="gone"
+                style="?messageStreamSeparatorRecalled"
+                />
+
+        </LinearLayout>
 
         <!-- Dummy view to center text label -->
         <FrameLayout
@@ -139,4 +166,4 @@
 
     </LinearLayout>
 
-</com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+</LinearLayout>

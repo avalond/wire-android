@@ -31,7 +31,7 @@ package com.waz.zclient.pages.main.profile.camera.colorlens;
 
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-import com.waz.zclient.pages.main.profile.camera.manager.CameraDirection;
+import com.waz.zclient.camera.CameraFacing;
 import com.waz.zclient.utils.device.DeviceDetector;
 
 import javax.microedition.khronos.opengles.GL10;
@@ -203,7 +203,7 @@ public class DirectVideo {
     // Always the same vertex order for back facing cameras
     // Special order for Nexus 6 front-facing cam.
     private float[] getSquareVerticesForCameraAndDevice(int cameraId) {
-        if (cameraId == CameraDirection.BACK_FACING.id) {
+        if (cameraId == CameraFacing.BACK.facing) {
             return SQUARE_VERTICES_BACK_FACING;
         } else if (DeviceDetector.isNexus6()) {
             return SQUARE_VERTICES_FRONT_FACING_NEXUS_6;

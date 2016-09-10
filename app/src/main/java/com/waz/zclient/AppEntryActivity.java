@@ -63,6 +63,8 @@ import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.LoadingIndicatorView;
 import timber.log.Timber;
 
+import static com.waz.zclient.newreg.fragments.SignUpPhotoFragment.UNSPLASH_API_URL;
+
 public class AppEntryActivity extends BaseActivity implements VerifyPhoneFragment.Container,
                                                               PhoneRegisterFragment.Container,
                                                               PhoneSignInFragment.Container,
@@ -141,21 +143,18 @@ public class AppEntryActivity extends BaseActivity implements VerifyPhoneFragmen
         createdFromSavedInstance = savedInstanceState != null;
 
         accentColor = getResources().getColor(R.color.text__primary_dark);
-        if (unsplashInitLoadHandle == null) {
-            if (unsplashInitImageAsset == null) {
-                if (getStoreFactory().getNetworkStore().hasInternetConnectionWith2GAndHigher()) {
-                    unsplashInitImageAsset = ImageAssetFactory.getImageAsset(Uri.parse(SignUpPhotoFragment.UNSPLASH_API_URL));
-                } else {
-                    unsplashInitImageAsset = ImageAssetFactory.getImageAsset(Uri.parse(SignUpPhotoFragment.UNSPLASH_API_URL_LOW_RES));
-                }
-            }
+
+        if (unsplashInitLoadHandle == null && unsplashInitImageAsset == null) {
+            unsplashInitImageAsset = ImageAssetFactory.getImageAsset(Uri.parse(UNSPLASH_API_URL));
+
             // This is just to force that SE will download the image so that it is probably ready when we are at the
             // set picture screen
             unsplashInitLoadHandle = unsplashInitImageAsset.getSingleBitmap(PREFETCH_IMAGE_WIDTH,
                                                                             new ImageAsset.BitmapCallback() {
                                                                                 @Override
-                                                                                public void onBitmapLoaded(Bitmap b,
-                                                                                                           boolean isPreview) {}
+                                                                                public void onBitmapLoaded(
+                                                                                    Bitmap b,
+                                                                                    boolean isPreview) {}
 
                                                                                 @Override
                                                                                 public void onBitmapLoadingFailed() {}

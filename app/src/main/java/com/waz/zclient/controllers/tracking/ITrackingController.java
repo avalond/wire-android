@@ -20,15 +20,13 @@ package com.waz.zclient.controllers.tracking;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import com.waz.annotations.Controller;
-import com.waz.zclient.core.controllers.tracking.attributes.RangedAttribute;
-import com.waz.zclient.core.controllers.tracking.events.AVSMetricEvent;
-import com.waz.zclient.core.controllers.tracking.events.Event;
 import com.waz.zclient.controllers.tracking.events.peoplepicker.PeoplePickerResultsUsed;
 import com.waz.zclient.controllers.tracking.screens.ApplicationScreen;
 import com.waz.zclient.controllers.tracking.screens.RegistrationScreen;
+import com.waz.zclient.core.controllers.tracking.attributes.RangedAttribute;
+import com.waz.zclient.core.controllers.tracking.events.AVSMetricEvent;
+import com.waz.zclient.core.controllers.tracking.events.Event;
 
-@Controller(requiresActivity = true, customInit = true)
 public interface ITrackingController {
 
     void appLaunched(Intent intent);

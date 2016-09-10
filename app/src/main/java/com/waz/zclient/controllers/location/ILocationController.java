@@ -17,10 +17,8 @@
  */
 package com.waz.zclient.controllers.location;
 
-import com.waz.annotations.Controller;
 import com.waz.api.MessageContent;
 
-@Controller
 public interface ILocationController {
 
     void addObserver(LocationObserver observer);

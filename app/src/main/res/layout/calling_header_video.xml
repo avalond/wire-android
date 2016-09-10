@@ -24,7 +24,7 @@
        android:layout_height="match_parent"
     >
 
-    <com.waz.zclient.views.chathead.ChatheadView
+    <com.waz.zclient.common.views.ChatheadView
         android:id="@+id/chv__other_user_chathead"
         android:layout_width="@dimen/calling__controls__button__dimension"
         android:layout_height="@dimen/calling__controls__button__dimension"

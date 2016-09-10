@@ -19,9 +19,7 @@ package com.waz.zclient.controllers.vibrator;
 
 import android.support.annotation.ArrayRes;
 import android.support.annotation.NonNull;
-import com.waz.annotations.Controller;
 
-@Controller
 public interface IVibratorController {
 
     void tearDown();

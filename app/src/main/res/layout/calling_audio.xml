@@ -25,14 +25,14 @@
              android:background="@color/black"
     >
 
-    <com.waz.zclient.calling.HeaderLayoutAudio
+    <com.waz.zclient.calling.views.HeaderLayoutAudio
         android:layout_width="@dimen/calling__participants_max_diameter"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center"
         android:layout_marginTop="@dimen/wire__padding__huge"
         />
 
-    <com.waz.zclient.calling.AudioParticipantsView
+    <com.waz.zclient.calling.views.AudioParticipantsView
         android:id="@+id/participants"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
 
         />
 
-    <com.waz.zclient.calling.ControlsView
+    <com.waz.zclient.calling.views.ControlsView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />

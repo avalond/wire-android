@@ -45,7 +45,7 @@
         app:font="@string/wire__typeface__light"
         />
 
-    <com.waz.zclient.calling.HeaderLayoutVideo
+    <com.waz.zclient.calling.views.HeaderLayoutVideo
         android:id="@+id/hl__header"
         android:layout_width="@dimen/calling__participants_max_diameter"
         android:layout_height="wrap_content"
@@ -97,7 +97,7 @@
             />
     </LinearLayout>
 
-    <com.waz.zclient.calling.ControlsView
+    <com.waz.zclient.calling.views.ControlsView
         android:id="@+id/cl__controls_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

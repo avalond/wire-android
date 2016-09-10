@@ -18,15 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                      xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                      android:layout_width="match_parent"
-                                                      android:layout_height="match_parent"
-                                                      android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
     >
 
     <android.support.v7.widget.CardView
-        android:id="@+id/cv__location_map_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/content__padding_left"
@@ -107,38 +106,6 @@
 
         </LinearLayout>
 
-        <FrameLayout
-            android:id="@+id/fl__row_conversation__message_error_container"
-            android:layout_width="@dimen/content__location_message__name_height"
-            android:layout_height="@dimen/content__location_message__name_height"
-            android:layout_gravity="end|bottom"
-            >
-
-            <com.waz.zclient.views.SendingAnimationView
-                android:id="@+id/v__row_conversation__pending"
-                style="?messageStreamUnsentIndicator"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:backgroundColor="?messageStreamUnsentIndicatorBackground"
-                app:backgroundCircleRadius="@dimen/content__message__unsend_indicator_background_radius"
-                app:circlePadding="@dimen/content__image__progress_circle_padding"
-                app:circleRadius="@dimen/content__message__error_radius"
-                app:pendingDuration="@integer/content__image__progress_duration"
-                app:pendingStop="@integer/content__image__progress_pending_stop"
-                />
-
-            <com.waz.zclient.ui.text.GlyphTextView
-                android:id="@+id/v__row_conversation__error"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textColor="@color/text__secondary_light"
-                android:text="@string/glyph__redo"
-                android:textSize="@dimen/content__message__error_glyph_size"
-                />
-
-        </FrameLayout>
-
     </android.support.v7.widget.CardView>
 
-</com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+</LinearLayout>

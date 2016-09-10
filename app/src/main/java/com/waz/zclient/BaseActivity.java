@@ -51,8 +51,11 @@ public class BaseActivity extends BaseScalaActivity implements ServiceContainer,
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onBaseActivityStart() {
+        ((ZApplication) getApplication()).ensureInitialized();
+
+        super.onBaseActivityStart();
+
         getControllerFactory().setActivity(this);
         if (!started) {
             started = true;

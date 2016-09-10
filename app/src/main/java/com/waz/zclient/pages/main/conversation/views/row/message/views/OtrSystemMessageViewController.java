@@ -23,21 +23,21 @@ import android.widget.ImageView;
 import com.waz.api.UpdateListener;
 import com.waz.api.User;
 import com.waz.zclient.R;
+import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
 import com.waz.zclient.ui.text.TypefaceTextView;
 import com.waz.zclient.ui.utils.TextViewUtils;
-import com.waz.zclient.ui.views.TouchFilterableFrameLayout;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
 import com.waz.zclient.utils.OtrDestination;
 import com.waz.zclient.utils.ViewUtils;
 
 import java.util.Locale;
 
-public class OtrSystemMessageViewController extends MessageViewController implements UpdateListener {
+public class OtrSystemMessageViewController extends MessageViewController implements UpdateListener,
+                                                                                     AccentColorObserver {
 
-    private TouchFilterableFrameLayout view;
+    private View view;
     private TypefaceTextView messageTextView;
     private ImageView shieldView;
     private int accentColor;
@@ -49,7 +49,7 @@ public class OtrSystemMessageViewController extends MessageViewController implem
 
     public OtrSystemMessageViewController(final Context context, final MessageViewsContainer messageViewContainer) {
         super(context, messageViewContainer);
-        view = (TouchFilterableFrameLayout) View.inflate(context, R.layout.row_conversation_otr_system_message, null);
+        view = View.inflate(context, R.layout.row_conversation_otr_system_message, null);
         messageTextView = ViewUtils.getView(view, R.id.ttv__otr_added_new_device__message);
         shieldView = ViewUtils.getView(view, R.id.sv__otr__system_message);
 
@@ -90,7 +90,6 @@ public class OtrSystemMessageViewController extends MessageViewController implem
 
     @Override
     public void onAccentColorHasChanged(Object sender, int color) {
-        super.onAccentColorHasChanged(sender, color);
         accentColor = color;
         updated();
     }
@@ -99,15 +98,19 @@ public class OtrSystemMessageViewController extends MessageViewController implem
     protected void onSetMessage(Separator separator) {
         messageTextView.setText("");
         connectUsers(message.getMembers(), message.getUser());
+        messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(this);
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 
     @Override
     public void recycle() {
+        if (!messageViewsContainer.isTornDown()) {
+            messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
+        }
         disconnectUsers();
         super.recycle();
     }

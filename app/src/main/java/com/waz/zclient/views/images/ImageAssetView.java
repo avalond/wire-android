@@ -17,15 +17,17 @@
  */
 package com.waz.zclient.views.images;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ImageView;
 import com.waz.api.ImageAsset;
 import com.waz.api.LoadHandle;
 import com.waz.api.UpdateListener;
-import com.waz.zclient.utils.ViewUtils;
+import com.waz.zclient.R;
 import timber.log.Timber;
 
 public class ImageAssetView extends ImageView implements UpdateListener {
@@ -35,6 +37,46 @@ public class ImageAssetView extends ImageView implements UpdateListener {
     private boolean shouldScaleForPortraitMode;
     private ImageAsset imageAsset;
     private boolean showPreview;
+    private boolean animateFirstTimeBitmapAppearance;
+
+    private ObjectAnimator alphaAnimator;
+
+    private final ImageAsset.BitmapCallback loadCallback = new ImageAsset.BitmapCallback() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, boolean isPreview) {
+            Timber.i("ImageAssetView %s :: onBitmapLoaded(), id=%s preview=%b, w=%d, h=%d",
+                     ImageAssetView.this,
+                     imageAsset.getId(),
+                     isPreview,
+                     bitmap.getWidth(),
+                     bitmap.getHeight());
+            if (isPreview && !showPreview) {
+                return;
+            }
+            setScalePolicy(bitmap);
+            setImageBitmap(bitmap);
+            if (bitmapLoadedCallback != null && !isPreview) {
+                bitmapLoadedCallback.onBitmapLoadFinished(true);
+            }
+
+            if (!animateFirstTimeBitmapAppearance) {
+                return;
+            }
+            animateFirstTimeBitmapAppearance = false;
+            alphaAnimator = ObjectAnimator.ofFloat(ImageAssetView.this, View.ALPHA, 0, 1f);
+            alphaAnimator.setDuration(getResources().getInteger(R.integer.animation_duration_medium));
+            alphaAnimator.start();
+        }
+
+        @Override
+        public void onBitmapLoadingFailed() {
+            logBitmapLoadError();
+            clearImage();
+            if (bitmapLoadedCallback != null) {
+                bitmapLoadedCallback.onBitmapLoadFinished(false);
+            }
+        }
+    };
 
     public ImageAssetView(Context context) {
         super(context);
@@ -49,19 +91,9 @@ public class ImageAssetView extends ImageView implements UpdateListener {
     }
 
     public void setImageAsset(@Nullable final ImageAsset imageAsset) {
-        if (imageAsset == null) {
-            unbindImageAsset();
-            return;
-        }
-
-        setImageAsset(imageAsset, false);
-    }
-
-    private void setImageAsset(final ImageAsset imageAsset, final boolean blurred) {
-        cancelPreviousBitmapLoad();
-        bindImageAsset(imageAsset, blurred);
-        setMirroring();
-        loadBitmap();
+        clearImage();
+        animateFirstTimeBitmapAppearance = true;
+        bindImageAsset(imageAsset);
     }
 
     public void setShouldScaleForPortraitMode(boolean shouldScaleForPortraitMode) {
@@ -73,7 +105,8 @@ public class ImageAssetView extends ImageView implements UpdateListener {
     }
 
     public void clearImage() {
-        cancelPreviousBitmapLoad();
+        unbindImageAsset();
+        imageAsset = null;
         super.setImageDrawable(null);
     }
 
@@ -88,67 +121,61 @@ public class ImageAssetView extends ImageView implements UpdateListener {
 
     @Override
     protected void onDetachedFromWindow() {
-        unbindImageAsset();
         super.onDetachedFromWindow();
+        unbindImageAsset();
     }
 
-    private void bindImageAsset(ImageAsset imageAsset, boolean blurred) {
-        Timber.i("Binding ImageAssetView %s to ImageAsset %s", this, imageAsset.getId());
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (imageAsset != null) {
+            imageAsset.addUpdateListener(this);
+            loadBitmap();
+        }
+    }
+
+    private void bindImageAsset(ImageAsset imageAsset) {
         this.imageAsset = imageAsset;
-        this.imageAsset.addUpdateListener(this);
+        if (imageAsset != null) {
+            Timber.i("Binding ImageAssetView %s to ImageAsset %s", this, imageAsset.getId());
+            this.imageAsset.addUpdateListener(this);
+            loadBitmap();
+        }
     }
 
     private void unbindImageAsset() {
+        if (alphaAnimator != null) {
+            alphaAnimator.cancel();
+        }
+
         cancelPreviousBitmapLoad();
         if (imageAsset != null) {
             Timber.i("Unbinding ImageAssetView %s from ImageAsset %s", this, imageAsset.getId());
             imageAsset.removeUpdateListener(this);
-            imageAsset = null;
         }
     }
 
     private void loadBitmap() {
+        cancelPreviousBitmapLoad();
+
         if (imageAsset.isEmpty()) {
             Timber.i("ImageAssetView %s :: loadBitmap() empty ImageAsset", this);
             if (bitmapLoadedCallback != null) {
-                bitmapLoadedCallback.onBitmapLoadFinished();
+                bitmapLoadedCallback.onBitmapLoadFinished(false);
             }
             return;
         }
         Timber.i("ImageAssetView %s :: loadBitmap(), id=%s", this, imageAsset.getId());
 
-        final ImageAsset.BitmapCallback callback = new ImageAsset.BitmapCallback() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, boolean isPreview) {
-                Timber.i("ImageAssetView %s :: onBitmapLoaded(), id=%s preview=%b", ImageAssetView.this, imageAsset.getId(), isPreview);
-                if (isPreview && !showPreview) {
-                    return;
-                }
-                setScalePolicy(bitmap);
-                setImageBitmap(bitmap);
-                if (bitmapLoadedCallback != null && !isPreview) {
-                    bitmapLoadedCallback.onBitmapLoadFinished();
-                }
-            }
-
-            @Override
-            public void onBitmapLoadingFailed() {
-                logBitmapLoadError();
-                clearImage();
-                if (bitmapLoadedCallback != null) {
-                    bitmapLoadedCallback.onBitmapLoadFinished();
-                }
-            }
-        };
-
-        bitmapLoadHandle = imageAsset.getBitmap(ViewUtils.getOrientationIndependentDisplayWidth(getContext()), callback);
+        bitmapLoadHandle = imageAsset.getBitmap(getWidth(), loadCallback);
     }
 
-    private void setMirroring() {
-        if (imageAsset.mirrored()) {
-            setScaleX(-1f);
-        } else {
-            setScaleX(1f);
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        if (changed && imageAsset != null) {
+            loadBitmap(); //request bitmap again since view size has changed
         }
     }
 
@@ -163,7 +190,10 @@ public class ImageAssetView extends ImageView implements UpdateListener {
     }
 
     private void logBitmapLoadError() {
-        Timber.e("ImageAssetView %s :: failed loading bitmap for %s id=%s", this, imageAsset, imageAsset != null ? imageAsset.getId() : null);
+        Timber.e("ImageAssetView %s :: failed loading bitmap for %s id=%s",
+                 this,
+                 imageAsset,
+                 imageAsset != null ? imageAsset.getId() : null);
     }
 
     private void cancelPreviousBitmapLoad() {
@@ -173,6 +203,6 @@ public class ImageAssetView extends ImageView implements UpdateListener {
     }
 
     public interface BitmapLoadedCallback {
-        void onBitmapLoadFinished();
+        void onBitmapLoadFinished(boolean bitmapLoaded);
     }
 }

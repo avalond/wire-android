@@ -17,9 +17,6 @@
  */
 package com.waz.zclient.controllers.permission;
 
-import com.waz.annotations.Controller;
-
-@Controller
 public interface IRequestPermissionsController {
     void addObserver(RequestPermissionsObserver observer);
 

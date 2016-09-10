@@ -19,7 +19,7 @@ package com.waz.zclient.core.stores.network;
 
 public interface NetworkStoreObserver {
 
-    void onConnectivityChange(boolean hasInternet);
+    void onConnectivityChange(boolean hasInternet, boolean isServerError);
 
-    void onNetworkAccessFailed();
+    void onNoInternetConnection(boolean isServerError);
 }

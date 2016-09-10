@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.TextView;
+import com.waz.api.NetworkMode;
 import com.waz.api.User;
 import com.waz.api.Verification;
 import com.waz.zclient.OnBackPressedListener;
@@ -331,9 +332,9 @@ public class SingleParticipantFragment extends BaseFragment<SingleParticipantFra
                     if (showingCommonUser) {
                         showBlockConfirmation(user);
                     } else {
-                        getStoreFactory().getNetworkStore().doIfNetwork(new NetworkAction() {
+                        getStoreFactory().getNetworkStore().doIfHasInternetOrNotifyUser(new NetworkAction() {
                             @Override
-                            public void execute() {
+                            public void execute(NetworkMode networkMode) {
                                 getContainer().showRemoveConfirmation(user);
                             }
 

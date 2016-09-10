@@ -18,14 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                      xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                      xmlns:tools="http://schemas.android.com/tools"
-                                                      android:layout_width="match_parent"
-                                                      android:layout_height="wrap_content"
-                                                      android:orientation="horizontal"
-                                                      android:gravity="center_vertical"
-                                                      android:baselineAligned="false"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:gravity="center_vertical"
+              android:baselineAligned="false"
     >
 
     <FrameLayout
@@ -38,8 +38,8 @@
             android:id="@+id/civ__row_conversation__ping_chathead"
             android:layout_width="@dimen/content__separator__chathead__size"
             android:layout_height="@dimen/content__separator__chathead__size"
-            android:layout_gravity="right"
-            android:layout_marginRight="@dimen/content__divider__padding_left"
+            android:layout_gravity="end"
+            android:layout_marginEnd="@dimen/content__divider__padding_left"
             />
 
     </FrameLayout>
@@ -67,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text__primary_light"
-            android:paddingLeft="@dimen/wire__padding__small"
+            android:paddingStart="@dimen/wire__padding__small"
             android:text="@string/glyph__ping"
             />
 
@@ -81,4 +81,4 @@
         tools:ignore="UselessLeaf"
         />
 
-</com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+</LinearLayout>

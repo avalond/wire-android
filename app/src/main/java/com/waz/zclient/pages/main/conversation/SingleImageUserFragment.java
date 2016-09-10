@@ -60,16 +60,6 @@ public class SingleImageUserFragment extends SingleImageFragment {
     }
 
     @Override
-    protected String getNameText() {
-        return "";
-    }
-
-    @Override
-    protected String getTimeText() {
-        return "";
-    }
-
-    @Override
     protected ImageView.ScaleType getScaleType() {
         return ImageView.ScaleType.CENTER_CROP;
     }

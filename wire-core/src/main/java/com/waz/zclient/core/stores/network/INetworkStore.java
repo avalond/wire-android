@@ -17,10 +17,9 @@
  */
 package com.waz.zclient.core.stores.network;
 
-import com.waz.annotations.Store;
+import android.support.annotation.Nullable;
 import com.waz.zclient.core.stores.IStore;
 
-@Store
 public interface INetworkStore extends IStore {
 
     void tearDown();
@@ -28,17 +27,19 @@ public interface INetworkStore extends IStore {
     /* has any */
     boolean hasInternetConnection();
 
-    boolean hasInternetConnectionWith2GAndHigher();
-
-    boolean hasInternetConnectionWith3GAndHigher();
-
     boolean hasWifiConnection();
 
-    void notifyNetworkAccessFailed();
+    /**
+     * A null NetworkAction implies that no work will be done if there is a connection, but the user will be notified
+     * if there is no connection.
+     * @param networkAction
+     *
+     * TODO this null hack (or the old `notifyNoInternet` method are only really needed because SE doesn't tell us when something failed
+     * TODO due to no connection - perhaps we can have that passed down through the ConnectionIndicator?
+     */
+    void doIfHasInternetOrNotifyUser(@Nullable NetworkAction networkAction);
 
-    void doIfNetwork(NetworkAction networkAction);
+    void addNetworkStoreObserver(NetworkStoreObserver networkStoreObserver);
 
-    void addNetworkControllerObserver(NetworkStoreObserver networkStoreObserver);
-
-    void removeNetworkControllerObserver(NetworkStoreObserver networkStoreObserver);
+    void removeNetworkStoreObserver(NetworkStoreObserver networkStoreObserver);
 }

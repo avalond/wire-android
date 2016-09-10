@@ -30,4 +30,16 @@ public class Separator {
         this.nextMessage = nextMessage;
         this.lastReadMessage = lastReadMessage;
     }
+
+    public Message getPreviousMessage() {
+        return previousMessage;
+    }
+
+    public Message getNextMessage() {
+        return nextMessage;
+    }
+
+    public Message getLastReadMessage() {
+        return lastReadMessage;
+    }
 }

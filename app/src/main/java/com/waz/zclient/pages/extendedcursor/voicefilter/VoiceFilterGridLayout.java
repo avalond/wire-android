@@ -41,7 +41,6 @@ import org.threeten.bp.Instant;
 public class VoiceFilterGridLayout extends FrameLayout implements
                                                        VoiceFilterController.RecordingObserver,
                                                        VoiceFilterController.PlaybackObserver {
-    public static final String TAG = VoiceFilterGridLayout.class.getSimpleName();
     private static final int NUM_OF_GRID_ROWS = 2;
     private static final int NUM_OF_GRID_COLS = 4;
     private static final long HINT_DELAY = 1500;

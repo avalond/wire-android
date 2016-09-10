@@ -27,8 +27,6 @@ public enum Attribute {
 
     GROUP_CONVERSATION_CREATED("groupConversationCreated"),
 
-    PICTURE_SOURCE("pictureSource"),
-
     REGISTRATION_SHARE_CONTACTS_ALLOWED("allowed"),
 
     REGISTRATION_FAIL_REASON("reason"),
@@ -56,6 +54,8 @@ public enum Attribute {
     CALLING_END_REASON("reason"),
     CALLING_APP_IS_ACTIVE("app_is_active"),
     WITH_OTTO("with_otto"),
+    WITH_BOT("with_bot"),
+    IS_LAST_MESSAGE("is_last_message"),
 
     FILE_SIZE_BYTES("file_size_bytes"),
 
@@ -90,7 +90,8 @@ public enum Attribute {
 
     // AN-4011: Temporary attributes
     REFERRAL_TOKEN("REFERRAL_TOKEN"),
-    USER_TOKEN("USER_TOKEN")
+    USER_TOKEN("USER_TOKEN"),
+    SKETCH_SOURCE("sketch_source")
     ;
 
 

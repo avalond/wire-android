@@ -31,11 +31,12 @@ import com.waz.zclient.testutils.MockHelper;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.waz.zclient.testutils.CustomViewAssertions.hasText;
-import static com.waz.zclient.testutils.CustomViewAssertions.isGone;
+import static com.waz.zclient.testutils.CustomViewAssertions.isInvisible;
 import static com.waz.zclient.testutils.CustomViewAssertions.isVisible;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -97,7 +98,7 @@ public class AudioRecordingTest extends FragmentTest<MainTestActivity> {
         onView(withId(R.id.fl__audio_message__recording__cancel_button_container)).check(isVisible());
         onView(withId(R.id.fl__audio_message__recording__cancel_button_container)).perform(ViewActions.click());
 
-        onView(withId(R.id.amrv_audio_message_recording)).check(isGone());
+        onView(withId(R.id.amrv_audio_message_recording)).check(isInvisible());
     }
 
     @Test

@@ -18,6 +18,7 @@
 package com.waz.zclient.ui.cursor;
 
 import android.view.MotionEvent;
+import com.waz.api.Message;
 
 public interface CursorCallback {
     void onCursorButtonClicked(CursorMenuItem cursorMenuItem);
@@ -37,4 +38,8 @@ public interface CursorCallback {
     void onCursorClicked();
 
     void onShowedActionHint(CursorMenuItem item);
+
+    void onApprovedMessageEditing(Message message);
+
+    void onClosedMessageEditing();
 }

@@ -21,12 +21,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.waz.zclient.BuildConfig;
 import com.waz.zclient.R;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
-import com.waz.zclient.ui.views.TouchFilterableFrameLayout;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
 import com.waz.zclient.utils.ViewUtils;
@@ -35,20 +35,20 @@ public class ErrorMessageViewController extends MessageViewController {
 
     private static final String ERROR_MESSAGETYPE_UNKNOWN = "Error - messagetype '%s' unknown";
     private TextView errorView;
-    private TouchFilterableFrameLayout view;
+    private FrameLayout view;
 
     @SuppressLint("InflateParams")
     public ErrorMessageViewController(Context context, MessageViewsContainer messageViewContainer) {
         super(context, messageViewContainer);
         errorView = new TextView(context);
         errorView.setTextColor(Color.GRAY);
-        view = new TouchFilterableFrameLayout(context);
+        view = new FrameLayout(context);
         if (BuildConfig.SHOW_DEVELOPER_OPTIONS) {
             view.addView(errorView);
         }
         final Resources res = context.getResources();
-        ViewUtils.setPaddingLeft(errorView, res.getDimensionPixelSize(R.dimen.content__padding_left));
-        ViewUtils.setPaddingRight(errorView, res.getDimensionPixelSize(R.dimen.content__padding_right));
+        ViewUtils.setPaddingStart(errorView, res.getDimensionPixelSize(R.dimen.content__padding_left));
+        ViewUtils.setPaddingEnd(errorView, res.getDimensionPixelSize(R.dimen.content__padding_right));
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ErrorMessageViewController extends MessageViewController {
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 }

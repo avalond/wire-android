@@ -44,12 +44,6 @@ public abstract class PickUserStore implements IPickUserStore {
         }
     }
 
-    protected void notifyRecommendedUsersUpdated(User[] users) {
-        for (PickUserStoreObserver pickUserStoreObserver : pickUserStoreObservers) {
-            pickUserStoreObserver.onRecommendedUsersUpdated(users);
-        }
-    }
-
     protected void notifySearchResultsUpdated(User[] contacts, User[] otherUsers, IConversation[] conversations) {
         for (PickUserStoreObserver pickUserStoreObserver : pickUserStoreObservers) {
             pickUserStoreObserver.onSearchResultsUpdated(contacts, otherUsers, conversations);

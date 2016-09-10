@@ -24,7 +24,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
@@ -46,7 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class BasePreferenceActivity extends AppCompatActivity implements ServiceContainer,
+public abstract class BasePreferenceActivity extends BaseScalaActivity implements ServiceContainer,
                                                                                   PermissionProvider,
                                                                                   PreferenceFragmentCompat.OnPreferenceStartScreenCallback,
                                                                                   PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback,
@@ -61,7 +60,7 @@ public abstract class BasePreferenceActivity extends AppCompatActivity implement
 
     @SuppressLint("PrivateResource")
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         replaceFragmentStrategy = new PreferenceScreenStrategy.ReplaceFragment(this,
@@ -126,7 +125,7 @@ public abstract class BasePreferenceActivity extends AppCompatActivity implement
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         getControllerFactory().setActivity(this);
         if (!started) {
@@ -141,7 +140,7 @@ public abstract class BasePreferenceActivity extends AppCompatActivity implement
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         if (started) {
             getStoreFactory().getZMessagingApiStore().getApi().onPause();
             started = false;

@@ -27,7 +27,6 @@ import android.view.View;
 import com.waz.zclient.R;
 
 public class WaveGraphView extends View {
-    public static final String TAG = WaveGraphView.class.getSimpleName();
     private final Path path;
     private int waveColor;
     private final float frequency;

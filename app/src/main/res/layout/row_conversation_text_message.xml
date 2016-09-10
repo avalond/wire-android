@@ -18,64 +18,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                      xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                      android:layout_width="match_parent"
-                                                      android:layout_height="wrap_content"
-                                                      android:orientation="horizontal"
-                                                      android:gravity="center"
-                                                      android:paddingRight="@dimen/content__row__padding_right"
-                                                      android:baselineAligned="false"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:gravity="center"
+              android:paddingEnd="@dimen/content__row__padding_right"
+              android:baselineAligned="false"
     >
 
-    <com.waz.zclient.pages.main.conversation.views.row.message.views.TextMessageWithTimestamp
-        android:id="@+id/tmwt__message_and_timestamp"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:paddingLeft="@dimen/content__padding_left"
+    <LinearLayout
+        android:id="@+id/ll__row_conversation__message_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/content__padding_left"
+        android:paddingEnd="@dimen/content__padding_right"
         android:layout_gravity="center"
-        />
-
-    <com.waz.zclient.ui.views.BoundLayout
-        android:id="@+id/fl__row_conversation__message_error_container"
-        android:layout_height="match_parent"
-        android:layout_width="@dimen/content__message__progress_size"
-        android:layout_marginRight="@dimen/content__padding_half_right"
-        android:layout_gravity="left|top"
-        app:maximumHeight="@dimen/content__message__progress_size"
         >
 
-        <com.waz.zclient.views.SendingAnimationView
-            android:id="@+id/v__row_conversation__pending"
-            android:layout_height="wrap_content"
+        <com.waz.zclient.pages.main.conversation.views.row.message.views.TextMessageLinkTextView
+            android:id="@+id/tmltv__row_conversation__message"
             android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            app:circleRadius="@dimen/content__message__error_radius"
-            app:pendingStop="@integer/content__message__progress_pending_stop"
-            app:pendingDuration="@integer/content__message__progress_duration"
-            style="?messageStreamUnsentIndicator"
+            android:layout_height="wrap_content"
+            app:font="@string/wire__typeface__light"
+            style="?messageStreamMessage"
             />
 
-        <!-- Wrapper to increase click area around icon -->
-        <FrameLayout
-            android:id="@+id/v__row_conversation__error"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
+    </LinearLayout>
 
-            <com.waz.zclient.ui.text.GlyphTextView
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="@color/text__secondary_light"
-                android:textSize="@dimen/content__message__error_glyph_size"
-                android:text="@string/glyph__redo"
-                />
-
-        </FrameLayout>
-
-
-    </com.waz.zclient.ui.views.BoundLayout>
-
-</com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+</LinearLayout>

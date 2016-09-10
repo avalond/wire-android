@@ -24,11 +24,11 @@
               android:layout_width="match_parent"
               android:layout_height="@dimen/people_picker__user_row__height"
               android:gravity="center_vertical"
-              android:paddingRight="@dimen/people_picker__search_result__row__padding_horizontal"
-              android:paddingLeft="@dimen/people_picker__search_result__row__padding_horizontal"
+              android:paddingStart="@dimen/people_picker__search_result__row__padding_horizontal"
+              android:paddingEnd="@dimen/people_picker__search_result__row__padding_horizontal"
     >
 
-    <com.waz.zclient.views.chathead.ChatheadView
+    <com.waz.zclient.common.views.ChatheadView
         android:id="@+id/cv_pickuser__searchuser_chathead"
         android:layout_width="@dimen/people_picker__chathead__width"
         android:layout_height="wrap_content"
@@ -38,12 +38,11 @@
 
     <com.waz.zclient.ui.text.TypefaceTextView
         android:id="@+id/ttv_pickuser__searchuser_name"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_marginLeft="@dimen/people_picker__search_result__chathead__padding_right"
+        android:layout_marginStart="@dimen/people_picker__search_result__chathead__padding_right"
         android:ellipsize="end"
-        android:gravity="left|center_vertical"
+        android:gravity="start|center_vertical"
         android:singleLine="true"
         android:includeFontPadding="false"
         app:font="@string/wire__typeface__light"

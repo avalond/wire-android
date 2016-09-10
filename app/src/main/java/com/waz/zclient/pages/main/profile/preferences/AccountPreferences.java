@@ -98,7 +98,7 @@ public class AccountPreferences extends BasePreferenceFragment<AccountPreference
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 final CharSequence phoneNumber = preference.getTitle();
-                if (TextUtils.isEmpty(phoneNumber)) {
+                if (TextUtils.isEmpty(phoneNumber) || phoneNumber.equals(getString(R.string.pref_account_add_phone_title))) {
                     addPhoneNumber();
                 } else {
                     changePhoneNumber(String.valueOf(phoneNumber));
@@ -111,7 +111,7 @@ public class AccountPreferences extends BasePreferenceFragment<AccountPreference
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 final CharSequence email = preference.getTitle();
-                if (TextUtils.isEmpty(email)) {
+                if (TextUtils.isEmpty(email) || email.equals(getString(R.string.pref_account_add_email_title))) {
                     addEmailAndPassword();
                 } else {
                     changeEmail(String.valueOf(email));

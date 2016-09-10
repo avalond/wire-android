@@ -30,7 +30,7 @@
         android:id="@+id/v__participants_header__dummy_view"
         android:layout_width="@dimen/wire__icon_button__diameter"
         android:layout_height="@dimen/wire__icon_button__diameter"
-        android:layout_marginLeft="@dimen/wire__padding__big"
+        android:layout_marginStart="@dimen/wire__padding__big"
         />
 
     <LinearLayout
@@ -77,7 +77,7 @@
         android:id="@+id/gtv__participants__close"
         android:layout_width="@dimen/wire__icon_button__diameter"
         android:layout_height="@dimen/wire__icon_button__diameter"
-        android:layout_marginRight="@dimen/wire__padding__big"
+        android:layout_marginEnd="@dimen/wire__padding__big"
         android:gravity="center"
         android:text="@string/glyph__close"
         style="?attr/smallIconButton"

@@ -19,10 +19,8 @@ package com.waz.zclient.controllers.navigation;
 
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import com.waz.annotations.Controller;
 import com.waz.zclient.pages.main.calling.enums.VoiceBarAppearance;
 
-@Controller
 public interface INavigationController extends ViewPager.OnPageChangeListener {
 
     VoiceBarAppearance getVoiceBarAppearanceConversationList();

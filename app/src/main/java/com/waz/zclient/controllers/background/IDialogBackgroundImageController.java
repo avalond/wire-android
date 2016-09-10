@@ -17,11 +17,9 @@
  */
 package com.waz.zclient.controllers.background;
 
-import com.waz.annotations.Controller;
 import com.waz.api.ImageAsset;
 import com.waz.api.User;
 
-@Controller
 public interface IDialogBackgroundImageController {
     void tearDown();
 

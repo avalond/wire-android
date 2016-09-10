@@ -28,6 +28,7 @@ public class SentPictureEvent extends Event {
         GALLERY("gallery"),
         GIPHY("giphy"),
         SKETCH("sketch"),
+        SHARING("sharing"),
         CLIP("clip"),
         ;
 
@@ -37,9 +38,42 @@ public class SentPictureEvent extends Event {
         }
     }
 
-    public SentPictureEvent(Source source, String conversationType) {
+    public enum Method {
+        KEYBOARD("keyboard"),
+        FULL_SCREEN("full_screen"),
+        TABLET("tablet"),
+        DEFAULT("default");
+
+        public final String nameString;
+
+        Method(String nameString) {
+            this.nameString = nameString;
+        }
+    }
+
+    public enum SketchSource {
+        SKETCH_BUTTON("sketch_button"),
+        CAMERA_GALLERY("camera_gallery"),
+        IMAGE_FULL_VIEW("image_full_view"),
+        NONE("none");
+
+        public final String nameString;
+
+        SketchSource(String nameString) {
+            this.nameString = nameString;
+        }
+    }
+
+    public SentPictureEvent(Source source, String conversationType, Method method, SketchSource sketchSource, boolean withBot) {
         attributes.put(Attribute.SOURCE, source.nameString);
         attributes.put(Attribute.CONVERSATION_TYPE, conversationType);
+        attributes.put(Attribute.WITH_BOT, String.valueOf(withBot));
+        if (source == Source.CAMERA || source == Source.GALLERY) {
+            attributes.put(Attribute.METHOD, method.toString());
+        }
+        if (sketchSource != SketchSource.NONE) {
+            attributes.put(Attribute.SKETCH_SOURCE, sketchSource.nameString);
+        }
     }
 
     @NonNull

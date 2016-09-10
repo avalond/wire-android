@@ -17,9 +17,6 @@
  */
 package com.waz.zclient.controllers.verification;
 
-import com.waz.annotations.Controller;
-
-@Controller
 public interface IVerificationController {
 
     void tearDown();

@@ -25,7 +25,7 @@
     >
 
     <com.waz.zclient.ui.text.GlyphTextView
-        android:id="@+id/gtv__camera_control__pick_from_gallery_in_camera"
+        android:id="@+id/gtv__camera_control__gallery"
         android:layout_width="@dimen/touch_target_buttons"
         android:layout_height="@dimen/touch_target_buttons"
         android:layout_gravity="center_vertical|left"
@@ -50,7 +50,7 @@
         />
 
     <com.waz.zclient.ui.text.GlyphTextView
-        android:id="@+id/gtv__camera_control__back_to_change_image"
+        android:id="@+id/gtv__camera_control__close"
         android:layout_width="@dimen/touch_target_buttons"
         android:layout_height="@dimen/touch_target_buttons"
         android:layout_gravity="center_vertical|right"

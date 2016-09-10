@@ -29,6 +29,13 @@
         android:layout_height="wrap_content"
         />
 
+    <com.waz.zclient.views.LoadingIndicatorView
+        android:id="@+id/liv__server_connecting_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        />
+
     <ImageView
         android:id="@+id/iv__connectivity_foreground"
         android:layout_width="match_parent"

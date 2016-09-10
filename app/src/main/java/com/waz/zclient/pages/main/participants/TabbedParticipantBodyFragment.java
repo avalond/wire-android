@@ -28,6 +28,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import com.waz.api.CoreList;
 import com.waz.api.IConversation;
+import com.waz.api.Message;
 import com.waz.api.OtrClient;
 import com.waz.api.User;
 import com.waz.api.UsersList;
@@ -344,6 +345,11 @@ public class TabbedParticipantBodyFragment extends BaseFragment<TabbedParticipan
 
     @Override
     public void onHideOtrClient() {
+
+    }
+
+    @Override
+    public void onShowLikesList(Message message) {
 
     }
 

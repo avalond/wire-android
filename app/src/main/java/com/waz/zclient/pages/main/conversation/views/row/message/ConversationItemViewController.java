@@ -17,9 +17,9 @@
  */
 package com.waz.zclient.pages.main.conversation.views.row.message;
 
-import com.waz.zclient.ui.views.TouchFilterableLayout;
+import android.view.View;
 
 public interface ConversationItemViewController {
-    TouchFilterableLayout getView();
+    View getView();
     void recycle();
 }

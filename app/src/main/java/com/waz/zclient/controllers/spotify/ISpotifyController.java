@@ -20,9 +20,7 @@ package com.waz.zclient.controllers.spotify;
 import android.app.Activity;
 import android.content.Intent;
 import com.spotify.sdk.android.player.Config;
-import com.waz.annotations.Controller;
 
-@Controller(requiresActivity = true)
 public interface ISpotifyController {
     void addSpotifyObserver(SpotifyObserver observer);
 

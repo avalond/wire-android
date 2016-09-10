@@ -42,6 +42,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.intent.Intents.intending;
@@ -92,6 +93,8 @@ public class FileUploadTest extends FragmentTest<MainTestActivity> {
         attachFragment(ConversationFragment.newInstance(), ConversationFragment.TAG);
 
         // verify stuff
+        Thread.sleep(500);
+        onView(withId(R.id.cursor_menu_item_more)).perform(click());
         Thread.sleep(500);
         onView(withId(R.id.cursor_menu_item_file)).perform(click());
         Thread.sleep(200);
@@ -182,6 +185,8 @@ public class FileUploadTest extends FragmentTest<MainTestActivity> {
         attachFragment(ConversationFragment.newInstance(), ConversationFragment.TAG);
 
         // verify stuff
+        Thread.sleep(500);
+        onView(withId(R.id.cursor_menu_item_more)).perform(click());
         Thread.sleep(500);
         onView(withId(R.id.cursor_menu_item_file)).perform(click());
         Thread.sleep(200);

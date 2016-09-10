@@ -18,11 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                     android:layout_width="match_parent"
-                                                     android:layout_height="wrap_content"
-                                                     android:paddingBottom="@dimen/wire__padding__20"
-                                                     android:paddingTop="@dimen/wire__padding__20"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:paddingBottom="@dimen/wire__padding__20"
+             android:paddingTop="@dimen/wire__padding__20"
     >
 
     <View
@@ -70,4 +70,4 @@
     </LinearLayout>
 
 
-</com.waz.zclient.ui.views.TouchFilterableFrameLayout>
+</FrameLayout>

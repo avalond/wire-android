@@ -18,13 +18,17 @@
 package com.waz.zclient.core.controllers.tracking.events.media;
 
 import android.support.annotation.NonNull;
+import com.waz.api.IConversation;
 import com.waz.zclient.core.controllers.tracking.attributes.Attribute;
 import com.waz.zclient.core.controllers.tracking.events.Event;
 
 public class SentLocationEvent extends Event {
 
-    public SentLocationEvent(String conversationType) {
-        attributes.put(Attribute.CONVERSATION_TYPE, conversationType);
+    public SentLocationEvent(IConversation conversation) {
+        if (conversation != null) {
+            attributes.put(Attribute.WITH_BOT, String.valueOf(conversation.isOtto()));
+            attributes.put(Attribute.CONVERSATION_TYPE, conversation.getName());
+        }
     }
 
     @NonNull

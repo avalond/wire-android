@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import com.waz.api.ConversationsList;
 import com.waz.api.IConversation;
+import com.waz.api.Message;
 import com.waz.api.OtrClient;
 import com.waz.api.SyncState;
 import com.waz.api.User;
@@ -335,7 +336,7 @@ public class ParticipantFragment extends BaseFragment<ParticipantFragment.Contai
     public void onVerificationStateChanged(String conversationId,
                                            Verification previousVerification,
                                            Verification currentVerification) {
-        
+
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -582,11 +583,8 @@ public class ParticipantFragment extends BaseFragment<ParticipantFragment.Contai
             if (user == null) {
                 return;
             }
-            getControllerFactory().getSingleImageController()
-                                  .setViewReferences(bodyContainer, null);
-
-            getControllerFactory().getSingleImageController()
-                                  .showSingleImage(user);
+            getControllerFactory().getSingleImageController().setViewReferences(bodyContainer);
+            getControllerFactory().getSingleImageController().showSingleImage(user);
         }
     }
 
@@ -773,6 +771,11 @@ public class ParticipantFragment extends BaseFragment<ParticipantFragment.Contai
     @Override
     public void onHideOtrClient() {
         getChildFragmentManager().popBackStackImmediate();
+    }
+
+    @Override
+    public void onShowLikesList(Message message) {
+
     }
 
     @Override

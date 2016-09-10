@@ -24,8 +24,10 @@ import com.waz.zclient.core.controllers.tracking.events.Event;
 public class OpenedMessageActionEvent extends Event {
 
     private enum Target {
-        DELETE("delete"),
+        DELETE_FOR_ME("delete_for_me"),
+        DELETE_FOR_EVERYONE("delete_for_everyone"),
         COPY("copy"),
+        EDIT("edit"),
         FORWARD("forward"),
         ;
 
@@ -35,21 +37,29 @@ public class OpenedMessageActionEvent extends Event {
         }
     }
 
-    public OpenedMessageActionEvent(Target target) {
+    public OpenedMessageActionEvent(Target target, String messageType) {
         attributes.put(Attribute.ACTION, target.name());
+        attributes.put(Attribute.TYPE, messageType);
     }
 
-    public static OpenedMessageActionEvent delete() {
-        return new OpenedMessageActionEvent(Target.DELETE);
+    public static OpenedMessageActionEvent deleteForMe(String messageType) {
+        return new OpenedMessageActionEvent(Target.DELETE_FOR_ME, messageType);
     }
 
-
-    public static OpenedMessageActionEvent copy() {
-        return new OpenedMessageActionEvent(Target.COPY);
+    public static OpenedMessageActionEvent deleteForEveryone(String messageType) {
+        return new OpenedMessageActionEvent(Target.DELETE_FOR_EVERYONE, messageType);
     }
 
-    public static OpenedMessageActionEvent forward() {
-        return new OpenedMessageActionEvent(Target.FORWARD);
+    public static OpenedMessageActionEvent edit(String messageType) {
+        return new OpenedMessageActionEvent(Target.EDIT, messageType);
+    }
+
+    public static OpenedMessageActionEvent copy(String messageType) {
+        return new OpenedMessageActionEvent(Target.COPY, messageType);
+    }
+
+    public static OpenedMessageActionEvent forward(String messageType) {
+        return new OpenedMessageActionEvent(Target.FORWARD, messageType);
     }
 
     @NonNull

@@ -55,7 +55,7 @@ task licenseFormatAndroid(type: nl.javadude.gradle.plugins.license.License) {
 licenseFormat.dependsOn licenseFormatAndroid
 
 ext {
-    majorVersion = "2.13."
+    majorVersion = "2.16."
 
     compileSdkVersion = 23
     minSdkVersion = 17
@@ -72,16 +72,22 @@ ext {
     supportLibVersion = '23.4.0'
     playServicesVersion = '7.8.+'
 
-    audioVersion = System.getenv("AUDIO_VERSION") ?: '1.195.0@aar'
-    zMessagingDevVersionBase = '75.1119'
+    audioVersion = System.getenv("AUDIO_VERSION") ?: '1.200.0@aar'
+    zMessagingDevVersionBase = '78.1206'
     zMessagingDevVersion = "${zMessagingDevVersionBase}@aar"
     // Release version number must be like this X.0(.Y)
-    zMessagingReleaseVersion = System.getenv("ZMESSAGING_VERSION") ?: '75.0.274@aar'
+    zMessagingReleaseVersion = System.getenv("ZMESSAGING_VERSION") ?: '78.0.294@aar'
 
-    avsVersion = System.getenv("AVS_VERSION") ?: '2.8.39@aar'
+    avsVersion = '2.8.61@aar'
     avsInternalVersion = avsVersion //leave this here in case we want to test specific AVS versions on internal
-    avsName = System.getenv("AVS_NAME") ?: 'avs'
-    avsGroup = System.getenv("AVS_GROUP") ?: 'com.wire'
+    avsName = 'avs'
+    avsGroup = 'com.wire'
+
+    // proprietary avs artifact config
+    customAvsVersion = '2.8.8@aar'
+    customAvsInternalVersion = customAvsVersion
+    customAvsName = 'avs'
+    customAvsGroup = 'com.wearezeta.avs'
 
     deps = [
             scala               : "org.scala-lang:scala-library:$scalaVersion",
@@ -122,7 +128,7 @@ ext {
             timber               : 'com.jakewharton.timber:timber:4.1.1',
             hockey               : 'net.hockeyapp.android:HockeySDK:3.7.2',
             threetenabp          : 'com.jakewharton.threetenabp:threetenabp:1.0.3',
-            localytics           : 'com.localytics.android:library:3.8.0',
+            localytics           : 'com.localytics.android:library:3.8.2',
             nineoldandroids      : 'com.nineoldandroids:library:2.4.0',
             rebound              : 'com.facebook.rebound:rebound:0.3.8',
             supportpreferences   : 'net.xpece.android:support-preference:0.8.1',
@@ -131,7 +137,7 @@ ext {
             spotifyAuth          : 'com.wire:spotify-auth:1.0.0-beta13@aar',
 
             // Internal
-            audioNotifications   : "com.wire.avs:audio-notifications:$audioVersion",
+            audioNotifications   : "com.wire:audio-notifications:$audioVersion",
 
             // Test dependencies
             junit               : 'junit:junit:4.12',
@@ -175,8 +181,8 @@ allprojects {
     }
 }
 
-if (project.file('repositories.gradle').exists()) {
-    apply from: "repositories.gradle"
+if (project.file('user.gradle').exists()) {
+    apply from: "user.gradle"
 }
 
 

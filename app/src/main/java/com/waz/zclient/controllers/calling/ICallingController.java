@@ -17,9 +17,6 @@
  */
 package com.waz.zclient.controllers.calling;
 
-import com.waz.annotations.Controller;
-
-@Controller
 public interface ICallingController {
 
     void addCallingObserver(CallingObserver callingObserver);

@@ -20,6 +20,8 @@ package com.waz.zclient.testutils;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.espresso.matcher.ViewMatchers;
+
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.containsString;
 import android.view.View;
 import junit.framework.AssertionFailedError;
@@ -48,6 +50,10 @@ public class CustomViewAssertions {
 
     public static ViewAssertion containsText(String text) {
         return matches(withText(containsString(text)));
+    }
+
+    public static ViewAssertion doesNotContainText(String text) {
+        return matches(withText(not(containsString(text))));
     }
 
     public static ViewAssertion isNull() {

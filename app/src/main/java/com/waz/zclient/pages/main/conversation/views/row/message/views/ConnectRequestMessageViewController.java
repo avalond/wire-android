@@ -20,6 +20,7 @@ package com.waz.zclient.pages.main.conversation.views.row.message.views;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.TextView;
 import com.waz.api.IConversation;
 import com.waz.api.User;
@@ -29,14 +30,13 @@ import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
 import com.waz.zclient.ui.utils.TextViewUtils;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
 import com.waz.zclient.utils.ViewUtils;
-import com.waz.zclient.views.chathead.ChatheadView;
+import com.waz.zclient.common.views.ChatheadView;
 
 public class ConnectRequestMessageViewController extends MessageViewController {
 
     // User with whom conversation was created
-    private TouchFilterableLinearLayout view;
+    private View view;
     private ChatheadView chatheadView;
     private TextView usernameTextView;
     private TextView label;
@@ -68,7 +68,7 @@ public class ConnectRequestMessageViewController extends MessageViewController {
     public ConnectRequestMessageViewController(Context context, MessageViewsContainer messageViewsContainer) {
         super(context, messageViewsContainer);
         LayoutInflater inflater = LayoutInflater.from(context);
-        view = (TouchFilterableLinearLayout) inflater.inflate(R.layout.row_conversation_connect_request, null);
+        view = inflater.inflate(R.layout.row_conversation_connect_request, null);
         chatheadView = ViewUtils.getView(view, R.id.cv__row_conversation__connect_request__chat_head);
         usernameTextView = ViewUtils.getView(view, R.id.ttv__row_conversation__connect_request__user);
         label = ViewUtils.getView(view, R.id.ttv__row_conversation__connect_request__label);
@@ -94,7 +94,7 @@ public class ConnectRequestMessageViewController extends MessageViewController {
     }
 
     @Override
-    public TouchFilterableLinearLayout getView() {
+    public View getView() {
         return view;
     }
 }

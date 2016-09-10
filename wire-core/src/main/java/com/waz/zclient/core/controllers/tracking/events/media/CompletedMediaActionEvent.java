@@ -25,10 +25,12 @@ import com.waz.zclient.core.controllers.tracking.events.Event;
 public class CompletedMediaActionEvent extends Event {
 
 
-    public CompletedMediaActionEvent(CompletedMediaType type, String conversationType, boolean withOtto) {
+    public CompletedMediaActionEvent(CompletedMediaType type, String conversationType, boolean withBot) {
         attributes.put(Attribute.ACTION, type.nameString);
         attributes.put(Attribute.CONVERSATION_TYPE, conversationType);
-        attributes.put(Attribute.WITH_OTTO, String.valueOf(withOtto));
+        // Remove attribute WITH_OTTO once WITH_BOT flag as reach majority of users
+        attributes.put(Attribute.WITH_OTTO, String.valueOf(withBot));
+        attributes.put(Attribute.WITH_BOT, String.valueOf(withBot));
     }
 
     @NonNull

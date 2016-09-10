@@ -21,22 +21,13 @@ import android.content.Context;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import com.waz.api.Asset;
 import com.waz.api.Message;
-import com.waz.zclient.R;
-import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
-import com.waz.zclient.controllers.selection.MessageActionModeController;
-import com.waz.zclient.controllers.selection.MessageActionModeObserver;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
+import com.waz.zclient.pages.main.conversation.views.row.footer.FooterActionCallback;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
-import com.waz.zclient.ui.theme.ThemeUtils;
-import com.waz.zclient.ui.utils.ColorUtils;
-import com.waz.zclient.ui.utils.ResourceUtils;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
-
-import java.util.Set;
 
 import static com.waz.api.AssetStatus.META_DATA_SENT;
 import static com.waz.api.AssetStatus.PREVIEW_SENT;
@@ -44,28 +35,26 @@ import static com.waz.api.AssetStatus.UPLOAD_IN_PROGRESS;
 import static com.waz.api.AssetStatus.UPLOAD_NOT_STARTED;
 
 public abstract class MessageViewController implements ConversationItemViewController,
-                                                       AccentColorObserver,
-                                                       MessageActionModeObserver,
-                                                       TouchFilterableLayout.OnClickListener,
-                                                       TouchFilterableLayout.OnLongClickListener {
+                                                       View.OnLongClickListener {
 
     protected Context context;
     protected Message message;
     protected MessageViewsContainer messageViewsContainer;
-    protected final float selectionAlpha;
+    protected FooterActionCallback footerActionCallback;
 
     public MessageViewController(Context context, MessageViewsContainer messageViewsContainer) {
         this.context = context;
         this.messageViewsContainer = messageViewsContainer;
-        if (ThemeUtils.isDarkTheme(context)) {
-            selectionAlpha = ResourceUtils.getResourceFloat(context.getResources(), R.dimen.selection__alpha_dark);
-        } else {
-            selectionAlpha = ResourceUtils.getResourceFloat(context.getResources(), R.dimen.selection__alpha_light);
-        }
-
     }
 
     protected void afterInit() {}
+
+    protected void onHeaderClick() {}
+
+    @CallSuper
+    protected void setFooterActionCallback(FooterActionCallback footerActionCallback) {
+        this.footerActionCallback = footerActionCallback;
+    }
 
     /**
      * Set the model to be displayed. The UI setup logic for each message type goes here.
@@ -78,6 +67,7 @@ public abstract class MessageViewController implements ConversationItemViewContr
     @CallSuper
     public void setMessage(@NonNull Message message, @NonNull Separator separator) {
         final Message oldMessage = this.message;
+        updateMessageEditingStatus();
         if (oldMessage != null &&
             message.getId().equals(oldMessage.getId())) {
             return;
@@ -86,11 +76,11 @@ public abstract class MessageViewController implements ConversationItemViewContr
         beforeSetMessage(oldMessage, message);
         this.message = message;
         onSetMessage(separator);
-        if (messageViewsContainer.getControllerFactory().getMessageActionModeController().isActionModeEnabled()) {
-            onActionModeStarted();
-        }
-        messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(this);
-        messageViewsContainer.getControllerFactory().getMessageActionModeController().addObserver(this);
+        updateMessageEditingStatus();
+    }
+
+    protected void updateMessageEditingStatus() {
+
     }
 
     protected void beforeSetMessage(@Nullable Message oldMessage, Message newMessage) {}
@@ -102,98 +92,13 @@ public abstract class MessageViewController implements ConversationItemViewContr
     @CallSuper
     public void recycle() {
         message = null;
-        setSelected(false);
-        onActionModeFinished();
-        if (messageViewsContainer != null && !messageViewsContainer.isTornDown()) {
-            messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
-            messageViewsContainer.getControllerFactory().getMessageActionModeController().removeObserver(this);
+        if (footerActionCallback != null) {
+            footerActionCallback.recycle();
         }
     }
 
     public Message getMessage() {
         return message;
-    }
-
-    @Override
-    public final void onMessageSelectionChanged(Set<Message> selectedMessages) {
-        setSelected(selectedMessages.contains(message));
-    }
-
-    @Override
-    public void onMessageSelected(Message message) {
-
-    }
-
-    protected void setSelected(boolean selected) {
-        if (message == null ||
-            messageViewsContainer == null ||
-            messageViewsContainer.isTornDown() ||
-            getSelectionView() == null) {
-            return;
-        }
-        final int accentColor = messageViewsContainer.getControllerFactory().getAccentColorController().getColor();
-        int targetAccentColor;
-        if (selected) {
-            targetAccentColor = ColorUtils.injectAlpha(selectionAlpha, accentColor);
-        } else {
-            targetAccentColor = ContextCompat.getColor(context, R.color.transparent);
-        }
-        getSelectionView().setBackgroundColor(targetAccentColor);
-    }
-
-    @Override
-    public void onActionModeStarted() {
-        getView().setFilterAllClickEvents(true);
-        if (this instanceof MessageActionModeController.Selectable) {
-            getView().setOnClickListener(this);
-            getView().setOnLongClickListener(this);
-        }
-    }
-
-    @Override
-    public void onActionModeFinished() {
-        getView().setFilterAllClickEvents(false);
-        getView().setOnClickListener(null);
-        getView().setOnLongClickListener(null);
-    }
-
-    @Override
-    public void onFinishActionMode() {
-    }
-
-    @Override
-    @CallSuper
-    public void onAccentColorHasChanged(Object sender, int color) {
-        if (message == null ||
-            messageViewsContainer == null ||
-            messageViewsContainer.isTornDown() ||
-            getSelectionView() == null) {
-            return;
-        }
-        setSelected(messageViewsContainer.getControllerFactory().getMessageActionModeController().isSelected(message));
-    }
-
-    protected View getSelectionView() {
-        return getView().getLayout();
-    }
-
-    @Override
-    public void onClick() {
-        if (messageViewsContainer == null ||
-            messageViewsContainer.isTornDown() ||
-            !(this instanceof MessageActionModeController.Selectable)) {
-            return;
-        }
-        if (messageViewsContainer.getControllerFactory().getMessageActionModeController().isSelected(message)) {
-            messageViewsContainer.getControllerFactory().getMessageActionModeController().deselectMessage(message);
-        } else {
-            messageViewsContainer.getControllerFactory().getMessageActionModeController().selectMessage(message);
-        }
-    }
-
-    @Override
-    public void onLongClick() {
-        onClick();
     }
 
     protected boolean receivingMessage(Asset asset) {
@@ -209,5 +114,12 @@ public abstract class MessageViewController implements ConversationItemViewContr
         return messageViewsContainer.getConversationType() != null ?
                messageViewsContainer.getConversationType().name() :
                "unspecified";
+    }
+
+    @Override
+    @CallSuper
+    public boolean onLongClick(View v) {
+        v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+        return messageViewsContainer.onItemLongClick(message);
     }
 }

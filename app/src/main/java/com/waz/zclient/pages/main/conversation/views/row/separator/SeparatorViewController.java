@@ -31,13 +31,11 @@ import com.waz.api.UpdateListener;
 import com.waz.api.User;
 import com.waz.zclient.R;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
 import com.waz.zclient.pages.main.conversation.views.row.message.ConversationItemViewController;
 import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode;
 import com.waz.zclient.ui.text.TypefaceTextView;
 import com.waz.zclient.ui.theme.ThemeUtils;
 import com.waz.zclient.ui.utils.BitmapUtils;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
 import com.waz.zclient.utils.DateConvertUtils;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.utils.ZTimeFormatter;
@@ -52,11 +50,13 @@ public class SeparatorViewController implements ConversationItemViewController,
     private Resources resources;
     private Context context;
 
-    private TouchFilterableLinearLayout view;
+    private View view;
     private LinearLayout timestampLinearLayout;
     private TypefaceTextView timestampTextview;
     private View timestampDivider;
     private TypefaceTextView userNameTextView;
+    private View messageRecalledGlyph;
+    private View messageEditedGlyph;
     private ImageView unreadDot;
     private ChatheadImageView userChatheadImageView;
     private View userLayout;
@@ -70,8 +70,10 @@ public class SeparatorViewController implements ConversationItemViewController,
         this.resources = context.getResources();
         this.is24HourFormat = DateFormat.is24HourFormat(context);
 
-        view = (TouchFilterableLinearLayout) View.inflate(context, R.layout.row_conversation_separator, null);
+        view = View.inflate(context, R.layout.row_conversation_separator, null);
         userNameTextView = ViewUtils.getView(view, R.id.ttv__row_conversation__separator__name);
+        messageRecalledGlyph = ViewUtils.getView(view, R.id.gtv__message_recalled);
+        messageEditedGlyph = ViewUtils.getView(view, R.id.gtv__message_edited);
         timestampLinearLayout = ViewUtils.getView(view, R.id.ll__row_conversation__separator_time);
         timestampDivider = ViewUtils.getView(view, R.id.v__row_conversation__separator__time__divider);
         timestampTextview = ViewUtils.getView(view, R.id.ttv__row_conversation__separator__time);
@@ -80,14 +82,21 @@ public class SeparatorViewController implements ConversationItemViewController,
         userLayout = ViewUtils.getView(view, R.id.ll__row_conversation__separator_user);
     }
 
-    public void setSeparator(Separator separator) {
+    public void setMessage(Message message, Separator separator) {
         setUnreadDot(separator);
-        setUserName(separator);
+        setUserName(message, separator);
         setTimestamp(separator);
-        setPadding(separator);
+        setPadding(message, separator);
+        showRecalledGlyph(separator);
+
+        if (message.isEdited()) {
+            messageEditedGlyph.setVisibility(View.VISIBLE);
+        } else {
+            messageEditedGlyph.setVisibility(View.GONE);
+        }
     }
 
-    private void setPadding(Separator separator) {
+    private void setPadding(Message message, Separator separator) {
         if (separator.nextMessage == null) {
             return;
         }
@@ -102,14 +111,14 @@ public class SeparatorViewController implements ConversationItemViewController,
 
         resetPadding();
 
-        boolean showSeparator = SeparatorRules.shouldHaveName(separator) ||
+        boolean showSeparator = SeparatorRules.shouldHaveName(message, separator) ||
                                 SeparatorRules.shouldHaveTimestamp(separator,
                                                                    resources.getInteger(R.integer.content__burst_time_interval)) ||
                                 SeparatorRules.shouldHaveUnreadDot(separator,
                                                                    messageViewsContainer.getUnreadMessageCount());
 
         if (showSeparator) {
-            setPaddingWithSeparator(separator);
+            setPaddingWithSeparator(message, separator);
         } else {
             setPaddingWithoutSeparator(separator);
         }
@@ -199,7 +208,7 @@ public class SeparatorViewController implements ConversationItemViewController,
         ViewUtils.setPaddingBottom(view, padding);
     }
 
-    private void setPaddingWithSeparator(Separator separator) {
+    private void setPaddingWithSeparator(Message message, Separator separator) {
         Message.Type nextMessageType = separator.nextMessage.getMessageType();
         Message.Type previousMessageType = separator.previousMessage.getMessageType();
 
@@ -219,7 +228,7 @@ public class SeparatorViewController implements ConversationItemViewController,
                                   previousMessageType == Message.Type.VIDEO_ASSET;
         boolean nextIsFile = nextMessageType == Message.Type.ANY_ASSET;
 
-        boolean hasName = SeparatorRules.shouldHaveName(separator);
+        boolean hasName = SeparatorRules.shouldHaveName(message, separator);
         boolean hasTimestamp = SeparatorRules.shouldHaveTimestamp(separator,
                                                                   resources.getInteger(R.integer.content__burst_time_interval));
         boolean hasDayTimestamp = SeparatorRules.shouldHaveBigTimestamp(separator);
@@ -343,12 +352,12 @@ public class SeparatorViewController implements ConversationItemViewController,
         }
     }
 
-    private void setUserName(Separator separator) {
+    private void setUserName(Message message, Separator separator) {
         if (user != null) {
             user.removeUpdateListener(this);
         }
 
-        boolean shouldHaveName = SeparatorRules.shouldHaveName(separator);
+        boolean shouldHaveName = SeparatorRules.shouldHaveName(message, separator);
 
         if (shouldHaveName) {
             user = separator.nextMessage.getUser();
@@ -360,7 +369,11 @@ public class SeparatorViewController implements ConversationItemViewController,
             userChatheadImageView.setOnClickListener(null);
             user = null;
         }
+    }
 
+    private void showRecalledGlyph(Separator separator) {
+        messageRecalledGlyph.setVisibility(separator.getNextMessage().getMessageType() == Message.Type.RECALLED ?
+                                           View.VISIBLE : View.GONE);
     }
 
     private void showUserName() {
@@ -390,8 +403,12 @@ public class SeparatorViewController implements ConversationItemViewController,
         }
     }
 
+    public void setOnSeparatorClickListener(View.OnClickListener onSeparatorClickListener) {
+        view.setOnClickListener(onSeparatorClickListener);
+    }
+
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 

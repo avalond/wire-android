@@ -19,6 +19,7 @@ package com.waz.zclient.core.controllers.tracking.events.media;
 
 
 import android.support.annotation.NonNull;
+import com.waz.api.IConversation;
 import com.waz.zclient.core.controllers.tracking.attributes.Attribute;
 import com.waz.zclient.core.controllers.tracking.attributes.RangedAttribute;
 import com.waz.zclient.core.controllers.tracking.events.Event;
@@ -29,11 +30,14 @@ public class PlayedAudioMessageEvent extends Event {
     public PlayedAudioMessageEvent(String fileMimeType,
                                    int durationSec,
                                    boolean playedByReceiver,
-                                   String conversationType) {
+                                   IConversation conversation) {
         attributes.put(Attribute.TYPE, AssetUtils.assetMimeTypeToExtension(fileMimeType));
         attributes.put(Attribute.USER, playedByReceiver ? "receiver" : "sender");
-        attributes.put(Attribute.CONVERSATION_TYPE, conversationType);
         rangedAttributes.put(RangedAttribute.VIDEO_AND_AUDIO_MESSAGE_DURATION, durationSec);
+        if (conversation != null) {
+            attributes.put(Attribute.WITH_BOT, String.valueOf(conversation.isOtto()));
+            attributes.put(Attribute.CONVERSATION_TYPE, conversation.getName());
+        }
     }
 
     @NonNull

@@ -18,9 +18,7 @@
 package com.waz.zclient.controllers.conversationlist;
 
 import android.support.annotation.IntDef;
-import com.waz.annotations.Controller;
 
-@Controller
 public interface IConversationListController {
 
     @IntDef({SCROLLED_TO_BOTTOM,

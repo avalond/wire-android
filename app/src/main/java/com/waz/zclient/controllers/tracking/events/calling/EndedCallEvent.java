@@ -30,6 +30,7 @@ public class EndedCallEvent extends Event {
     private static final String DROP_REASON_WIFI = "drop_wifi";
     private static final String DROP_REASON_4G = "drop_4g";
     private static final String DROP_REASON_3G = "drop_3g";
+    private static final String DROP_REASON_EDGE = "drop_EDGE";
     private static final String DROP_REASON_2G = "drop_2g";
 
     public EndedCallEvent(CallEnded callEnded) {
@@ -59,6 +60,9 @@ public class EndedCallEvent extends Event {
                         break;
                     case _3G:
                         attributes.put(Attribute.CALLING_END_REASON, DROP_REASON_3G);
+                        break;
+                    case EDGE:
+                        attributes.put(Attribute.CALLING_END_REASON, DROP_REASON_EDGE);
                         break;
                     case _2G:
                         attributes.put(Attribute.CALLING_END_REASON, DROP_REASON_2G);

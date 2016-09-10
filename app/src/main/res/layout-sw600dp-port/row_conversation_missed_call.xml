@@ -18,13 +18,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                      xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                      xmlns:tools="http://schemas.android.com/tools"
-                                                      android:layout_width="match_parent"
-                                                      android:layout_height="wrap_content"
-                                                      android:orientation="horizontal"
-                                                      android:gravity="center_vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:gravity="center_vertical"
     >
 
     <FrameLayout
@@ -36,8 +36,8 @@
         <FrameLayout
             android:layout_width="@dimen/wire__call_indicator__large__width"
             android:layout_height="@dimen/wire__call_indicator__large__width"
-            android:layout_marginRight="@dimen/row_conversation__missed_call__margin"
-            android:layout_gravity="right"
+            android:layout_marginEnd="@dimen/row_conversation__missed_call__margin"
+            android:layout_gravity="end"
             tools:ignore="UselessParent"
             >
 
@@ -84,4 +84,4 @@
         tools:ignore="UselessLeaf"
         />
 
-</com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+</LinearLayout>

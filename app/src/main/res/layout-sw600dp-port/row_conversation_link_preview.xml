@@ -18,18 +18,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                      xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                      xmlns:tools="http://schemas.android.com/tools"
-                                                      android:layout_width="match_parent"
-                                                      android:layout_height="match_parent"
-                                                      android:orientation="vertical"
-                                                      android:gravity="center"
-                                                      android:paddingRight="@dimen/content__row__padding_right"
-                                                      android:baselineAligned="false"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:gravity="center"
+              android:paddingEnd="@dimen/content__row__padding_right"
+              android:baselineAligned="false"
     >
 
-    <com.waz.zclient.pages.main.conversation.views.row.message.views.TextMessageWithTimestamp
+    <com.waz.zclient.pages.main.conversation.views.row.message.views.TextMessageLinkTextView
         android:id="@+id/cv__row_conversation__link_preview__text_message"
         android:layout_width="@dimen/content__width"
         android:layout_height="wrap_content"
@@ -79,11 +79,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/wire__padding__12"
-                android:paddingRight="@dimen/wire__padding__12"
-                android:paddingLeft="@dimen/wire__padding__12"
+                android:paddingEnd="@dimen/wire__padding__12"
+                android:paddingStart="@dimen/wire__padding__12"
                 android:maxLines="@integer/content__link_preview__title__maxlines"
                 android:ellipsize="end"
-                android:gravity="left"
+                android:gravity="start"
                 android:textSize="@dimen/wire__text_size__regular"
                 app:font="@string/wire__typeface__light"
                 style="?colorPrimary"
@@ -94,11 +94,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/wire__padding__6"
-                android:paddingRight="@dimen/wire__padding__12"
-                android:paddingLeft="@dimen/wire__padding__12"
+                android:paddingEnd="@dimen/wire__padding__12"
+                android:paddingStart="@dimen/wire__padding__12"
                 android:ellipsize="middle"
                 android:singleLine="true"
-                android:gravity="left"
+                android:gravity="start"
                 android:textSize="@dimen/wire__text_size__small"
                 android:textColor="@color/wire__text_color_secondary_light_selector"
                 app:font="@string/wire__typeface__light"
@@ -109,4 +109,4 @@
     </android.support.v7.widget.CardView>
 
 
-</com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+</LinearLayout>

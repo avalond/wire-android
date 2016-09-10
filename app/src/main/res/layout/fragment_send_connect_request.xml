@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/wire__padding__big"
-            android:paddingLeft="@dimen/wire__padding__big"
+            android:paddingStart="@dimen/wire__padding__big"
             />
 
     </FrameLayout>
@@ -69,8 +69,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/wire__padding__regular"
-            android:paddingLeft="@dimen/connect_request__padding_users"
-            android:paddingRight="@dimen/connect_request__padding_users"
+            android:paddingStart="@dimen/connect_request__padding_users"
+            android:paddingEnd="@dimen/connect_request__padding_users"
             />
 
 
@@ -92,8 +92,8 @@
             android:id="@+id/zb__send_connect_request__connect_button"
             android:layout_width="match_parent"
             android:layout_height="@dimen/framework_confirmation_menu_button_height"
-            android:layout_marginRight="@dimen/wire__padding__big"
-            android:layout_marginLeft="@dimen/wire__padding__big"
+            android:layout_marginStart="@dimen/wire__padding__big"
+            android:layout_marginEnd="@dimen/wire__padding__big"
             android:layout_marginBottom="@dimen/wire__padding__big"
             android:gravity="center"
             android:background="@drawable/blue_button"

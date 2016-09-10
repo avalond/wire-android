@@ -17,7 +17,6 @@
  */
 package com.waz.zclient.core.stores.profile;
 
-import com.waz.annotations.Store;
 import com.waz.api.CredentialsUpdateListener;
 import com.waz.api.ImageAsset;
 import com.waz.api.Self;
@@ -25,7 +24,6 @@ import com.waz.api.User;
 import com.waz.api.ZMessagingApi;
 import com.waz.zclient.core.stores.IStore;
 
-@Store
 public interface IProfileStore extends IStore {
 
     /* add an observer to this store */
@@ -79,9 +77,6 @@ public interface IProfileStore extends IStore {
 
     /* notifies self store that app is launched for the very first time */
     void setIsFirstLaunch(boolean isFirstLaunch);
-
-    /* delete image */
-    void deleteImage();
 
     void setUserPicture(ImageAsset imageAsset);
 

@@ -26,7 +26,6 @@ import com.waz.zclient.R;
 import com.waz.zclient.ui.animation.interpolators.penner.Expo;
 
 public class VoiceFilterContent extends ViewAnimator {
-    public static final String TAG = VoiceFilterContent.class.getSimpleName();
     private VoiceFilterGridLayout voiceFilterGridLayout;
     private VoiceFilterRecordingLayout voiceFilterRecordingLayout;
 

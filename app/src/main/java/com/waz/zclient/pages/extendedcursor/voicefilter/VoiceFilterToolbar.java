@@ -37,7 +37,6 @@ import org.threeten.bp.Instant;
 public class VoiceFilterToolbar extends ViewAnimator implements
                                                      View.OnClickListener,
                                                      VoiceFilterController.RecordingObserver {
-    public static final String TAG = VoiceFilterToolbar.class.getSimpleName();
 
     private GlyphTextView recordButton;
     private VoiceFilterController voiceFilterController;

@@ -69,27 +69,6 @@
         android:visibility="gone"
         >
 
-        <com.waz.zclient.ui.text.TypefaceTextView
-            android:id="@+id/ttv__single_image_message__name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/single_image_message__name__font_color"
-            app:transform="@string/single_image_message__name__font_transform"
-            app:font="@string/single_image_message__name__font"
-            android:textSize="@dimen/single_image_message__name__font_size"
-            />
-
-        <com.waz.zclient.ui.text.TypefaceTextView
-            android:id="@+id/ttv__single_image_message__time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ttv__single_image_message__name"
-            android:paddingTop="@dimen/single_image_message__date__padding_top"
-            android:textColor="@color/single_image_message__date__font_color"
-            app:font="@string/single_image_message__date__font"
-            android:textSize="@dimen/single_image_message__date__font_size"
-            />
-
         <com.waz.zclient.ui.text.GlyphTextView
             android:id="@+id/gtv__single_image_message__close"
             android:layout_marginTop="@dimen/single_image_message__icon__adjust_to_top"
@@ -107,98 +86,5 @@
             android:paddingBottom="@dimen/single_image_message__icon__padding__bottom"
             />
     </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/ll__single_image_message__footer"
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/single_image_message__header_height"
-        android:background="@color/single_image_message__overlay__color"
-        android:paddingLeft="@dimen/single_image_message__layout__padding__left"
-        android:paddingRight="@dimen/single_image_message__layout__padding__right"
-        android:paddingBottom="@dimen/single_image_message__layout__padding__bottom"
-        android:alpha="@dimen/framework__zero__alpha"
-        android:visibility="gone"
-        android:layout_gravity="center_horizontal|bottom"
-        >
-
-        <com.waz.zclient.ui.text.GlyphTextView
-            android:id="@+id/gtv__single_image_message__sketch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="@dimen/single_image_message__icon__adjust_to_left"
-            android:layout_marginBottom="@dimen/single_image_message__icon__adjust_to_bottom"
-            android:text="@string/glyph__paint"
-            android:textColor="@color/wire__text_color_primary_dark_selector"
-            android:textSize="@dimen/single_image_message__icon__text_size"
-            android:paddingLeft="@dimen/single_image_message__icon__padding__left"
-            android:paddingRight="@dimen/single_image_message__icon__padding__right"
-            android:paddingTop="@dimen/single_image_message__icon__padding__top"
-            android:paddingBottom="@dimen/single_image_message__icon__padding__bottom"
-            android:clickable="true"
-            />
-
-        <com.waz.zclient.ui.text.GlyphTextView
-            android:id="@+id/gtv__single_image_message__love"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="@dimen/single_image_message__icon__adjust_to_left"
-            android:layout_marginBottom="@dimen/single_image_message__icon__adjust_to_bottom"
-            android:text="@string/glyph__love"
-            android:visibility="gone"
-            android:textColor="@color/wire__text_color_primary_dark_selector"
-            android:textSize="@dimen/single_image_message__icon__text_size"
-            android:paddingLeft="@dimen/single_image_message__icon__padding__left"
-            android:paddingRight="@dimen/single_image_message__icon__padding__right"
-            android:paddingTop="@dimen/single_image_message__icon__padding__top"
-            android:paddingBottom="@dimen/single_image_message__icon__padding__bottom"
-            android:clickable="true"
-            />
-
-        <com.waz.zclient.ui.text.GlyphTextView
-            android:id="@+id/gtv__single_image_message__save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="@dimen/single_image_message__icon__adjust_to_right"
-            android:layout_marginBottom="@dimen/single_image_message__icon__adjust_to_bottom"
-            android:text="@string/glyph__download"
-            android:textColor="@color/wire__text_color_primary_dark_selector"
-            android:textSize="@dimen/single_image_message__icon__text_size"
-            android:paddingLeft="@dimen/single_image_message__icon__padding__left"
-            android:paddingRight="@dimen/single_image_message__icon__padding__right"
-            android:paddingTop="@dimen/single_image_message__icon__padding__top"
-            android:paddingBottom="@dimen/single_image_message__icon__padding__bottom"
-            android:clickable="true"
-            />
-    </RelativeLayout>
-
-    <FrameLayout
-        android:id="@+id/fl__single_image_message__save_image_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        >
-
-        <ImageView
-            android:id="@+id/iv__single_image_message__save_image_blurred"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitCenter"
-            />
-
-        <ImageView
-            android:id="@+id/iv__single_image_message__save_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitCenter"
-            />
-
-    </FrameLayout>
-
 
 </FrameLayout>

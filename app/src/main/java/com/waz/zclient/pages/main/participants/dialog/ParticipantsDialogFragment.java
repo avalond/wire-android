@@ -39,6 +39,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import com.waz.api.IConversation;
+import com.waz.api.Message;
 import com.waz.api.OtrClient;
 import com.waz.api.User;
 import com.waz.api.UsersList;
@@ -711,6 +712,11 @@ public class ParticipantsDialogFragment extends BaseFragment<ParticipantsDialogF
         if (fragment instanceof ConversationScreenControllerObserver) {
             ((ConversationScreenControllerObserver) fragment).onHideOtrClient();
         }
+    }
+
+    @Override
+    public void onShowLikesList(Message message) {
+
     }
 
     @Override

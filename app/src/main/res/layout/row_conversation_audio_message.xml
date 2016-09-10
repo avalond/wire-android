@@ -18,11 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                     xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                     android:layout_width="match_parent"
-                                                     android:layout_height="match_parent"
-                                                     android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical"
     >
 
     <com.waz.zclient.pages.main.conversation.views.row.message.views.ProgressDotsView
@@ -32,12 +32,12 @@
         android:visibility="gone"
         />
 
-    <com.waz.zclient.ui.views.TouchFilterableLinearLayout
+    <LinearLayout
         android:id="@+id/tfll__audio_message_container"
         android:layout_width="match_parent"
         android:layout_height="@dimen/content__audio_message__view_height"
-        android:layout_marginLeft="@dimen/content__padding_left"
-        android:layout_marginRight="@dimen/content__padding_right"
+        android:layout_marginStart="@dimen/content__padding_left"
+        android:layout_marginEnd="@dimen/content__padding_right"
         android:orientation="horizontal"
         android:background="@drawable/shape_audio_message_background"
         >
@@ -58,7 +58,7 @@
             android:id="@+id/ttv__row_conversation__audio_duration"
             android:layout_width="@dimen/content__audio_message__duration_width"
             android:layout_height="match_parent"
-            android:gravity="center_vertical|left"
+            android:gravity="center_vertical|start"
             app:font="@string/wire__typeface__light"
             style="?audioMessageDuration"
             />
@@ -70,6 +70,6 @@
             android:layout_gravity="center"
             />
 
-    </com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+    </LinearLayout>
 
-</com.waz.zclient.ui.views.TouchFilterableFrameLayout>
+</FrameLayout>

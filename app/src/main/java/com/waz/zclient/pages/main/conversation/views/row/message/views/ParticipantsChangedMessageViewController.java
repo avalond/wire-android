@@ -25,6 +25,7 @@ import com.waz.api.IConversation;
 import com.waz.api.Message;
 import com.waz.api.User;
 import com.waz.zclient.R;
+import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.core.api.scala.ModelObserver;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
@@ -32,19 +33,17 @@ import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
 import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode;
 import com.waz.zclient.pages.main.pickuser.controller.IPickUserController;
 import com.waz.zclient.ui.text.GlyphTextView;
-import com.waz.zclient.ui.utils.TextViewUtils; 
-import com.waz.zclient.ui.views.TouchFilterableLayout;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
+import com.waz.zclient.ui.utils.TextViewUtils;
 import com.waz.zclient.ui.views.ZetaButton;
 import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.ViewUtils;
 
 import java.util.Locale;
 
-public class ParticipantsChangedMessageViewController extends MessageViewController {
+public class ParticipantsChangedMessageViewController extends MessageViewController implements AccentColorObserver {
 
     private Locale locale;
-    private TouchFilterableLinearLayout view;
+    private View view;
     private AutoFitColumnRecyclerView gridView;
     private GlyphTextView iconView;
     private TextView messageTextView;
@@ -119,7 +118,7 @@ public class ParticipantsChangedMessageViewController extends MessageViewControl
     public ParticipantsChangedMessageViewController(Context context, MessageViewsContainer messageViewContainer) {
         super(context, messageViewContainer);
 
-        view = (TouchFilterableLinearLayout) View.inflate(context, R.layout.row_conversation_participants_changed, null);
+        view = View.inflate(context, R.layout.row_conversation_participants_changed, null);
         messageTextView = ViewUtils.getView(view, R.id.ttv__row_conversation__people_changed__text);
         gridView = ViewUtils.getView(view, R.id.rv__row_conversation__people_changed__grid);
         gridView.setColumnSpacing(context.getResources().getDimensionPixelSize(R.dimen.wire__padding__small));
@@ -152,6 +151,7 @@ public class ParticipantsChangedMessageViewController extends MessageViewControl
             inviteBanner.setVisibility(View.GONE);
         }
 
+        messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(this);
         if (messageViewsContainer.getConversationType() == IConversation.Type.ONE_TO_ONE) {
             view.setVisibility(View.GONE);
         } else {
@@ -161,6 +161,9 @@ public class ParticipantsChangedMessageViewController extends MessageViewControl
 
     @Override
     public void recycle() {
+        if (!messageViewsContainer.isTornDown()) {
+            messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
+        }
         messageModelObserver.clear();
         userModelObserver.clear();
         conversationModelObserver.clear();
@@ -261,7 +264,7 @@ public class ParticipantsChangedMessageViewController extends MessageViewControl
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 
@@ -273,7 +276,6 @@ public class ParticipantsChangedMessageViewController extends MessageViewControl
 
     @Override
     public void onAccentColorHasChanged(Object sender, int color) {
-        super.onAccentColorHasChanged(sender, color);
         inviteBannerShowContactButton.setAccentColor(color);
     }
 

@@ -17,9 +17,6 @@
  */
 package com.waz.zclient.controllers.password;
 
-import com.waz.annotations.Controller;
-
-@Controller
 public interface IPasswordController {
     void setPassword(String password);
 

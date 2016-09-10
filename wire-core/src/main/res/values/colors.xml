@@ -62,6 +62,7 @@
 
     <color name="graphite">#FF33373A</color>
     <color name="graphite_40">#6633373A</color>
+    <color name="graphite_48">#7B33373A</color>
     <color name="graphite_16">#2833373A</color>
 
     <!-- Accent Colors-->
@@ -75,6 +76,7 @@
 
     <color name="accent_red__40">#67FF2700</color>
     <color name="accent_red__24">#3CFF2700</color>
+    <color name="accent_yellow__16">#28FFD200</color>
 
     <!--Sketch color picker-->
     <color name="draw_white">@color/white</color>
@@ -88,6 +90,8 @@
     <color name="draw_light_purple">#DBA3FE</color>
     <color name="draw_light_grey">#A3A3A3</color>
     <color name="draw_disabled">@color/light_graphite</color>
+
+    <color name="yorgos">#FF4A4A4A</color>
 
     <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
     <!-- Component colors  -->
@@ -128,6 +132,7 @@
     <color name="text__primary_light__40">@color/graphite_40</color>
     <color name="text__primary_light">@color/graphite</color>
     <color name="text__primary_light_16">@color/graphite_16</color>
+    <color name="text__primary_light_48">@color/graphite_48</color>
     <color name="text__secondary_light__40">@color/light_graphite_40</color>
     <color name="text__secondary_light">@color/light_graphite</color>
 
@@ -268,4 +273,6 @@
     <color name="single_image_message__date__font_color">@color/white</color>
     <color name="single_image_message__icon__text_color_normal">@color/white</color>
     <color name="single_image_message__icon__text_color_pressed">@color/white_40</color>
+    <color name="camera_text_shadow">@color/black_48</color>
+    <color name="navigation_strip_background_color">@color/black_90</color>
 </resources>

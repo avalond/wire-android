@@ -31,7 +31,7 @@ import com.waz.zclient.core.api.scala.ModelObserver;
 import com.waz.zclient.pages.main.pickuser.controller.IPickUserController;
 import com.waz.zclient.ui.views.ZetaButton;
 import com.waz.zclient.utils.ViewUtils;
-import com.waz.zclient.views.chathead.ChatheadView;
+import com.waz.zclient.common.views.ChatheadView;
 
 public class ContactRowView extends FrameLayout implements UserRowView {
 

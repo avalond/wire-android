@@ -37,7 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/network_indicator__visible_height"
         android:gravity="center"
-        android:text="@string/system_status__no_connectivity"
+        android:text="@string/system_status__no_internet"
         android:textColor="@color/network_indicator__font__color"
         app:font="@string/network_indicator__font"
         android:textSize="@dimen/network_indicator__font__size"

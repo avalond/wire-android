@@ -18,15 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                      xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                      xmlns:tools="http://schemas.android.com/tools"
-                                                      android:layout_width="match_parent"
-                                                      android:layout_height="match_parent"
-                                                      android:orientation="horizontal"
-                                                      android:gravity="center"
-                                                      android:paddingRight="@dimen/content__row__padding_right"
-                                                      android:baselineAligned="false"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="horizontal"
+              android:gravity="center"
+              android:paddingEnd="@dimen/content__row__padding_right"
+              android:baselineAligned="false"
     >
 
     <com.waz.zclient.pages.main.conversation.views.row.message.views.ProgressDotsView
@@ -36,12 +36,13 @@
         android:visibility="gone"
         />
 
-    <com.waz.zclient.ui.views.TouchFilterableLinearLayout
+    <LinearLayout
         android:id="@+id/ll__row_conversation__file__message_container"
         android:layout_width="@dimen/content__width"
         android:layout_height="@dimen/content__audio_message__view_height"
         android:orientation="horizontal"
         android:background="@drawable/shape_audio_message_background"
+        android:baselineAligned="false"
         tools:ignore="InefficientWeight,UselessParent"
         >
 
@@ -67,7 +68,7 @@
                 android:layout_width="@dimen/content__audio_message__download_done_indicator__size"
                 android:layout_height="@dimen/content__audio_message__download_done_indicator__size"
                 android:layout_marginTop="@dimen/content__audio_message__download_done_indicator__offset_top"
-                android:layout_marginLeft="@dimen/content__audio_message__download_done_indicator__offset_left"
+                android:layout_marginStart="@dimen/content__audio_message__download_done_indicator__offset_left"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:textSize="@dimen/wire__text_size__tiny"
@@ -89,10 +90,9 @@
             <com.waz.zclient.ui.text.TypefaceTextView
                 android:id="@+id/ttv__row_conversation__file__filename"
                 style="?attr/messageStreamSubtitleStrong"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="middle"
-                android:gravity="left"
                 android:singleLine="true"
                 app:font="@string/wire__typeface__light"
                 />
@@ -100,15 +100,14 @@
             <com.waz.zclient.ui.text.TypefaceTextView
                 android:id="@+id/ttv__row_conversation__file__fileinfo"
                 style="?messageStreamSubtitleNoColor"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="left"
                 app:font="@string/wire__typeface__light"
                 />
 
         </LinearLayout>
 
 
-    </com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+    </LinearLayout>
 
-</com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+</LinearLayout>

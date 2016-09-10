@@ -19,6 +19,7 @@ package com.waz.zclient.testutils;
 
 import android.app.Instrumentation;
 import android.content.Intent;
+import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.intent.Intents;
 import android.support.test.rule.ActivityTestRule;
@@ -36,7 +37,7 @@ import static junit.framework.Assert.assertTrue;
 public class FragmentTest<A extends TestActivity> {
 
     public static final int CATCH_DEBUG_DELAY = 3000;
-    public static final int WAIT_FOR_TRANSACTION_COMMIT_DELAY = 10;
+    public static final int WAIT_FOR_TRANSACTION_COMMIT_DELAY = 100;
     @Rule
     public ActivityTestRule<A> activityTestRule;
 
@@ -48,18 +49,21 @@ public class FragmentTest<A extends TestActivity> {
     public FragmentTest(Class<A> activityType) {
         this.activityType = activityType;
         activityTestRule = new ActivityTestRule<>(activityType, false, false);
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
     }
 
     @Before
     public void setup() throws InterruptedException {
         //Thread.sleep(CATCH_DEBUG_DELAY); // very useful for being able to catch with the debugger :)
         instrumentation = InstrumentationRegistry.getInstrumentation();
+        Intents.init();
         activityTestRule.launchActivity(new Intent(instrumentation.getContext(), activityType));
 
         activity = activityTestRule.getActivity();
         activity.setMockStoreFactory(new MockStoreFactory());
         activity.setMockControllerFactory(new MockControllerFactory());
-        Intents.init();
     }
 
     protected void attachFragment(Fragment fragment, String TAG) {

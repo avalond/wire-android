@@ -28,6 +28,7 @@ import com.waz.api.MessagesList;
 import com.waz.api.UpdateListener;
 import com.waz.api.User;
 import com.waz.zclient.R;
+import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
@@ -35,8 +36,6 @@ import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode;
 import com.waz.zclient.ui.animation.interpolators.penner.Back;
 import com.waz.zclient.ui.utils.ResourceUtils;
 import com.waz.zclient.ui.utils.TextViewUtils;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.calling.StaticCallingIndicator;
 import com.waz.zclient.views.chathead.ChatheadImageView;
@@ -44,9 +43,10 @@ import com.waz.zclient.views.chathead.ChatheadImageView;
 import java.util.Locale;
 
 public class MissedCallViewController extends MessageViewController implements UpdateListener,
+                                                                               AccentColorObserver,
                                                                                View.OnClickListener {
 
-    private TouchFilterableLinearLayout view;
+    private View view;
     private TextView missedCallByUserTextView;
     private StaticCallingIndicator staticCallingIndicator;
     private ChatheadImageView chatheadImageView;
@@ -57,7 +57,7 @@ public class MissedCallViewController extends MessageViewController implements U
     @SuppressLint("InflateParams")
     public MissedCallViewController(Context context, MessageViewsContainer messageViewContainer) {
         super(context, messageViewContainer);
-        this.view = (TouchFilterableLinearLayout) View.inflate(context, R.layout.row_conversation_missed_call, null);
+        this.view = View.inflate(context, R.layout.row_conversation_missed_call, null);
         this.missedCallByUserTextView = ViewUtils.getView(view, R.id.ttv__row_conversation__missed_call);
         this.locale = context.getResources().getConfiguration().locale;
         this.staticCallingIndicator = ViewUtils.getView(view, R.id.sci__conversation__missed_call__image);
@@ -71,6 +71,7 @@ public class MissedCallViewController extends MessageViewController implements U
         message.addUpdateListener(this);
         chatheadImageView.setUser(user);
         chatheadImageView.setOnClickListener(this);
+        messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(this);
 
         final MessagesList messagesList = message.getConversation().getMessages();
         if (messagesList.size() - 1 == messagesList.getMessageIndex(message)) {
@@ -144,6 +145,9 @@ public class MissedCallViewController extends MessageViewController implements U
         if (message != null) {
             message.removeUpdateListener(this);
         }
+        if (!messageViewsContainer.isTornDown()) {
+            messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
+        }
         cancelAnimation();
         chatheadImageView.setUser(null);
         chatheadImageView.setOnClickListener(null);
@@ -151,7 +155,7 @@ public class MissedCallViewController extends MessageViewController implements U
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 
@@ -186,7 +190,6 @@ public class MissedCallViewController extends MessageViewController implements U
 
     @Override
     public void onAccentColorHasChanged(Object sender, int color) {
-        super.onAccentColorHasChanged(sender, color);
         staticCallingIndicator.setColor(color);
     }
 

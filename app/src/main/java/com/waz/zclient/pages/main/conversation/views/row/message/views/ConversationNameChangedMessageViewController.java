@@ -25,18 +25,16 @@ import com.waz.api.UpdateListener;
 import com.waz.api.User;
 import com.waz.zclient.R;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
 import com.waz.zclient.ui.utils.TextViewUtils;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
 import com.waz.zclient.utils.ViewUtils;
 
 import java.util.Locale;
 
 public class ConversationNameChangedMessageViewController extends MessageViewController implements UpdateListener {
 
-    private TouchFilterableLinearLayout view;
+    private View view;
     private TextView changedByUser;
     private TextView newConversationName;
     private User user;
@@ -45,7 +43,7 @@ public class ConversationNameChangedMessageViewController extends MessageViewCon
     @SuppressLint("InflateParams")
     public ConversationNameChangedMessageViewController(final Context context, MessageViewsContainer messageViewContainer) {
         super(context, messageViewContainer);
-        view = (TouchFilterableLinearLayout) View.inflate(context, R.layout.row_conversation_name_changed, null);
+        view = View.inflate(context, R.layout.row_conversation_name_changed, null);
         newConversationName = ViewUtils.getView(view, R.id.ttv__row_conversation__new_conversation_name);
         changedByUser = ViewUtils.getView(view, R.id.ttv__row_conversation__conversation_name_changed_by_user);
         locale = context.getResources().getConfiguration().locale;
@@ -72,7 +70,7 @@ public class ConversationNameChangedMessageViewController extends MessageViewCon
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 

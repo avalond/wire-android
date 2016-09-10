@@ -34,32 +34,34 @@ import com.waz.api.KindOfMedia;
 import com.waz.api.LoadHandle;
 import com.waz.api.MediaAsset;
 import com.waz.api.Message;
+import com.waz.api.NetworkMode;
 import com.waz.api.UpdateListener;
 import com.waz.zclient.R;
+import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.controllers.mediaplayer.DefaultMediaPlayer;
 import com.waz.zclient.controllers.mediaplayer.MediaPlayerState;
-import com.waz.zclient.controllers.selection.MessageActionModeController;
 import com.waz.zclient.controllers.streammediaplayer.IStreamMediaPlayerController;
 import com.waz.zclient.controllers.streammediaplayer.StreamMediaPlayerObserver;
+import com.waz.zclient.controllers.tracking.events.conversation.ReactedToMessageEvent;
+import com.waz.zclient.controllers.userpreferences.IUserPreferencesController;
+import com.waz.zclient.core.stores.network.DefaultNetworkAction;
 import com.waz.zclient.core.stores.network.NetworkStoreObserver;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
-import com.waz.zclient.pages.main.conversation.views.row.message.RetryMessageViewController;
+import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
+import com.waz.zclient.ui.utils.ResourceUtils;
 import com.waz.zclient.utils.MessageUtils;
 import com.waz.zclient.utils.ThreadUtils;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.media.MediaPlayerView;
 
-public abstract class MediaPlayerViewController extends RetryMessageViewController implements MediaPlayerView.MediaPlayerListener,
-                                                                                              StreamMediaPlayerObserver,
-                                                                                              NetworkStoreObserver,
-                                                                                              View.OnLongClickListener,
-                                                                                              MessageActionModeController.Selectable {
+public abstract class MediaPlayerViewController extends MessageViewController implements MediaPlayerView.MediaPlayerListener,
+                                                                                         StreamMediaPlayerObserver,
+                                                                                         NetworkStoreObserver,
+                                                                                         AccentColorObserver {
 
-    private TouchFilterableLinearLayout view;
-    private TextMessageWithTimestamp textWithTimestamp;
+    private View view;
+    private TextMessageLinkTextView textMessageLinkTextView;
     protected MediaPlayerView mediaPlayerView;
     private boolean updateProgressEnabled;
     private LoadHandle loadHandle;
@@ -122,10 +124,10 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
         refreshRate = context.getResources().getInteger(R.integer.mediaplayer__time_refresh_rate_ms);
         updateProgressEnabled = true;
         LayoutInflater inflater = LayoutInflater.from(context);
-        view = (TouchFilterableLinearLayout) inflater.inflate(R.layout.row_conversation_media_player, null);
-        textWithTimestamp = ViewUtils.getView(view, R.id.tmwt__message_and_timestamp);
-        textWithTimestamp.setMessageViewsContainer(messageViewsContainer);
-        textWithTimestamp.setOnLongClickListener(this);
+        view = inflater.inflate(R.layout.row_conversation_media_player, null);
+        textMessageLinkTextView = ViewUtils.getView(view, R.id.tmltv__row_conversation__message);
+        textMessageLinkTextView.setMessageViewsContainer(messageViewsContainer);
+        textMessageLinkTextView.setOnLongClickListener(this);
         mediaPlayerView = ViewUtils.getView(view, R.id.mpv__row_conversation__message_media_player);
         mediaPlayerView.setOnLongClickListener(this);
         resetMediaPlayerView(R.string.mediaplayer__artist__placeholder, getSource());
@@ -134,19 +136,26 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
 
     @Override
     protected void onSetMessage(Separator separator) {
-        super.onSetMessage(separator);
-        textWithTimestamp.setMessage(message);
-        messageViewsContainer.getStoreFactory().getNetworkStore().addNetworkControllerObserver(this);
+        textMessageLinkTextView.setMessage(message);
+        messageViewsContainer.getStoreFactory().getNetworkStore().addNetworkStoreObserver(this);
         getPlayerController().addStreamMediaObserver(this);
         resetMediaPlayerView(R.string.mediaplayer__artist__placeholder, getSource());
         mediaPlayerView.setMediaPlayerListener(this);
         mediaPlayerView.setSourceImage(getSourceImage());
+        messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(this);
         updated();
     }
 
     @Override
+    protected void updateMessageEditingStatus() {
+        super.updateMessageEditingStatus();
+        float opacity = messageViewsContainer.getControllerFactory().getConversationScreenController().isMessageBeingEdited(message) ?
+                        ResourceUtils.getResourceFloat(context.getResources(), R.dimen.content__youtube__alpha_overlay) :
+                        1f;
+        textMessageLinkTextView.setAlpha(opacity);
+    }
+
     public void updated() {
-        super.updated();
         final Message.Part mediaPart = MessageUtils.getFirstRichMediaPart(message);
         if (imageAsset != null) {
             imageAsset.removeUpdateListener(imageAssetUpdateListener);
@@ -170,11 +179,11 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
     @Override
     public void recycle() {
         unscheduleTimeUpdate();
-        textWithTimestamp.recycle();
+        textMessageLinkTextView.recycle();
         mediaPlayerView.setSeekBarEnabled(false);
         if (getPlayerController() != null) {
             getPlayerController().removeStreamMediaObserver(this);
-            messageViewsContainer.getStoreFactory().getNetworkStore().removeNetworkControllerObserver(this);
+            messageViewsContainer.getStoreFactory().getNetworkStore().removeNetworkStoreObserver(this);
         }
         resetMediaPlayerView(R.string.mediaplayer__artist__placeholder, getSource());
         if (loadHandle != null) {
@@ -187,6 +196,9 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
         }
         mediaAsset = null;
         updateProgressEnabled = true;
+        if (!messageViewsContainer.isTornDown()) {
+            messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
+        }
         super.recycle();
     }
 
@@ -211,7 +223,7 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
     }
 
     @Nullable
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 
@@ -339,11 +351,12 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
             return;
         }
         unscheduleTimeUpdate();
-        if (!messageViewsContainer.getStoreFactory().getNetworkStore().hasInternetConnection()) {
-            messageViewsContainer.getStoreFactory().getNetworkStore().notifyNetworkAccessFailed();
-            return;
-        }
-        showError();
+        messageViewsContainer.getStoreFactory().getNetworkStore().doIfHasInternetOrNotifyUser(new DefaultNetworkAction() {
+            @Override
+            public void execute(NetworkMode networkMode) {
+                showError();
+            }
+        });
     }
 
     @Override
@@ -426,6 +439,22 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
         }
     }
 
+    @Override
+    public void onPlaceholderDoubleTap() {
+        if (message.isLikedByThisUser()) {
+            message.unlike();
+            messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.unlike(message.getConversation(),
+                                                                                                                       message,
+                                                                                                                       ReactedToMessageEvent.Method.DOUBLE_TAP));
+        } else {
+            message.like();
+            messageViewsContainer.getControllerFactory().getUserPreferencesController().setPerformedAction(IUserPreferencesController.LIKED_MESSAGE);
+            messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.like(message.getConversation(),
+                                                                                                                     message,
+                                                                                                                     ReactedToMessageEvent.Method.DOUBLE_TAP));
+        }
+    }
+
     @SuppressLint("ResourceAsColor")
     protected void showError() {
         mediaPlayerView.setSeekBarEnabled(false);
@@ -457,7 +486,7 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
 
 
     @Override
-    public void onConnectivityChange(boolean hasInternet) {
+    public void onConnectivityChange(boolean hasInternet, boolean isServerError) {
         if (messageViewsContainer == null ||
             messageViewsContainer.isTornDown()) {
             return;
@@ -472,15 +501,15 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
     }
 
     @Override
-    public void onNetworkAccessFailed() { }
+    public void onNoInternetConnection(boolean isServerError) { }
 
     @Override
     public void onAccentColorHasChanged(Object sender, int color) {
-        super.onAccentColorHasChanged(sender, color);
         if (mediaPlayerView == null) {
             return;
         }
         mediaPlayerView.setProgressColor(color);
+        textMessageLinkTextView.onAccentColorHasChanged(sender, color);
     }
 
     protected void openExternal() {
@@ -500,12 +529,14 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
             getPlayerController() == null) {
             return;
         }
-        if (!messageViewsContainer.getStoreFactory().getNetworkStore().hasInternetConnection()) {
-            messageViewsContainer.getStoreFactory().getNetworkStore().notifyNetworkAccessFailed();
-            return;
-        }
-        mediaPlayerView.setAllowControl(false);
-        getPlayerController().play(message, mediaAsset);
+
+        messageViewsContainer.getStoreFactory().getNetworkStore().doIfHasInternetOrNotifyUser(new DefaultNetworkAction() {
+            @Override
+            public void execute(NetworkMode networkMode) {
+                mediaPlayerView.setAllowControl(false);
+                getPlayerController().play(message, mediaAsset);
+            }
+        });
     }
 
     protected void pause() {
@@ -520,18 +551,6 @@ public abstract class MediaPlayerViewController extends RetryMessageViewControll
             return true;
         }
         return false;
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        if (message == null ||
-            messageViewsContainer == null ||
-            messageViewsContainer.getControllerFactory() == null ||
-            messageViewsContainer.getControllerFactory().isTornDown()) {
-            return false;
-        }
-        messageViewsContainer.getControllerFactory().getMessageActionModeController().selectMessage(message);
-        return true;
     }
 
     ///////////////////////////////////////////////////////////////////

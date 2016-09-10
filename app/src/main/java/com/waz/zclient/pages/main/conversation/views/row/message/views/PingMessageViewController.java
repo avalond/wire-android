@@ -25,9 +25,7 @@ import android.view.animation.Animation;
 import com.waz.api.UpdateListener;
 import com.waz.api.User;
 import com.waz.zclient.R;
-import com.waz.zclient.controllers.selection.MessageActionModeController;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
 import com.waz.zclient.pages.main.participants.dialog.DialogLaunchMode;
@@ -36,7 +34,6 @@ import com.waz.zclient.ui.animation.interpolators.penner.Expo;
 import com.waz.zclient.ui.text.GlyphTextView;
 import com.waz.zclient.ui.text.TypefaceTextView;
 import com.waz.zclient.ui.utils.TextViewUtils;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.chathead.ChatheadImageView;
 import org.threeten.bp.DateTimeUtils;
@@ -45,9 +42,7 @@ import java.util.Locale;
 
 
 public class PingMessageViewController extends MessageViewController implements UpdateListener,
-                                                                                View.OnClickListener,
-                                                                                View.OnLongClickListener,
-                                                                                MessageActionModeController.Selectable {
+                                                                                View.OnClickListener {
     public static final String TAG = PingMessageViewController.class.getName();
     private static final long APPROXIMATE_MESSAGE_EVALUATION_DURATION = 1000L;
 
@@ -56,7 +51,7 @@ public class PingMessageViewController extends MessageViewController implements 
     private ChatheadImageView userChatheadImageView;
     private Locale locale;
 
-    private TouchFilterableLinearLayout view;
+    private View view;
     private User user;
 
     private LeftPaddingReverseAnimation knockingAnimation;
@@ -66,7 +61,7 @@ public class PingMessageViewController extends MessageViewController implements 
     public PingMessageViewController(Context context, MessageViewsContainer messageViewsContainer) {
         super(context, messageViewsContainer);
         LayoutInflater inflater = LayoutInflater.from(context);
-        view = (TouchFilterableLinearLayout) inflater.inflate(R.layout.row_conversation_knock, null);
+        view = inflater.inflate(R.layout.row_conversation_knock, null);
 
         textViewMessage = ViewUtils.getView(view, R.id.ttv__row_conversation__ping_message);
         textViewMessage.setOnLongClickListener(this);
@@ -91,7 +86,7 @@ public class PingMessageViewController extends MessageViewController implements 
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 
@@ -215,15 +210,4 @@ public class PingMessageViewController extends MessageViewController implements 
         }
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        if (message == null ||
-            messageViewsContainer == null ||
-            messageViewsContainer.getControllerFactory() == null ||
-            messageViewsContainer.getControllerFactory().isTornDown()) {
-            return false;
-        }
-        messageViewsContainer.getControllerFactory().getMessageActionModeController().selectMessage(message);
-        return true;
-    }
 }

@@ -18,14 +18,12 @@
 package com.waz.zclient.core.stores.appentry;
 
 import android.os.Bundle;
-import com.waz.annotations.Store;
 import com.waz.api.AccentColor;
 import com.waz.api.ImageAsset;
 import com.waz.api.Invitations;
 import com.waz.api.Self;
 import com.waz.zclient.core.controllers.tracking.attributes.RegistrationEventContext;
 
-@Store
 public interface IAppEntryStore {
 
     boolean onBackPressed();

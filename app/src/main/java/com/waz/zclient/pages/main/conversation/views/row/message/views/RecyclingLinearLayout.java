@@ -18,22 +18,13 @@
 package com.waz.zclient.pages.main.conversation.views.row.message.views;
 
 import android.content.Context;
-import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.HapticFeedbackConstants;
-import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import com.waz.zclient.pages.main.conversation.views.row.message.ConversationItemViewController;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
 
-public class RecyclingLinearLayout extends LinearLayout implements TouchFilterableLayout<LinearLayout> {
+public class RecyclingLinearLayout extends LinearLayout {
 
     private ConversationItemViewController controller;
-    private boolean filterAllClickEvents;
-    private GestureDetectorCompat gestureDetectorCompat;
-    private TouchFilterableLayout.OnClickListener onClickListener;
-    private TouchFilterableLayout.OnLongClickListener onLongClickListener;
 
     public RecyclingLinearLayout(Context context) {
         this(context, null);
@@ -45,29 +36,6 @@ public class RecyclingLinearLayout extends LinearLayout implements TouchFilterab
 
     public RecyclingLinearLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        gestureDetectorCompat = new GestureDetectorCompat(context, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                if (!filterAllClickEvents) {
-                    return false;
-                }
-                if (onClickListener != null) {
-                    onClickListener.onClick();
-                }
-                return true;
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-                if (!filterAllClickEvents) {
-                    return;
-                }
-                performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                if (onLongClickListener != null) {
-                    onLongClickListener.onLongClick();
-                }
-            }
-        });
     }
 
     public void setViewController(ConversationItemViewController controller) {
@@ -82,34 +50,4 @@ public class RecyclingLinearLayout extends LinearLayout implements TouchFilterab
         }
     }
 
-    @Override
-    public LinearLayout getLayout() {
-        return this;
-    }
-
-    @Override
-    public void setOnClickListener(TouchFilterableLayout.OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
-    }
-
-    @Override
-    public void setOnLongClickListener(TouchFilterableLayout.OnLongClickListener onLongClickListener) {
-        this.onLongClickListener = onLongClickListener;
-    }
-
-    @Override
-    public void setFilterAllClickEvents(boolean filterAllClickEvents) {
-        this.filterAllClickEvents = filterAllClickEvents;
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return filterAllClickEvents || super.onInterceptTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        gestureDetectorCompat.onTouchEvent(event);
-        return filterAllClickEvents || super.onTouchEvent(event);
-    }
 }

@@ -227,6 +227,14 @@ public class ViewUtils {
         return (int) (dp * scale + 0.5f);
     }
 
+    public static void setPaddingStart(View view, int startPadding) {
+        view.setPaddingRelative(startPadding, view.getPaddingTop(), view.getPaddingEnd(), view.getPaddingBottom());
+    }
+
+    public static void setPaddingEnd(View view, int endPadding) {
+        view.setPaddingRelative(view.getPaddingStart(), view.getPaddingTop(), endPadding, view.getPaddingBottom());
+    }
+
     public static void setPaddingLeft(View view, int leftPadding) {
         view.setPadding(leftPadding, view.getPaddingTop(), view.getPaddingRight(), view.getPaddingBottom());
     }

@@ -17,11 +17,9 @@
  */
 package com.waz.zclient.core.stores.draft;
 
-import com.waz.annotations.Store;
 import com.waz.api.IConversation;
 import com.waz.zclient.core.stores.IStore;
 
-@Store
 public interface IDraftStore extends IStore {
 
     void setDraft(IConversation conversation, String text);

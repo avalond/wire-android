@@ -18,12 +18,10 @@
 package com.waz.zclient.controllers.onboarding;
 
 
-import com.waz.annotations.Controller;
 import com.waz.api.IConversation;
 import com.waz.zclient.controllers.navigation.Page;
 import com.waz.zclient.pages.main.onboarding.OnBoardingHintType;
 
-@Controller
 public interface IOnboardingController {
 
     void tearDown();

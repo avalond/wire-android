@@ -23,18 +23,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.waz.zclient.R;
+import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.core.stores.network.NetworkStoreObserver;
 import com.waz.zclient.pages.BaseFragment;
 import com.waz.zclient.ui.animation.interpolators.penner.Quart;
 import com.waz.zclient.utils.ViewUtils;
+import com.waz.zclient.views.LoadingIndicatorView;
 
 public class ConnectivityFragment extends BaseFragment<ConnectivityFragment.Container> implements NetworkStoreObserver,
-                                                                                                  ConnectivityIndicatorView.OnExpandListener {
+                                                                                                  ConnectivityIndicatorView.OnExpandListener,
+                                                                                                  AccentColorObserver {
 
     public static final String TAG = ConnectivityFragment.class.getName();
 
 
-    private ConnectivityIndicatorView connectivityIndicatorView;
+    private ConnectivityIndicatorView noInternetIndicator;
+    private LoadingIndicatorView noServerConnectionIndicator;
     private ImageView connectivityIndicatorViewForeground;
 
     public static ConnectivityFragment newInstance() {
@@ -50,33 +54,37 @@ public class ConnectivityFragment extends BaseFragment<ConnectivityFragment.Cont
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mainLayout = inflater.inflate(R.layout.fragment_connectivity, container, false);
-        connectivityIndicatorView = ViewUtils.getView(mainLayout, R.id.civ__connectivity_indicator);
-        connectivityIndicatorView.setOnClickListener(new View.OnClickListener() {
+        noInternetIndicator = ViewUtils.getView(mainLayout, R.id.civ__connectivity_indicator);
+        noServerConnectionIndicator = ViewUtils.getView(mainLayout, R.id.liv__server_connecting_indicator);
+        noServerConnectionIndicator.setColor(getControllerFactory().getAccentColorController().getColor());
+        noInternetIndicator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showIndicator();
+                showIndicator(false);
             }
         });
         connectivityIndicatorViewForeground = ViewUtils.getView(mainLayout, R.id.iv__connectivity_foreground);
-        connectivityIndicatorView.setOnExpandListener(this);
+        noInternetIndicator.setOnExpandListener(this);
         return mainLayout;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        getStoreFactory().getNetworkStore().addNetworkControllerObserver(this);
+        getControllerFactory().getAccentColorController().addAccentColorObserver(this);
+        getStoreFactory().getNetworkStore().addNetworkStoreObserver(this);
     }
 
     @Override
     public void onStop() {
-        getStoreFactory().getNetworkStore().removeNetworkControllerObserver(this);
+        getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
+        getStoreFactory().getNetworkStore().removeNetworkStoreObserver(this);
         super.onStop();
     }
 
     @Override
     public void onDestroyView() {
-        connectivityIndicatorView = null;
+        noInternetIndicator = null;
         super.onDestroyView();
     }
 
@@ -87,27 +95,38 @@ public class ConnectivityFragment extends BaseFragment<ConnectivityFragment.Cont
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void onConnectivityChange(boolean hasInternet) {
-        if (hasInternet) {
+    public void onConnectivityChange(boolean hasInternet, boolean isServerError) {
+        if (hasInternet && !isServerError) {
             hideIndicator();
         } else {
-            showIndicator();
+            onNoInternetConnection(isServerError);
         }
     }
 
-    private void showIndicator() {
-        connectivityIndicatorView.show();
+    private void showIndicator(boolean isServerError) {
+        if (noInternetIndicator == null || noServerConnectionIndicator == null) {
+            return;
+        }
+        if (isServerError) {
+            noInternetIndicator.hide();
+            noServerConnectionIndicator.show(LoadingIndicatorView.INFINITE_LOADING_BAR);
+        } else {
+            noInternetIndicator.show();
+            noServerConnectionIndicator.hide();
+        }
     }
 
     private void hideIndicator() {
-        connectivityIndicatorView.hide();
+        if (noInternetIndicator == null || noServerConnectionIndicator == null) {
+            return;
+        }
+        noInternetIndicator.hide();
+        noServerConnectionIndicator.hide();
     }
 
     @Override
-    public void onNetworkAccessFailed() {
-        if (!getStoreFactory().getNetworkStore().hasInternetConnection()) {
-            showIndicator();
-        }
+    public void onNoInternetConnection(boolean isServerError) {
+        showIndicator(isServerError);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +160,11 @@ public class ConnectivityFragment extends BaseFragment<ConnectivityFragment.Cont
                                           .setDuration(animationDuration)
                                           .setInterpolator(new Quart.EaseIn())
                                           .start();
+    }
+
+    @Override
+    public void onAccentColorHasChanged(Object sender, int color) {
+        noServerConnectionIndicator.setColor(color);
     }
 
     public interface Container {

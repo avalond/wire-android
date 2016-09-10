@@ -39,6 +39,7 @@ import com.waz.zclient.ui.text.TypefaceTextView;
 import com.waz.zclient.ui.utils.ResourceUtils;
 import com.waz.zclient.ui.views.ZetaButton;
 import com.waz.zclient.utils.ViewUtils;
+import com.waz.zclient.views.OnDoubleClickListener;
 import com.waz.zclient.views.ProgressView;
 import com.waz.zclient.views.images.CircularSeekBar;
 
@@ -95,9 +96,16 @@ public class MediaPlayerView extends FrameLayout implements CircularSeekBar.OnCi
         progressSeekBar = ViewUtils.getView(view, R.id.sb__media_progress);
         progressSeekBar.setOnSeekBarChangeListener(this);
         progressSeekBar.setProgressEnabled(false);
-        progressSeekBar.setOnArtClickListener(new OnClickListener() {
+        progressSeekBar.setOnArtClickListener(new OnDoubleClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onDoubleClick() {
+                if (mediaPlayerListener != null) {
+                    mediaPlayerListener.onPlaceholderDoubleTap();
+                }
+            }
+
+            @Override
+            public void onSingleClick() {
                 if (mediaPlayerListener != null) {
                     mediaPlayerListener.onPlaceholderTap();
                 }
@@ -266,6 +274,8 @@ public class MediaPlayerView extends FrameLayout implements CircularSeekBar.OnCi
         void onOpenExternalClicked();
 
         void onPlaceholderTap();
+
+        void onPlaceholderDoubleTap();
 
         boolean onHintClicked();
     }

@@ -19,10 +19,8 @@ package com.waz.zclient.controllers.currentfocus;
 
 import android.content.Context;
 import android.support.annotation.IntDef;
-import com.waz.annotations.Controller;
 import com.waz.zclient.controllers.navigation.Page;
 
-@Controller
 public interface IFocusController {
 
     @IntDef({CONVERSATION_CURSOR,

@@ -18,7 +18,6 @@
 package com.waz.zclient.pages.main.conversation.views.row.message.views;
 
 import android.content.Context;
-import android.net.Uri;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
@@ -27,22 +26,23 @@ import com.waz.api.ImageAsset;
 import com.waz.api.LoadHandle;
 import com.waz.api.Message;
 import com.waz.zclient.R;
-import com.waz.zclient.controllers.selection.MessageActionModeController;
+import com.waz.zclient.controllers.tracking.events.conversation.ReactedToMessageEvent;
+import com.waz.zclient.controllers.userpreferences.IUserPreferencesController;
 import com.waz.zclient.core.api.scala.ModelObserver;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
+import com.waz.zclient.ui.utils.ResourceUtils;
 import com.waz.zclient.utils.MessageUtils;
+import com.waz.zclient.utils.StringUtils;
 import com.waz.zclient.utils.ViewUtils;
+import com.waz.zclient.views.OnDoubleClickListener;
 import com.waz.zclient.views.images.ImageAssetView;
 
-public class LinkPreviewViewController extends MessageViewController implements ImageAssetView.BitmapLoadedCallback,
-                                                                                MessageActionModeController.Selectable,
-                                                                                View.OnClickListener {
+public class LinkPreviewViewController extends MessageViewController implements ImageAssetView.BitmapLoadedCallback {
 
-    private TouchFilterableLayout view;
-    private TextMessageWithTimestamp textMessageWithTimestamp;
+    private View view;
+    private TextMessageLinkTextView textMessageLinkTextView;
     private View linkPrevieContainerView;
     private TextView titleTextView;
     private TextView urlTextView;
@@ -55,10 +55,10 @@ public class LinkPreviewViewController extends MessageViewController implements 
         @Override
         public void updated(Message message) {
             if (messageBodyIsSingleLink()) {
-                textMessageWithTimestamp.setVisibility(View.GONE);
+                textMessageLinkTextView.setVisibility(View.GONE);
             } else {
-                textMessageWithTimestamp.setMessage(message);
-                textMessageWithTimestamp.setVisibility(View.VISIBLE);
+                textMessageLinkTextView.setMessage(message);
+                textMessageLinkTextView.setVisibility(View.VISIBLE);
             }
 
             Message.Part linkPart = MessageUtils.getFirstRichMediaPart(message);
@@ -69,13 +69,12 @@ public class LinkPreviewViewController extends MessageViewController implements 
                 linkPrevieContainerView.setVisibility(View.VISIBLE);
             }
             titleTextView.setText(Html.fromHtml(linkPart.getTitle()));
-            urlTextView.setText(Uri.parse(linkPart.getBody()).normalizeScheme().toString());
+            urlTextView.setText(StringUtils.normalizeUri(linkPart.getContentUri()).toString());
             if (linkPart.getImage() == null ||
                 linkPart.getImage().isEmpty()) {
                 return;
             }
             previewImageContainerView.setVisibility(View.VISIBLE);
-
             imageAssetModelObserver.addAndUpdate(linkPart.getImage());
         }
     };
@@ -87,73 +86,87 @@ public class LinkPreviewViewController extends MessageViewController implements 
         }
     };
 
+    private final OnDoubleClickListener onDoubleClickListener = new OnDoubleClickListener() {
+        @Override
+        public void onDoubleClick() {
+            if (message.isLikedByThisUser()) {
+                message.unlike();
+                messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.unlike(message.getConversation(),
+                                                                                                                           message,
+                                                                                                                           ReactedToMessageEvent.Method.DOUBLE_TAP));
+            } else {
+                message.like();
+                messageViewsContainer.getControllerFactory().getUserPreferencesController().setPerformedAction(IUserPreferencesController.LIKED_MESSAGE);
+                messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.like(message.getConversation(),
+                                                                                                                         message,
+                                                                                                                         ReactedToMessageEvent.Method.DOUBLE_TAP));
+            }
+        }
+
+        @Override
+        public void onSingleClick() {
+            if (TextUtils.isEmpty(urlTextView.getText())) {
+                return;
+            }
+            messageViewsContainer.onOpenUrl(urlTextView.getText().toString());
+            if (footerActionCallback != null) {
+                footerActionCallback.toggleVisibility();
+            }
+        }
+    };
+
     public LinkPreviewViewController(Context context,
                                      final MessageViewsContainer messageViewsContainer) {
         super(context, messageViewsContainer);
-        view = (TouchFilterableLayout) View.inflate(context, R.layout.row_conversation_link_preview, null);
-        textMessageWithTimestamp = ViewUtils.getView(view.getLayout(),
-                                                     R.id.cv__row_conversation__link_preview__text_message);
-        linkPrevieContainerView = ViewUtils.getView(view.getLayout(),
-                                                    R.id.cv__row_conversation__link_preview__container);
-        titleTextView = ViewUtils.getView(view.getLayout(), R.id.ttv__row_conversation__link_preview__title);
-        urlTextView = ViewUtils.getView(view.getLayout(), R.id.ttv__row_conversation__link_preview__url);
-        previewImageAssetView = ViewUtils.getView(view.getLayout(), R.id.iv__row_conversation__link_preview__image);
-        progressDotsView = ViewUtils.getView(view.getLayout(),
-                                             R.id.pdv__row_conversation__link_preview__placeholder_dots);
-        previewImageContainerView = ViewUtils.getView(view.getLayout(),
-                                                      R.id.fl__row_conversation__link_preview__image_container);
+        view = View.inflate(context, R.layout.row_conversation_link_preview, null);
+        textMessageLinkTextView = ViewUtils.getView(view, R.id.cv__row_conversation__link_preview__text_message);
+        linkPrevieContainerView = ViewUtils.getView(view, R.id.cv__row_conversation__link_preview__container);
+        titleTextView = ViewUtils.getView(view, R.id.ttv__row_conversation__link_preview__title);
+        urlTextView = ViewUtils.getView(view, R.id.ttv__row_conversation__link_preview__url);
+        previewImageAssetView = ViewUtils.getView(view, R.id.iv__row_conversation__link_preview__image);
+        progressDotsView = ViewUtils.getView(view, R.id.pdv__row_conversation__link_preview__placeholder_dots);
+        previewImageContainerView = ViewUtils.getView(view, R.id.fl__row_conversation__link_preview__image_container);
         previewImageContainerView.setVisibility(View.GONE);
-        previewImageAssetView.setVisibility(View.GONE);
         previewImageAssetView.setBitmapLoadedCallback(this);
 
-        linkPrevieContainerView.setOnClickListener(this);
+        textMessageLinkTextView.setOnClickListener(onDoubleClickListener);
+        textMessageLinkTextView.setOnLongClickListener(this);
+        linkPrevieContainerView.setOnClickListener(onDoubleClickListener);
+        linkPrevieContainerView.setOnLongClickListener(this);
 
-        textMessageWithTimestamp.setMessageViewsContainer(messageViewsContainer);
-        textMessageWithTimestamp.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (message == null ||
-                    messageViewsContainer == null ||
-                    messageViewsContainer.getControllerFactory() == null ||
-                    messageViewsContainer.getControllerFactory().isTornDown()) {
-                    return false;
-                }
-                messageViewsContainer.getControllerFactory().getMessageActionModeController().selectMessage(message);
-                return true;
-            }
-        });
+        textMessageLinkTextView.setMessageViewsContainer(messageViewsContainer);
 
-        linkPrevieContainerView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (message == null ||
-                    messageViewsContainer == null ||
-                    messageViewsContainer.getControllerFactory() == null ||
-                    messageViewsContainer.getControllerFactory().isTornDown()) {
-                    return false;
-                }
-                messageViewsContainer.getControllerFactory().getMessageActionModeController().selectMessage(message);
-                return true;
-            }
-        });
     }
 
     @Override
     protected void onSetMessage(Separator separator) {
         messageObserver.setAndUpdate(message);
+        messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(textMessageLinkTextView);
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    protected void updateMessageEditingStatus() {
+        super.updateMessageEditingStatus();
+        float opacity = messageViewsContainer.getControllerFactory().getConversationScreenController().isMessageBeingEdited(message) ?
+                        ResourceUtils.getResourceFloat(context.getResources(), R.dimen.content__youtube__alpha_overlay) :
+                        1f;
+        textMessageLinkTextView.setAlpha(opacity);
+    }
+
+    @Override
+    public View getView() {
         return view;
     }
 
     @Override
     public void recycle() {
+        if (!messageViewsContainer.isTornDown()) {
+            messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(textMessageLinkTextView);
+        }
         previewImageContainerView.setVisibility(View.GONE);
         progressDotsView.setVisibility(View.VISIBLE);
-        previewImageAssetView.setVisibility(View.GONE);
         messageObserver.clear();
+        previewImageAssetView.clearImage();
         imageAssetModelObserver.clear();
         urlTextView.setText("");
         titleTextView.setText("");
@@ -161,16 +174,8 @@ public class LinkPreviewViewController extends MessageViewController implements 
             previewImageLoadHandle.cancel();
         }
         previewImageLoadHandle = null;
-        textMessageWithTimestamp.recycle();
+        textMessageLinkTextView.recycle();
         super.recycle();
-    }
-
-    @Override
-    public void onClick(View view) {
-        if (TextUtils.isEmpty(urlTextView.getText())) {
-            return;
-        }
-        messageViewsContainer.onOpenUrl(urlTextView.getText().toString());
     }
 
     private boolean messageBodyIsSingleLink() {
@@ -184,8 +189,10 @@ public class LinkPreviewViewController extends MessageViewController implements 
     }
 
     @Override
-    public void onBitmapLoadFinished() {
-        progressDotsView.setVisibility(View.GONE);
-        previewImageAssetView.setVisibility(View.VISIBLE);
+    public void onBitmapLoadFinished(boolean bitmapLoaded) {
+        previewImageContainerView.setVisibility(bitmapLoaded ? View.VISIBLE : View.GONE);
+        if (bitmapLoaded) {
+            progressDotsView.setVisibility(View.GONE);
+        }
     }
 }

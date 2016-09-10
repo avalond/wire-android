@@ -19,94 +19,93 @@ package com.waz.zclient.core.api.scala;
 
 import android.text.TextUtils;
 import com.waz.api.Contacts;
-import com.waz.api.SearchQuery;
+import com.waz.api.ConversationSearchResult;
 import com.waz.api.UpdateListener;
 import com.waz.api.User;
+import com.waz.api.UserSearchResult;
 import com.waz.api.ZMessagingApi;
 import com.waz.zclient.core.stores.pickuser.PickUserStore;
 import com.waz.zclient.core.stores.pickuser.PickUserStoreObserver;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ScalaPickUserStore extends PickUserStore {
     public static final String TAG = ScalaPickUserStore.class.getName();
 
     private ZMessagingApi zMessagingApi;
 
-    private SearchQuery searchQuery;
-    private SearchQuery topResultsSearchQuery;
+    private UserSearchResult connectionsResults;
+    private UserSearchResult recommendedResults;
+    private ConversationSearchResult groupResults;
+
+    private UserSearchResult topResults;
     private Contacts contacts;
     private Contacts searchContacts;
 
     private String searchFilter = null;
 
-    // List of user id's to exclude from search
-    private String[] excludedUserIds = new String[0];
+    private String[] excludedUserIds = new String[0];  // List of user id's to exclude from search
+    private static final String[] NO_EXCLUDES = new String[0];
 
     public ScalaPickUserStore(ZMessagingApi zMessagingApi) {
         this.zMessagingApi = zMessagingApi;
     }
 
     @Override
-    public void addPickUserStoreObserver(PickUserStoreObserver pickUserStoreObserver) {
-        super.addPickUserStoreObserver(pickUserStoreObserver);
-        setupSearchQueryListeners();
-    }
-
-    @Override
     public void removePickUserStoreObserver(PickUserStoreObserver pickUserStoreObserver) {
         super.removePickUserStoreObserver(pickUserStoreObserver);
-        if (pickUserStoreObservers.size() < 1) {
-            removeSearchQueryListeners();
-            searchQuery = null;
-            topResultsSearchQuery = null;
+        if (pickUserStoreObservers.isEmpty()) {
+            tearDownSearch();
         }
     }
 
     @Override
     public void tearDown() {
+        tearDownSearch();
+
         if (contacts != null) {
             contacts.removeUpdateListener(contactsUpdateListener);
             contacts = null;
         }
+
         if (searchContacts != null) {
             searchContacts.removeUpdateListener(searchContactsUpdateListener);
             searchContacts = null;
         }
-        removeSearchQueryListeners();
-        searchQuery = null;
-        topResultsSearchQuery = null;
+
         zMessagingApi = null;
     }
 
     @Override
     public void loadTopUserList(int numberOfResults, boolean excludeUsers) {
-        setupSearchQueryListeners();
         searchFilter = null;
-        if (!excludeUsers) {
-            topResultsSearchQuery.setTopPeopleQuery(numberOfResults);
-        } else {
-            topResultsSearchQuery.setTopPeopleQuery(numberOfResults, excludedUserIds);
+        if (topResults != null) {
+            topResults.removeUpdateListener(topResultsListener);
         }
+        topResults = zMessagingApi.search().getTopPeople(numberOfResults, excludeUsers ? excludedUserIds : NO_EXCLUDES);
+        topResults.addUpdateListener(topResultsListener);
     }
 
     @Override
-    public void loadRecommendedUsers(int numberOfResults) {
-        setupSearchQueryListeners();
-        searchFilter = null;
-        searchQuery.setRecommendedPeopleQuery(numberOfResults);
-    }
+    public void loadSearchByFilter(String searchTerm, int numberOfResults, boolean excludeUsers) {
+        searchFilter = searchTerm;
+        String[] excludes = excludeUsers ? excludedUserIds : NO_EXCLUDES;
 
-    @Override
-    public void loadSearchByFilter(String filter, int numberOfResults, boolean excludeUsers) {
-        setupSearchQueryListeners();
-        searchFilter = filter;
-        if (!excludeUsers) {
-            searchQuery.setQuery(filter, numberOfResults);
-        } else {
-            searchQuery.setQuery(filter, numberOfResults, excludedUserIds);
+        if (connectionsResults != null) {
+            connectionsResults.removeUpdateListener(searchListener);
         }
+        connectionsResults = zMessagingApi.search().getConnectionsByNameOrEmailIncludingBlocked(searchTerm, numberOfResults, excludes);
+        connectionsResults.addUpdateListener(searchListener);
+
+        if (recommendedResults != null) {
+            recommendedResults.removeUpdateListener(searchListener);
+        }
+        recommendedResults = zMessagingApi.search().getRecommendedPeople(searchTerm, numberOfResults, excludes);
+        recommendedResults.addUpdateListener(searchListener);
+
+        if (groupResults != null) {
+            groupResults.removeUpdateListener(searchListener);
+        }
+        groupResults = zMessagingApi.search().getGroupConversations(searchTerm, numberOfResults);
+        groupResults.addUpdateListener(searchListener);
     }
 
     @Override
@@ -156,12 +155,7 @@ public class ScalaPickUserStore extends PickUserStore {
 
     @Override
     public boolean hasTopUsers() {
-        if (topResultsSearchQuery != null &&
-            topResultsSearchQuery.getUsers() != null &&
-            topResultsSearchQuery.getUsers().length > 0) {
-            return true;
-        }
-        return false;
+        return (topResults != null) && (topResults.getAll().length > 0);
     }
 
     @Override
@@ -174,48 +168,38 @@ public class ScalaPickUserStore extends PickUserStore {
         return contacts;
     }
 
-    private void setupSearchQueryListeners() {
-        if (searchQuery == null) {
-            //TODO update to use new API
-            searchQuery = zMessagingApi.searchQuery();
-            searchQuery.addUpdateListener(searchQueryListener);
+    private void tearDownSearch() {
+        if (connectionsResults != null) {
+            connectionsResults.removeUpdateListener(searchListener);
         }
-        if (topResultsSearchQuery == null) {
-            //TODO update to use new API
-            topResultsSearchQuery = zMessagingApi.searchQuery();
-            topResultsSearchQuery.addUpdateListener(topResultsSearchQueryListener);
+        if (recommendedResults != null) {
+            recommendedResults.removeUpdateListener(searchListener);
         }
+        if (groupResults != null) {
+            groupResults.removeUpdateListener(searchListener);
+        }
+        if (topResults != null) {
+            topResults.removeUpdateListener(topResultsListener);
+        }
+        connectionsResults = null;
+        recommendedResults = null;
+        groupResults = null;
+        topResults = null;
     }
 
-    private void removeSearchQueryListeners() {
-        if (searchQuery != null) {
-            searchQuery.removeUpdateListener(searchQueryListener);
-        }
-        if (topResultsSearchQuery != null) {
-            topResultsSearchQuery.removeUpdateListener(topResultsSearchQueryListener);
-        }
-    }
-
-    final private UpdateListener searchQueryListener = new UpdateListener() {
+    final private UpdateListener searchListener = new UpdateListener() {
         @Override
         public void updated() {
             if (!TextUtils.isEmpty(searchFilter)) {
-                // Other users = related users and directory users
-                ArrayList<User> otherUsers = new ArrayList<>();
-                otherUsers.addAll(Arrays.asList(searchQuery.getRelated()));
-                otherUsers.addAll(Arrays.asList(searchQuery.getOther()));
-
-                notifySearchResultsUpdated(searchQuery.getContacts(), otherUsers.toArray(new User[otherUsers.size()]), searchQuery.getConversations());
-            } else {
-                notifyRecommendedUsersUpdated(searchQuery.getUsers());
+                notifySearchResultsUpdated(connectionsResults.getAll(), recommendedResults.getAll(), groupResults.getAll());
             }
         }
     };
 
-    final private UpdateListener topResultsSearchQueryListener = new UpdateListener() {
+    final private UpdateListener topResultsListener = new UpdateListener() {
         @Override
         public void updated() {
-            notifyTopUsersUpdated(topResultsSearchQuery.getUsers());
+            notifyTopUsersUpdated(topResults.getAll());
         }
     };
 

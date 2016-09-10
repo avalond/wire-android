@@ -43,7 +43,7 @@
             android:layout_height="@dimen/wire__icon_button__diameter"
             android:gravity="center"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="@dimen/wire__padding__big"
+            android:layout_marginStart="@dimen/wire__padding__big"
             style="?attr/smallIconButton"
             />
 
@@ -52,10 +52,10 @@
             android:id="@+id/ttv__participants__left_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/wire__padding__12"
+            android:layout_marginStart="@dimen/wire__padding__12"
             android:layout_gravity="center_vertical"
             android:minHeight="@dimen/touch_target_buttons"
-            android:gravity="left|center_vertical"
+            android:gravity="start|center_vertical"
             app:font="@string/wire__typeface__light"
             style="?userFooterLabel"
             />
@@ -75,8 +75,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:minHeight="@dimen/touch_target_buttons"
-            android:gravity="right|center_vertical"
-            android:layout_marginRight="@dimen/wire__padding__small"
+            android:gravity="end|center_vertical"
+            android:layout_marginEnd="@dimen/wire__padding__small"
             app:font="@string/wire__typeface__light"
             style="?userFooterLabel"
             />
@@ -85,7 +85,7 @@
             android:id="@+id/gtv__participants__right__action"
             android:layout_width="@dimen/wire__icon_button__diameter"
             android:layout_height="@dimen/wire__icon_button__diameter"
-            android:layout_marginRight="@dimen/wire__padding__big"
+            android:layout_marginEnd="@dimen/wire__padding__big"
             android:gravity="center"
             android:layout_gravity="center_vertical"
             style="?attr/smallIconButton"

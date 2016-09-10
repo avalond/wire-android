@@ -48,7 +48,7 @@ android {
             // All the usual Gradle options.
             testLogging {
                 events "passed", "skipped", "failed", "standardOut", "standardError"
-                outputs.upToDateWhen {false}
+                outputs.upToDateWhen { false }
                 showStandardStreams = true
             }
         }
@@ -110,6 +110,7 @@ android {
             buildConfigField 'boolean', 'SHOW_TEST_COUNTRY_CODE', 'true'
             buildConfigField 'boolean', 'SHOW_MENTIONING', 'true'
             buildConfigField 'boolean', 'IS_TEST_GALLERY_ALLOWED', 'true'
+            buildConfigField 'boolean', 'SHOW_BACKEND_PICKER', 'true'
             buildConfigField 'int', 'LOG_LEVEL_UI', logLevelWarn()
             buildConfigField 'int', 'LOG_LEVEL_SE', logLevelSupress()
             buildConfigField 'int', 'LOG_LEVEL_AVS', logLevelVerbose()
@@ -139,6 +140,7 @@ android {
             buildConfigField 'boolean', 'SHOW_MENTIONING', 'false'
             buildConfigField 'boolean', 'SHOW_ADDRESS_BOOK_INVITATIONS', 'false'
             buildConfigField 'boolean', 'IS_TEST_GALLERY_ALLOWED', 'true'
+            buildConfigField 'boolean', 'SHOW_BACKEND_PICKER', 'true'
             buildConfigField 'int', 'LOG_LEVEL_UI', logLevelVerbose()
             buildConfigField 'int', 'LOG_LEVEL_SE', logLevelVerbose()
             buildConfigField 'int', 'LOG_LEVEL_AVS', logLevelVerbose()
@@ -164,6 +166,7 @@ android {
             buildConfigField 'boolean', 'SHOW_TEST_COUNTRY_CODE', 'false'
             buildConfigField 'boolean', 'SHOW_MENTIONING', 'false'
             buildConfigField 'boolean', 'IS_TEST_GALLERY_ALLOWED', 'false'
+            buildConfigField 'boolean', 'SHOW_BACKEND_PICKER', 'false'
             buildConfigField 'int', 'LOG_LEVEL_UI', logLevelSupress()
             buildConfigField 'int', 'LOG_LEVEL_SE', logLevelSupress()
             buildConfigField 'int', 'LOG_LEVEL_AVS', logLevelSupress()
@@ -173,25 +176,27 @@ android {
             applicationId "com.wire.internal"
             versionName majorVersion + android.defaultConfig.versionCode + "-internal"
             proguardFile 'proguard-rules-test.txt'
-            manifestPlaceholders = [applicationLabel       : "Wire Internal",
-                                    allowBackup            : "true",
-                                    applicationIcon        : "@drawable/ic_launcher_wire_internal",
-                                    sharedUserId           : "",
-                                    use_audio_link         : "false",
-                                    internal_features      : "true",
-                                    localyticsAppKey       : getApiKey("localyticsAppKey"),
-                                    hockeyAppKey           : getApiKey("hockeyAppKeyInternal")]
+            manifestPlaceholders = [applicationLabel : "Wire Internal",
+                                    allowBackup      : "true",
+                                    applicationIcon  : "@drawable/ic_launcher_wire_internal",
+                                    sharedUserId     : "",
+                                    use_audio_link   : "false",
+                                    gcm_enabled      : "false",
+                                    internal_features: "true",
+                                    localyticsAppKey : getApiKey("localyticsAppKey"),
+                                    hockeyAppKey     : getApiKey("hockeyAppKeyInternal")]
 
             buildConfigField 'boolean', 'USE_HOCKEY_UPDATE', 'false'
             buildConfigField 'boolean', 'USE_EDGE_BACKEND', 'false'
             buildConfigField 'boolean', 'USE_STAGING_BACKEND', 'false'
-            buildConfigField 'boolean', 'SHOW_GRIDOVERLAY', 'true'
+            buildConfigField 'boolean', 'SHOW_GRIDOVERLAY', 'false'
             buildConfigField 'boolean', 'SHOW_DEVELOPER_OPTIONS', 'true'
             buildConfigField 'boolean', 'IS_LOADTIME_LOGGER_ENABLED', 'false'
             buildConfigField 'boolean', 'SHOW_TEST_COUNTRY_CODE', 'false'
             buildConfigField 'boolean', 'SHOW_MENTIONING', 'false'
             buildConfigField 'boolean', 'SHOW_ADDRESS_BOOK_INVITATIONS', 'false'
             buildConfigField 'boolean', 'IS_TEST_GALLERY_ALLOWED', 'false'
+            buildConfigField 'boolean', 'SHOW_BACKEND_PICKER', 'false'
             buildConfigField 'int', 'LOG_LEVEL_UI', logLevelVerbose()
             buildConfigField 'int', 'LOG_LEVEL_SE', logLevelVerbose()
             buildConfigField 'int', 'LOG_LEVEL_AVS', logLevelVerbose()
@@ -219,6 +224,7 @@ android {
             buildConfigField 'boolean', 'SHOW_TEST_COUNTRY_CODE', 'false'
             buildConfigField 'boolean', 'SHOW_MENTIONING', 'false'
             buildConfigField 'boolean', 'IS_TEST_GALLERY_ALLOWED', 'false'
+            buildConfigField 'boolean', 'SHOW_BACKEND_PICKER', 'true'
             buildConfigField 'int', 'LOG_LEVEL_UI', logLevelSupress()
             buildConfigField 'int', 'LOG_LEVEL_SE', logLevelVerbose()
             buildConfigField 'int', 'LOG_LEVEL_AVS', logLevelVerbose()
@@ -247,6 +253,7 @@ android {
             buildConfigField 'boolean', 'SHOW_MENTIONING', 'false'
             buildConfigField 'boolean', 'SHOW_ADDRESS_BOOK_INVITATIONS', 'false'
             buildConfigField 'boolean', 'IS_TEST_GALLERY_ALLOWED', 'true'
+            buildConfigField 'boolean', 'SHOW_BACKEND_PICKER', 'true'
             buildConfigField 'int', 'LOG_LEVEL_UI', logLevelSupress()
             buildConfigField 'int', 'LOG_LEVEL_SE', logLevelVerbose()
             buildConfigField 'int', 'LOG_LEVEL_AVS', logLevelVerbose()
@@ -274,6 +281,7 @@ android {
             buildConfigField 'boolean', 'SHOW_TEST_COUNTRY_CODE', 'true'
             buildConfigField 'boolean', 'SHOW_MENTIONING', 'true'
             buildConfigField 'boolean', 'IS_TEST_GALLERY_ALLOWED', 'true'
+            buildConfigField 'boolean', 'SHOW_BACKEND_PICKER', 'true'
             buildConfigField 'int', 'LOG_LEVEL_UI', logLevelVerbose()
             buildConfigField 'int', 'LOG_LEVEL_SE', logLevelVerbose()
             buildConfigField 'int', 'LOG_LEVEL_AVS', logLevelVerbose()
@@ -331,8 +339,6 @@ def patchKeepSpecs() {
     }
 
 
-
-
 }
 
 afterEvaluate {
@@ -381,7 +387,6 @@ dexinfo {
 }
 
 dependencies {
-    apt project(':annotations-processor')
     compile project(':wire-core')
     compile project(':wire-ui')
     compile project(':lintlib')
@@ -414,6 +419,7 @@ dependencies {
     compile deps.psMaps
     compile deps.psLocation
     compile deps.cardview
+
     //Used for animating incoming messages
     compile deps.nineoldandroids
     // For using local files in app/libs
@@ -466,7 +472,7 @@ def getDate() {
     return formattedDate
 }
 
-def getApiKey(String property){
+def getApiKey(String property) {
     if (file("$projectDir/api-keys.properties").exists()) {
         Properties properties = new Properties()
         properties.load(new FileInputStream("$projectDir/api-keys.properties"))
@@ -481,8 +487,13 @@ def getApiKey(String property){
 // Same values as in log_levels.xml
 // (workaround for R not being available in BuildConfig for test flavor)
 def logLevelVerbose() { return '2' }
+
 def logLevelDebug() { return '3' }
+
 def logLevelInfo() { return '4' }
+
 def logLevelWarn() { return '5' }
+
 def logLevelError() { return '6' }
+
 def logLevelSupress() { return '99' }

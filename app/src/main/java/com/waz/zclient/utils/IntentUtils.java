@@ -30,6 +30,7 @@ import com.waz.zclient.LaunchActivity;
 import com.waz.zclient.MainActivity;
 import com.waz.zclient.PopupActivity;
 import com.waz.zclient.R;
+import com.waz.zclient.controllers.notifications.ShareSavedImageActivity;
 import hugo.weaving.DebugLog;
 
 import java.io.UnsupportedEncodingException;
@@ -60,6 +61,7 @@ public class IntentUtils {
     private static final String GOOGLE_MAPS_WITH_LABEL_INTENT_URI = "geo:0,0?q=%s,%s(%s)";
     private static final String GOOGLE_MAPS_INTENT_PACKAGE = "com.google.android.apps.maps";
     private static final String GOOGLE_MAPS_WEB_LINK = "http://maps.google.com/maps?z=%d&q=loc:%f+%f+(%s)";
+    private static final String IMAGE_MIME_TYPE = "image/*";
 
     public static boolean isEmailVerificationIntent(@Nullable Intent intent) {
         if (intent == null) {
@@ -228,6 +230,22 @@ public class IntentUtils {
         return PendingIntent.getActivity(context, requestCode, intent, 0);
     }
 
+    public static PendingIntent getGalleryIntent(Context context, Uri uri) {
+        // TODO: AN-2276 - Replace with ShareCompat.IntentBuilder
+        Intent galleryIntent = new Intent(Intent.ACTION_VIEW);
+        galleryIntent.setDataAndTypeAndNormalize(uri, IMAGE_MIME_TYPE);
+        galleryIntent.setClipData(new ClipData(null, new String[] {IMAGE_MIME_TYPE}, new ClipData.Item(uri)));
+        galleryIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        return PendingIntent.getActivity(context, 0, galleryIntent, 0);
+    }
+
+    public static PendingIntent getPendingShareIntent(Context context, Uri uri) {
+        Intent shareIntent = new Intent(context, ShareSavedImageActivity.class);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        shareIntent.putExtra(IntentUtils.EXTRA_LAUNCH_FROM_SAVE_IMAGE_NOTIFICATION, true);
+        return PendingIntent.getActivity(context, 0, shareIntent, 0);
+    }
+
     public static Intent getDebugReportIntent(Context context, Uri fileUri) {
         String versionName;
         try {
@@ -265,10 +283,10 @@ public class IntentUtils {
 
     public static Intent getSavedImageShareIntent(Context context, Uri uri) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setClipData(new ClipData(null, new String[] {"image/*"}, new ClipData.Item(uri)));
+        shareIntent.setClipData(new ClipData(null, new String[] {IMAGE_MIME_TYPE}, new ClipData.Item(uri)));
         shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
         shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        shareIntent.setDataAndTypeAndNormalize(uri, "image/*");
+        shareIntent.setDataAndTypeAndNormalize(uri, IMAGE_MIME_TYPE);
         return Intent.createChooser(shareIntent,
                                     context.getString(R.string.notification__image_saving__action__share));
     }

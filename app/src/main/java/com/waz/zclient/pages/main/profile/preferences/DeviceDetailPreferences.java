@@ -23,6 +23,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceScreen;
 import android.widget.Toast;
 import com.waz.api.Fingerprint;
+import com.waz.api.NetworkMode;
 import com.waz.api.OtrClient;
 import com.waz.api.Subscriber;
 import com.waz.api.Subscription;
@@ -148,9 +149,9 @@ public class DeviceDetailPreferences extends BasePreferenceFragment<DeviceDetail
             preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    getStoreFactory().getNetworkStore().doIfNetwork(new NetworkAction() {
+                    getStoreFactory().getNetworkStore().doIfHasInternetOrNotifyUser(new NetworkAction() {
                         @Override
-                        public void execute() {
+                        public void execute(NetworkMode networkMode) {
                             if (getControllerFactory().getPasswordController().hasPassword()) {
                                 deleteCurrentDevice();
                             } else {

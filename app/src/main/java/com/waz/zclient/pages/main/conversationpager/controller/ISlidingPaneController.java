@@ -17,9 +17,6 @@
  */
 package com.waz.zclient.pages.main.conversationpager.controller;
 
-import com.waz.annotations.Controller;
-
-@Controller
 public interface ISlidingPaneController extends SlidingPaneObserver {
     void addObserver(SlidingPaneObserver slideListener);
 

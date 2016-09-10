@@ -25,41 +25,16 @@ import android.view.animation.Animation;
 import android.widget.ViewAnimator;
 import com.waz.zclient.R;
 import com.waz.zclient.pages.main.profile.camera.CameraContext;
-import com.waz.zclient.pages.main.profile.camera.ControlState;
-import com.waz.zclient.pages.main.profile.views.ConfirmationMenu;
-import com.waz.zclient.pages.main.profile.views.ConfirmationMenuListener;
 import com.waz.zclient.ui.animation.interpolators.penner.Expo;
-import com.waz.zclient.ui.theme.OptionsDarkTheme;
 import com.waz.zclient.utils.SquareOrientation;
 import com.waz.zclient.utils.ViewUtils;
 
 public class CameraBottomControl extends ViewAnimator {
     private CameraBottomControlCallback cameraBottomControlCallback;
-    private ControlState currentControlState;
-    private ConfirmationMenu approveImageSelectionMenu;
     private SquareOrientation currentConfigOrientation = SquareOrientation.NONE;
-    private View backToChangeButton;
+    private View closeButton;
     private View takeAPictureButton;
     private View galleryPickerButton;
-
-    public void setCameraBottomControlCallback(CameraBottomControlCallback cameraBottomControlCallback) {
-        this.cameraBottomControlCallback = cameraBottomControlCallback;
-    }
-
-    public void removeCameraBottomControlCallback() {
-        this.cameraBottomControlCallback = null;
-    }
-
-    public void setAccentColor(int accentColor) {
-        if (approveImageSelectionMenu == null) {
-            return;
-        }
-        approveImageSelectionMenu.setAccentColor(accentColor);
-    }
-
-    public boolean isCameraState() {
-        return currentControlState == ControlState.CAMERA;
-    }
 
     public CameraBottomControl(Context context) {
         super(context);
@@ -69,71 +44,34 @@ public class CameraBottomControl extends ViewAnimator {
         super(context, attrs);
     }
 
+    public void setCameraBottomControlCallback(CameraBottomControlCallback cameraBottomControlCallback) {
+        this.cameraBottomControlCallback = cameraBottomControlCallback;
+    }
+
     public void setMode(CameraContext cameraContext) {
         switch (cameraContext) {
             case SETTINGS:
-                setupSettingsMode();
+                setMode(true);
                 break;
             case SIGN_UP:
-                setupSignUpMode();
+                setMode(false);
                 break;
             case MESSAGE:
-                setupMessageMode(true);
+                setMode(true);
                 break;
         }
     }
 
-    private void setupSignUpMode() {
-        setupMessageMode(false);
-    }
-
-    private void setupSettingsMode() {
+    private void setMode(boolean allowCloseButton) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
-
-        addTakeAPhotoController(inflater, true, true);
-        addConfirmSelectionController();
-
-        setControlState(ControlState.CAMERA);
+        addCameraControlsLayout(inflater, allowCloseButton, true);
+        setConfirmationMenuVisible(false);
     }
 
-    private void setupMessageMode(boolean allowCloseButton) {
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-
-        addTakeAPhotoController(inflater, allowCloseButton, true);
-        addConfirmSelectionController();
-
-        setControlState(ControlState.CAMERA);
-    }
-
-    private void addConfirmSelectionController() {
-        approveImageSelectionMenu = new ConfirmationMenu(getContext());
-        approveImageSelectionMenu.setWireTheme(new OptionsDarkTheme(getContext()));
-        approveImageSelectionMenu.setCancel(getResources().getString(R.string.confirmation_menu__cancel));
-        approveImageSelectionMenu.setConfirm(getResources().getString(R.string.confirmation_menu__confirm_done));
-        approveImageSelectionMenu.setConfirmationMenuListener(new ConfirmationMenuListener() {
-            @Override
-            public void confirm() {
-                if (cameraBottomControlCallback != null) {
-                    cameraBottomControlCallback.onApproveSelection(true);
-                }
-            }
-
-            @Override
-            public void cancel() {
-                if (cameraBottomControlCallback != null) {
-                    cameraBottomControlCallback.onApproveSelection(false);
-                }
-            }
-        });
-        addView(approveImageSelectionMenu);
-    }
-
-    private void addTakeAPhotoController(LayoutInflater inflater, boolean allowCloseButton, boolean showGalleryButton) {
+    private void addCameraControlsLayout(LayoutInflater inflater, boolean allowCloseButton, boolean showGalleryButton) {
         inflater.inflate(R.layout.camera_control_choose_image_source, this, true);
 
-
-        // show image gallery
-        galleryPickerButton = ViewUtils.getView(this, R.id.gtv__camera_control__pick_from_gallery_in_camera);
+        galleryPickerButton = ViewUtils.getView(this, R.id.gtv__camera_control__gallery);
         if (showGalleryButton) {
             galleryPickerButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -145,21 +83,6 @@ public class CameraBottomControl extends ViewAnimator {
             galleryPickerButton.setVisibility(View.GONE);
         }
 
-        // go to change image
-        backToChangeButton = ViewUtils.getView(this, R.id.gtv__camera_control__back_to_change_image);
-        backToChangeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (cameraBottomControlCallback != null) {
-                    cameraBottomControlCallback.onDismiss();
-                }
-            }
-        });
-        if (!allowCloseButton) {
-            backToChangeButton.setVisibility(GONE);
-        }
-
-        // take picture
         takeAPictureButton = ViewUtils.getView(this, R.id.gtv__camera_control__take_a_picture);
         takeAPictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,30 +93,39 @@ public class CameraBottomControl extends ViewAnimator {
                 }
             }
         });
+
+        closeButton = ViewUtils.getView(this, R.id.gtv__camera_control__close);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (cameraBottomControlCallback != null) {
+                    cameraBottomControlCallback.onClose();
+                }
+            }
+        });
+        if (!allowCloseButton) {
+            closeButton.setVisibility(GONE);
+        }
     }
 
-    public void setControlState(ControlState controlState) {
-        currentControlState = controlState;
-        switch (controlState) {
-            case CAMERA:
-                enableShutterButton();
-                setDisplayedChild(0);
-                break;
-            case DIALOG_APPROVE_SELECTION:
-                setDisplayedChild(1);
-                break;
+    public void setConfirmationMenuVisible(boolean isConfirming) {
+        if (isConfirming) {
+            setDisplayedChild(1);
+        } else {
+            enableShutterButton();
+            setDisplayedChild(0);
         }
     }
 
     public void setConfigOrientation(SquareOrientation configOrientation) {
         if (configOrientation.equals(currentConfigOrientation) ||
-            backToChangeButton == null ||
+            closeButton == null ||
             takeAPictureButton == null ||
             galleryPickerButton == null) {
             return;
         }
 
-        int currentOrientation = (int) backToChangeButton.getRotation();
+        int currentOrientation = (int) closeButton.getRotation();
         int rotation = 0;
 
         switch (configOrientation) {
@@ -222,35 +154,14 @@ public class CameraBottomControl extends ViewAnimator {
 
         currentConfigOrientation = configOrientation;
 
-        // go to change image
-        backToChangeButton.animate()
-                          .rotation(rotation)
-                          .start();
-
-        // take picture
-        takeAPictureButton.animate()
-                          .rotation(rotation)
-                          .start();
-
-        // show image gallery
-        galleryPickerButton.animate()
-                           .rotation(rotation)
-                           .start();
+        closeButton.animate().rotation(rotation).start();
+        takeAPictureButton.animate().rotation(rotation).start();
+        galleryPickerButton.animate().rotation(rotation).start();
     }
 
     private void setRotation(int rotation) {
-        if (backToChangeButton == null ||
-            takeAPictureButton == null ||
-            galleryPickerButton == null) {
-            return;
-        }
-        // go to change image
-        backToChangeButton.setRotation(rotation);
-
-        // take picture
+        closeButton.setRotation(rotation);
         takeAPictureButton.setRotation(rotation);
-
-        // show image gallery
         galleryPickerButton.setRotation(rotation);
     }
 
@@ -269,7 +180,7 @@ public class CameraBottomControl extends ViewAnimator {
         super.setOutAnimation(outAnimation);
     }
 
-    private void enableShutterButton() {
+    public void enableShutterButton() {
         if (takeAPictureButton != null) {
             takeAPictureButton.setEnabled(true);
         }
@@ -281,4 +192,9 @@ public class CameraBottomControl extends ViewAnimator {
         }
     }
 
+    public interface CameraBottomControlCallback {
+        void onClose();
+        void onTakePhoto();
+        void onOpenImageGallery();
+    }
 }

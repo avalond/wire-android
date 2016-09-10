@@ -57,7 +57,6 @@ import com.waz.zclient.controllers.tracking.events.conversation.UnarchivedConver
 import com.waz.zclient.controllers.tracking.events.group.CreatedGroupConversationEvent;
 import com.waz.zclient.controllers.tracking.events.group.LeaveGroupConversationEvent;
 import com.waz.zclient.controllers.tracking.events.peoplepicker.PeoplePickerResultsUsed;
-import com.waz.zclient.pages.main.participants.OptionsMenuControl;
 import com.waz.zclient.core.controllers.tracking.attributes.ConversationType;
 import com.waz.zclient.core.controllers.tracking.attributes.RangedAttribute;
 import com.waz.zclient.core.stores.connect.IConnectStore;
@@ -75,6 +74,7 @@ import com.waz.zclient.pages.main.connect.SendConnectRequestFragment;
 import com.waz.zclient.pages.main.connect.UserProfile;
 import com.waz.zclient.pages.main.conversation.controller.ConversationScreenControllerObserver;
 import com.waz.zclient.pages.main.conversation.controller.IConversationScreenController;
+import com.waz.zclient.pages.main.participants.OptionsMenuControl;
 import com.waz.zclient.pages.main.participants.OptionsMenuFragment;
 import com.waz.zclient.pages.main.participants.SingleParticipantFragment;
 import com.waz.zclient.pages.main.participants.dialog.ParticipantsDialogFragment;
@@ -84,7 +84,6 @@ import com.waz.zclient.pages.main.pickuser.controller.PickUserControllerScreenOb
 import com.waz.zclient.pages.main.profile.ZetaPreferencesActivity;
 import com.waz.zclient.pages.main.profile.camera.CameraContext;
 import com.waz.zclient.pages.main.profile.camera.CameraFragment;
-import com.waz.zclient.pages.main.profile.camera.CameraType;
 import com.waz.zclient.ui.animation.interpolators.penner.Expo;
 import com.waz.zclient.ui.animation.interpolators.penner.Quart;
 import com.waz.zclient.ui.optionsmenu.OptionsMenu;
@@ -831,16 +830,6 @@ public class ConversationListManagerFragment extends BaseFragment<ConversationLi
     }
 
     @Override
-    public void onDeleteImage(CameraContext cameraContext) {
-
-    }
-
-    @Override
-    public void onCameraTypeChanged(CameraType cameraType, CameraContext cameraContext) {
-
-    }
-
-    @Override
     public void onCameraNotAvailable() {
 
     }
@@ -1056,6 +1045,11 @@ public class ConversationListManagerFragment extends BaseFragment<ConversationLi
 
     @Override
     public void onHideOtrClient() {
+
+    }
+
+    @Override
+    public void onShowLikesList(Message message) {
 
     }
 

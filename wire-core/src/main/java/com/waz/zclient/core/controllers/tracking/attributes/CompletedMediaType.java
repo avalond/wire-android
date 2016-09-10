@@ -23,6 +23,8 @@ public enum CompletedMediaType {
     VIDEO_CALL("outgoing_video_call"),
     PING("ping"),
     PHOTO("photo"),
+    AUDIO("audio"),
+    VIDEO("video"),
     FILE("file"),
     LOCATION("location");
 

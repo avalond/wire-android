@@ -42,6 +42,8 @@ public class AppTrackingEventsHandler implements TrackingEventsHandler {
 
     private static final String UNDEFINED_ASSET_MIMETYPE = "";
     private static final int UNDEFINED_ASSET_SIZE = -1;
+    private static final String ASSET_MIME_TYPE_AUDIO = "audio";
+    private static final String ASSET_MIME_TYPE_VIDEO = "video";
 
     private ITrackingController trackingController;
 
@@ -60,18 +62,27 @@ public class AppTrackingEventsHandler implements TrackingEventsHandler {
                 String conversationType = trackingEvent.getConversationType().getOrElse(IConversation.Type.UNKNOWN).toString();
                 boolean withOtto = trackingEvent.isInConversationWithOtto().getOrElse(false);
                 trackingController.tagEvent(new InitiatedFileUploadEvent(assetMimeType, assetSize, conversationType));
-                trackingController.tagEvent(new CompletedMediaActionEvent(CompletedMediaType.FILE,
+                CompletedMediaType mediaType = CompletedMediaType.FILE;
+                if (assetMimeType.contains(ASSET_MIME_TYPE_AUDIO)) {
+                    mediaType = CompletedMediaType.AUDIO;
+                } else if (assetMimeType.contains(ASSET_MIME_TYPE_VIDEO)) {
+                    mediaType = CompletedMediaType.VIDEO;
+                }
+                trackingController.tagEvent(new CompletedMediaActionEvent(mediaType,
                                                                           conversationType,
                                                                           withOtto));
                 break;
             case IMAGE_UPLOAD_AS_ASSET:
                 String type = trackingEvent.getConversationType().getOrElse(IConversation.Type.UNKNOWN).toString();
-                boolean isOtto = trackingEvent.isInConversationWithOtto().getOrElse(false);
+                boolean withBot = trackingEvent.isInConversationWithOtto().getOrElse(false);
                 trackingController.tagEvent(new InitiatedFileUploadEvent(assetMimeType, assetSize, type));
-                trackingController.tagEvent(new SentPictureEvent(SentPictureEvent.Source.CLIP, type));
+                trackingController.tagEvent(new SentPictureEvent(SentPictureEvent.Source.CLIP, type,
+                                                                 SentPictureEvent.Method.DEFAULT,
+                                                                 SentPictureEvent.SketchSource.NONE,
+                                                                 withBot));
                 trackingController.tagEvent(new CompletedMediaActionEvent(CompletedMediaType.PHOTO,
                                                                           type,
-                                                                          isOtto));
+                                                                          withBot));
                 break;
             case ASSET_UPLOAD_SUCCESSFUL:
                 int durationInSeconds = (int) (trackingEvent.getDuration().getOrElse(Duration.ofSeconds(-1)).toMillis() / 1000);

@@ -19,14 +19,9 @@ package com.waz.zclient.controllers.camera;
 
 import com.waz.api.ImageAsset;
 import com.waz.zclient.pages.main.profile.camera.CameraContext;
-import com.waz.zclient.pages.main.profile.camera.CameraType;
 
 public interface CameraActionObserver {
     void onBitmapSelected(ImageAsset imageAsset, boolean imageFromCamera, CameraContext cameraContext);
-
-    void onDeleteImage(CameraContext cameraContext);
-
-    void onCameraTypeChanged(CameraType cameraType, CameraContext cameraContext);
 
     void onCameraNotAvailable();
 

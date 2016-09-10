@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /*
- * This part of the Wire software uses source code from the TouchImageView library.
- * (https://github.com/MikeOrtiz/TouchImageView)
+ * This part of the Wire software uses source code from the TouchImageView library
+ * (https://github.com/MikeOrtiz/TouchImageView) governed by the MIT license.
  *
  * TouchImageView.java
  * By: Michael Ortiz
@@ -28,6 +28,8 @@
  * Updated By: singpolyma
  * -------------------
  * Extends Android ImageView to include pinch zooming, panning, fling and double tap zoom.
+ *
+ * The MIT License (MIT)
  *
  * Copyright (c) 2012 Michael Ortiz
  *

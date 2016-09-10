@@ -17,11 +17,18 @@
  */
 package com.waz.zclient.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import com.waz.api.BugReporter;
 import com.waz.api.ReportListener;
+import com.waz.api.ZmsVersion;
+import com.waz.zclient.R;
+import timber.log.Timber;
 
 public class DebugUtils {
 
@@ -36,4 +43,22 @@ public class DebugUtils {
             }
         });
     }
+
+    @SuppressLint("DefaultLocale")
+    public static String getVersion(Context context) {
+        final StringBuilder versionText = new StringBuilder();
+        try {
+            final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            versionText.append(String.format("Version %s (%d)", packageInfo.versionName, packageInfo.versionCode));
+        } catch (PackageManager.NameNotFoundException e) {
+            Timber.e(e, "Failed getting app version name.");
+        }
+        versionText.append("\nSync Engine ").append(ZmsVersion.ZMS_VERSION)
+                   .append("\nAVS ").append(context.getString(R.string.avs_version))
+                   .append("\nAudio-notifications ").append(context.getString(R.string.audio_notifications_version));
+
+        return versionText.toString();
+    }
+
+
 }

@@ -26,7 +26,7 @@ import com.waz.api.UpdateListener;
 import com.waz.api.User;
 import com.waz.zclient.R;
 import com.waz.zclient.utils.ViewUtils;
-import com.waz.zclient.views.chathead.ChatheadView;
+import com.waz.zclient.common.views.ChatheadView;
 
 public class SearchResultUserRowView extends FrameLayout implements UserRowView,
                                                                     UpdateListener {

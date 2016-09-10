@@ -19,12 +19,10 @@ package com.waz.zclient.controllers.sharing;
 
 import android.app.Activity;
 import android.net.Uri;
-import com.waz.annotations.Controller;
 import com.waz.api.IConversation;
 
 import java.util.List;
 
-@Controller
 public interface ISharingController {
 
     void addObserver(SharingObserver observer);

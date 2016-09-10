@@ -36,7 +36,6 @@ import org.threeten.bp.Instant;
 public class VoiceFilterRecordingLayout extends FrameLayout implements
                                                             VoiceFilterController.RecordingObserver,
                                                             Subscriber<float[]> {
-    public static final String TAG = VoiceFilterRecordingLayout.class.getSimpleName();
     private static final String GLYPH_PLACEHOLDER = "_GLYPH_";
 
     private static final int MAX_NUM_OF_SOUND_LEVELS = 1;

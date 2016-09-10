@@ -17,20 +17,16 @@
  */
 package com.waz.zclient.core.stores.pickuser;
 
-import com.waz.annotations.Store;
 import com.waz.api.Contacts;
 import com.waz.api.User;
 import com.waz.zclient.core.stores.IStore;
 
-@Store
 public interface IPickUserStore extends IStore {
     void addPickUserStoreObserver(PickUserStoreObserver pickUserStoreObserver);
 
     void removePickUserStoreObserver(PickUserStoreObserver pickUserStoreObserver);
 
     void loadTopUserList(int numberOfResults, boolean excludeUsers);
-
-    void loadRecommendedUsers(int numberOfResults);
 
     void loadSearchByFilter(String filter, int numberOfResults, boolean excludeUsers);
 

@@ -18,11 +18,13 @@
 package com.waz.zclient.ui.views;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.AttributeSet;
+import com.waz.zclient.ui.R;
 import com.waz.zclient.ui.text.GlyphTextView;
 import com.waz.zclient.ui.theme.ThemeUtils;
 import com.waz.zclient.ui.utils.ColorUtils;
@@ -75,6 +77,29 @@ public class CursorIconButton extends GlyphTextView {
         states.addState(new int[] {}, new ColorDrawable(Color.TRANSPARENT));
 
         setBackground(states);
+
+        setTextColor(color);
         invalidate();
+    }
+
+    public void setTextColor(int accentColor) {
+        int pressedColor = getResources().getColor(R.color.text__primary_dark_40);
+        int focusedColor = pressedColor;
+        int selectedColor = accentColor;
+        int enabledColor = getResources().getColor(R.color.text__primary_dark);
+        int disabledColor = getResources().getColor(R.color.text__primary_dark_16);
+
+        if (!ThemeUtils.isDarkTheme(getContext())) {
+            pressedColor = getResources().getColor(R.color.text__primary_light__40);
+            focusedColor = pressedColor;
+            enabledColor = getResources().getColor(R.color.text__primary_light);
+            disabledColor = getResources().getColor(R.color.text__primary_light_16);
+        }
+
+        int[] colors = {pressedColor, focusedColor, selectedColor, enabledColor, disabledColor};
+        int[][] states = {{android.R.attr.state_pressed}, {android.R.attr.state_focused}, {android.R.attr.state_selected}, {android.R.attr.state_enabled}, {-android.R.attr.state_enabled}};
+        ColorStateList colorStateList = new ColorStateList(states, colors);
+
+        super.setTextColor(colorStateList);
     }
 }

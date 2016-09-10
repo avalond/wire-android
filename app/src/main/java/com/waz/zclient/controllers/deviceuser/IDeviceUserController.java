@@ -17,9 +17,6 @@
  */
 package com.waz.zclient.controllers.deviceuser;
 
-import com.waz.annotations.Controller;
-
-@Controller
 public interface IDeviceUserController {
     void tearDown();
 

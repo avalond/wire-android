@@ -27,7 +27,7 @@ local.properties
 app/api-keys.properties
 app/*.keystore
 app/signing.gradle
-repositories.gradle
+user.gradle
 
 # Google Play Services lib
 google-play-services_lib/

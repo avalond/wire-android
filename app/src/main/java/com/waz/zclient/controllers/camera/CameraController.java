@@ -19,7 +19,6 @@ package com.waz.zclient.controllers.camera;
 
 import com.waz.api.ImageAsset;
 import com.waz.zclient.pages.main.profile.camera.CameraContext;
-import com.waz.zclient.pages.main.profile.camera.CameraType;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -64,20 +63,6 @@ public class CameraController implements ICameraController {
     public void onBitmapSelected(ImageAsset imageAsset, boolean imageFromCamera, CameraContext cameraContext) {
         for (CameraActionObserver cameraActionObserver : cameraActionObservers) {
             cameraActionObserver.onBitmapSelected(imageAsset, imageFromCamera, cameraContext);
-        }
-    }
-
-    @Override
-    public void onDeleteImage(CameraContext cameraContext) {
-        for (CameraActionObserver cameraActionObserver : cameraActionObservers) {
-            cameraActionObserver.onDeleteImage(cameraContext);
-        }
-    }
-
-    @Override
-    public void onCameraTypeChanged(CameraType cameraType, CameraContext cameraContext) {
-        for (CameraActionObserver cameraActionObserver : cameraActionObservers) {
-            cameraActionObserver.onCameraTypeChanged(cameraType, cameraContext);
         }
     }
 

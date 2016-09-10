@@ -102,6 +102,6 @@ public class OnBoardingHintFragment extends BaseFragment<OnBoardingHintFragment.
     }
 
     public interface Container {
-        void dismissOnboardingHint(OnBoardingHintType requestedType);
+        void dismissOnBoardingHint(OnBoardingHintType requestedType);
     }
 }

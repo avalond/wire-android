@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.waz.zclient.R;
 import com.waz.zclient.core.controllers.tracking.events.Event;
 import com.waz.zclient.pages.BasePreferenceFragment;
+import com.waz.zclient.utils.DebugUtils;
 
 
 public class DeveloperPreferences extends BasePreferenceFragment<DeveloperPreferences.Container> {
@@ -58,6 +59,9 @@ public class DeveloperPreferences extends BasePreferenceFragment<DeveloperPrefer
                                                           .getString(getString(R.string.pref_dev_avs_last_call_session_id_key),
                                                                      getString(R.string.pref_dev_avs_last_call_session_id_not_available));
         lastCallSessionIdPreference.setSummary(lastCallSessionId);
+
+        Preference versionInfoPrefs = findPreference(getString(R.string.pref_dev_version_info_id_key));
+        versionInfoPrefs.setSummary(DebugUtils.getVersion(getContext()));
     }
 
     private void copyLastCallSessionIdToClipboard() {

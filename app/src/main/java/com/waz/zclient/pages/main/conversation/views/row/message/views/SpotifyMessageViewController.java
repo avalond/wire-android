@@ -59,7 +59,7 @@ public class SpotifyMessageViewController extends MediaPlayerViewController {
         messageViewsContainer.getControllerFactory()
                              .getTrackingController()
                              .tagEvent(new PlayedSpotifyMessageEvent(!message.getUser().isMe(),
-                                                                     getConversationTypeString()));
+                                                                     messageViewsContainer.getStoreFactory().getConversationStore().getCurrentConversation()));
         messageViewsContainer.getControllerFactory()
                              .getTrackingController()
                              .updateSessionAggregates(RangedAttribute.SPOTIFY_CONTENT_CLICKS);

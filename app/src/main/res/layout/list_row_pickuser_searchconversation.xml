@@ -24,24 +24,23 @@
               android:layout_height="@dimen/people_picker__user_row__height"
               android:gravity="center_vertical"
               android:orientation="horizontal"
-              android:paddingRight="@dimen/people_picker__search_result__row__padding_horizontal"
-              android:paddingLeft="@dimen/people_picker__search_result__row__padding_horizontal"
+              android:paddingStart="@dimen/people_picker__search_result__row__padding_horizontal"
+              android:paddingEnd="@dimen/people_picker__search_result__row__padding_horizontal"
               android:paddingBottom="@dimen/people_picker__search_result__row__padding_bottom"
     >
 
     <com.waz.zclient.views.chathead.ConversationChatheadView
         android:layout_width="@dimen/people_picker__chathead__width"
         android:layout_height="@dimen/people_picker__chathead__width"
-        android:layout_marginRight="@dimen/people_picker__search_result__chathead__padding_right"
+        android:layout_marginEnd="@dimen/people_picker__search_result__chathead__padding_right"
         />
 
     <com.waz.zclient.ui.text.TypefaceTextView
         android:id="@+id/ttv_pickuser_searchconversation_name"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_weight="1"
         android:ellipsize="end"
-        android:gravity="left|center_vertical"
+        android:gravity="start|center_vertical"
         android:singleLine="true"
         android:textSize="@dimen/wire__text_size__regular"
         android:textColor="@color/text__primary_dark"

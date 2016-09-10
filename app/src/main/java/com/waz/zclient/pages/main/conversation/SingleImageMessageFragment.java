@@ -24,8 +24,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.waz.api.ImageAsset;
 import com.waz.api.Message;
-import com.waz.zclient.utils.ZTimeFormatter;
-import org.threeten.bp.DateTimeUtils;
 
 public class SingleImageMessageFragment extends SingleImageFragment {
 
@@ -59,16 +57,6 @@ public class SingleImageMessageFragment extends SingleImageFragment {
     @Override
     protected ImageAsset getImage() {
         return message.getImage();
-    }
-
-    @Override
-    protected String getNameText() {
-        return message.getUser().getDisplayName();
-    }
-
-    @Override
-    protected String getTimeText() {
-        return ZTimeFormatter.getSingleMessageTime(getActivity(), DateTimeUtils.toDate(message.getTime()));
     }
 
     @Override

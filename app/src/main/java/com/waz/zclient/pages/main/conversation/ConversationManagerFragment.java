@@ -34,18 +34,19 @@ import com.waz.api.SyncState;
 import com.waz.api.User;
 import com.waz.api.UsersList;
 import com.waz.api.Verification;
+import com.waz.api.Message;
 import com.waz.zclient.OnBackPressedListener;
 import com.waz.zclient.R;
 import com.waz.zclient.controllers.drawing.DrawingController;
 import com.waz.zclient.controllers.drawing.DrawingObserver;
 import com.waz.zclient.controllers.location.LocationObserver;
 import com.waz.zclient.controllers.navigation.Page;
-import com.waz.zclient.controllers.tracking.events.drawing.DrawingOpenedEvent;
 import com.waz.zclient.controllers.tracking.events.group.AddedMemberToGroupEvent;
 import com.waz.zclient.controllers.tracking.events.group.CreatedGroupConversationEvent;
 import com.waz.zclient.controllers.tracking.events.peoplepicker.PeoplePickerResultsUsed;
 import com.waz.zclient.core.api.scala.ModelObserver;
 import com.waz.zclient.core.controllers.tracking.attributes.RangedAttribute;
+import com.waz.zclient.core.controllers.tracking.events.media.SentPictureEvent;
 import com.waz.zclient.core.stores.connect.IConnectStore;
 import com.waz.zclient.core.stores.conversation.ConversationChangeRequester;
 import com.waz.zclient.core.stores.conversation.ConversationStoreObserver;
@@ -62,18 +63,17 @@ import com.waz.zclient.pages.main.pickuser.controller.IPickUserController;
 import com.waz.zclient.pages.main.pickuser.controller.PickUserControllerScreenObserver;
 import com.waz.zclient.pages.main.profile.camera.CameraContext;
 import com.waz.zclient.pages.main.profile.camera.CameraFragment;
-import com.waz.zclient.pages.main.profile.camera.CameraType;
 import com.waz.zclient.ui.utils.KeyboardUtils;
 import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.TrackingUtils;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.views.LoadingIndicatorView;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConversationManagerFragment extends BaseFragment<ConversationManagerFragment.Container> implements ConversationFragment.Container,
                                                                                                                 ParticipantFragment.Container,
+                                                                                                                LikesListFragment.Container,
                                                                                                                 OnBackPressedListener,
                                                                                                                 ConversationScreenControllerObserver,
                                                                                                                 DrawingObserver,
@@ -186,6 +186,11 @@ public class ConversationManagerFragment extends BaseFragment<ConversationManage
 
         if (fragment instanceof PickUserFragment) {
             getControllerFactory().getPickUserController().hidePickUser(getCurrentPickerDestination(), true);
+            return true;
+        }
+
+        if (fragment instanceof LikesListFragment) {
+            getChildFragmentManager().popBackStack(LikesListFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             return true;
         }
 
@@ -312,6 +317,21 @@ public class ConversationManagerFragment extends BaseFragment<ConversationManage
 
     }
 
+    @Override
+    public void onShowLikesList(Message message) {
+        getChildFragmentManager()
+            .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in_from_bottom_pick_user,
+                                 R.anim.open_new_conversation__thread_list_out,
+                                 R.anim.open_new_conversation__thread_list_in,
+                                 R.anim.slide_out_to_bottom_pick_user)
+            .replace(R.id.fl__conversation_manager__message_list_container,
+                     LikesListFragment.newInstance(message),
+                     LikesListFragment.TAG)
+            .addToBackStack(LikesListFragment.TAG)
+            .commit();
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////
     //
     //  ConversationStoreObserver
@@ -343,6 +363,8 @@ public class ConversationManagerFragment extends BaseFragment<ConversationManage
             }
 
             getControllerFactory().getConversationScreenController().hideParticipants(false, (conversationChangerSender == ConversationChangeRequester.START_CONVERSATION));
+
+            closeLikesList();
         }
         if (toConversation != null) {
             getStoreFactory().getParticipantsStore().setCurrentConversation(toConversation);
@@ -386,7 +408,6 @@ public class ConversationManagerFragment extends BaseFragment<ConversationManage
                                  .addToBackStack(DrawingFragment.TAG)
                                  .commit();
         getControllerFactory().getNavigationController().setRightPage(Page.DRAWING, TAG);
-        getControllerFactory().getTrackingController().tagEvent(DrawingOpenedEvent.newInstance(drawingDestination));
     }
 
     @Override
@@ -395,12 +416,8 @@ public class ConversationManagerFragment extends BaseFragment<ConversationManage
         switch (drawingDestination) {
             case CAMERA_PREVIEW_VIEW:
                 getChildFragmentManager().popBackStack(DrawingFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                if (imageSent) {
-                    getControllerFactory().getCameraController().closeCamera(CameraContext.MESSAGE);
-                    getControllerFactory().getNavigationController().setRightPage(Page.MESSAGE_STREAM, TAG);
-                } else {
-                    getControllerFactory().getNavigationController().setRightPage(Page.CAMERA, TAG);
-                }
+                getControllerFactory().getCameraController().closeCamera(CameraContext.MESSAGE);
+                getControllerFactory().getNavigationController().setRightPage(Page.MESSAGE_STREAM, TAG);
                 break;
             case SINGLE_IMAGE_VIEW:
             case SKETCH_BUTTON:
@@ -437,25 +454,16 @@ public class ConversationManagerFragment extends BaseFragment<ConversationManage
             return;
         }
         getStoreFactory().getConversationStore().sendMessage(imageAsset);
-        if (!getStoreFactory().getNetworkStore().hasInternetConnection()) {
-            getStoreFactory().getNetworkStore().notifyNetworkAccessFailed();
-        }
+        getStoreFactory().getNetworkStore().doIfHasInternetOrNotifyUser(null);
 
+        // Photo sent via contacts quick menu
         TrackingUtils.onSentPhotoMessage(getControllerFactory().getTrackingController(),
                                          getStoreFactory().getConversationStore().getCurrentConversation(),
-                                         imageFromCamera);
+                                         imageFromCamera ? SentPictureEvent.Source.CAMERA
+                                                         : SentPictureEvent.Source.GALLERY,
+                                         SentPictureEvent.Method.FULL_SCREEN);
 
         getControllerFactory().getCameraController().closeCamera(CameraContext.MESSAGE);
-    }
-
-    @Override
-    public void onDeleteImage(CameraContext cameraContext) {
-
-    }
-
-    @Override
-    public void onCameraTypeChanged(CameraType cameraType, CameraContext cameraContext) {
-
     }
 
     @Override
@@ -659,6 +667,14 @@ public class ConversationManagerFragment extends BaseFragment<ConversationManage
         getControllerFactory().getNavigationController().setRightPage(Page.MESSAGE_STREAM, TAG);
         getStoreFactory().getInAppNotificationStore().setUserSendingPicture(false);
         getChildFragmentManager().popBackStack(LocationFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    }
+
+    @Override
+    public void closeLikesList() {
+        Fragment fragment = getChildFragmentManager().findFragmentById(R.id.fl__conversation_manager__message_list_container);
+        if (fragment instanceof LikesListFragment) {
+            getChildFragmentManager().popBackStack(LikesListFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
     }
 
     public interface Container {

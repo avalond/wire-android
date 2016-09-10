@@ -177,6 +177,7 @@
     <dimen name="wire__icon_button__text_size_half">8dp</dimen>
     <dimen name="wire__icon_button__text_size">16dp</dimen>
     <dimen name="wire__icon_button_radius">15dp</dimen>
+    <dimen name="wire__icon_button_radius_big">32dp</dimen>
     <dimen name="wire__icon_button__diameter">28dp</dimen>
     <dimen name="wire__stroke">0.5dp</dimen>
     <dimen name="wire__button__height_small">28dp</dimen>
@@ -286,6 +287,7 @@
     <dimen name="content__image__polka_size" tools:ignore="UnusedResources">6dp</dimen>
     <dimen name="content__image__polka_spacing" tools:ignore="UnusedResources">2dp</dimen>
     <dimen name="content__image__progress_size">40dp</dimen>
+    <dimen name="content__image__button_size">40dp</dimen>
     <dimen name="content__image__progress_circle_padding">4dp</dimen>
     <dimen name="content__missed_call__space_between_image_and_text">8dp</dimen>
     <dimen name="cursor__list_view_footer__height">16dp</dimen>
@@ -315,6 +317,11 @@
     <dimen name="content__location_message__pin_icon__text_size">32dp</dimen>
 
     <dimen name="content__link_preview__image_height">160dp</dimen>
+
+    <dimen name="content__footer__height">24dp</dimen>
+    <dimen name="content__footer__hint_arrow_padding">50dp</dimen>
+    <dimen name="content__footer__like_icon__size">24dp</dimen>
+    <dimen name="content__footer__chathead__size">20dp</dimen>
 
     <dimen name="conversation__header__media__button_size">60dp</dimen>
     <dimen name="conversation__header__bottom_bar__height">0.5dp</dimen>
@@ -363,6 +370,8 @@
     <dimen name="conversation_list__action_view__height">56dp</dimen>
     <dimen name="conversation_list__hint__margin_top">-20dp</dimen>
     <dimen name="conversation_list__hint__marker_size">16dp</dimen>
+    <dimen name="conversation_list__new_device_indicator_size">8dp</dimen>
+    <dimen name="conversation_list__new_device_indicator_offset">6dp</dimen>
 
     <dimen name="framework__wrap_content">2dp</dimen>
     <dimen name="framework__general__left_padding">24dp</dimen>
@@ -432,7 +441,8 @@
     <dimen name="camera__control__button_text_size">16dp</dimen>
     <dimen name="camera__sketch_button_size">16dp</dimen>
     <dimen name="camera__sketch_button_margin_right">12dp</dimen>
-    <dimen name="camera__sketch_button_margin_bottom">92dp</dimen>
+    <dimen name="camera__sketch_button_margin_bottom">120dp</dimen>
+    <dimen name="camera__sketch_button__corner_radius">16dp</dimen>
     <dimen name="camera_top_controls__height">@dimen/camera__control__height</dimen>
     <dimen name="camera__focus__stroke_width">1dp</dimen>
     <dimen name="camera__focus__max_size">100dp</dimen>
@@ -539,9 +549,6 @@
     <dimen name="drawing__bottom_bar__height">80dp</dimen>
     <dimen name="drawing__button__padding">8dp</dimen>
     <dimen name="drawing__send__button__padding">10dp</dimen>
-    <dimen name="drawing__button_send__text_size">40dp</dimen>
-    <dimen name="drawing__button_cancel__text_size">16dp</dimen>
-    <dimen name="drawing__button_undo__text_size">16dp</dimen>
     <dimen name="drawing__border_scroll_bar__height">@dimen/wire__divider__height__thin</dimen>
     <dimen name="drawing__border_line__height">@dimen/wire__divider__height__thin</dimen>
     <dimen name="drawing__tip__font__size">12dp</dimen>
@@ -739,7 +746,6 @@
     <dimen name="progress_dot_spacing_and_width">4dp</dimen>
 
     <dimen name="reg__tab__height">124dp</dimen>
-    <!--dimen name="reg__tab__height">224dp</dimen-->
     <dimen name="reg__tab__height__signin">224dp</dimen>
     <dimen name="reg__footer_height">12dp</dimen>
     <dimen name="reg_field_margin">8dp</dimen>
@@ -748,6 +754,7 @@
     <dimen name="reg__signin_option__height_margin">20dp</dimen>
     <dimen name="wire_logo_margin_top">@dimen/wire__padding__26</dimen>
     <dimen name="extend_container_height">280dp</dimen>
+    <dimen name="extended_container__camera__gallery_grid__divider__spacing">1dp</dimen>
     <dimen name="wire__icon_button__diameter__big">40dp</dimen>
     <dimen name="voice_filter_height">24dp</dimen>
     <dimen name="voice_filter_toolbar_height">72dp</dimen>
@@ -755,4 +762,16 @@
     <dimen name="voice_filter_max_height">160dp</dimen>
     <dimen name="wave_graph_bin_width">2dp</dimen>
     <dimen name="wave_graph_bin_space_width">1dp</dimen>
+    <dimen name="cursor_strip_width">48dp</dimen>
+    <dimen name="fake_icon_diameter">31dp</dimen>
+    <dimen name="message__bottom_menu__icon_view_size">24dp</dimen>
+
+    <dimen name="sketch__emoji__size__small">40dp</dimen>
+    <dimen name="sketch__emoji__size__medium">60dp</dimen>
+    <dimen name="sketch__emoji__size__large">70dp</dimen>
+
+    <dimen name="sketch__emoji__icon_size__unselected">4dp</dimen>
+    <dimen name="sketch__emoji__icon_size__small">6dp</dimen>
+    <dimen name="sketch__emoji__icon_size__medium">7dp</dimen>
+    <dimen name="sketch__emoji__icon_size__large">8dp</dimen>
 </resources>

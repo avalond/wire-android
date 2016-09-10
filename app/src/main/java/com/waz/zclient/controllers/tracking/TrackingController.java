@@ -59,6 +59,7 @@ public class TrackingController implements ITrackingController {
 
     private static final long PAUSE_DURATION_THRESHOLD_MS = 15 * 1000;
     private static final String SAVED_STATE_SENT_TAGS = "SAVED_STATE_SENT_TAGS";
+    private static final String QA_LOG_TAG = "TrackingController";
 
     protected TrackingData trackingData;
     protected List<Event> eventQueue;
@@ -104,10 +105,10 @@ public class TrackingController implements ITrackingController {
     public void tagEvent(Event event) {
         if (BuildConfig.SHOW_DEVELOPER_OPTIONS) {
             // Log tracking for candidate builds
-            Timber.e("Tag event=[name='%s',\nattributes='%s',\nrangedAttributes='%s']",
-                     event.getName(),
-                     event.getAttributes().toString(),
-                     event.getRangedAttributes().toString());
+            Timber.tag(QA_LOG_TAG).e("Tag event=[name='%s',\nattributes='%s',\nrangedAttributes='%s']",
+                                  event.getName(),
+                                  event.getAttributes().toString(),
+                                  event.getRangedAttributes().toString());
         }
 
         if (event.onlySendOnce()) {

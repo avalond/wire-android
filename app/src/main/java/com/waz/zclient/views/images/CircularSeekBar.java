@@ -67,6 +67,7 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import com.waz.zclient.R;
 import com.waz.zclient.ui.utils.ColorUtils;
 import com.waz.zclient.ui.utils.MathUtils;
+import com.waz.zclient.views.OnDoubleClickListener;
 
 public class CircularSeekBar extends RoundedImageView {
 
@@ -361,7 +362,7 @@ public class CircularSeekBar extends RoundedImageView {
     protected float[] pointerPositionXY = new float[2];
 
     private GestureDetectorCompat gestureDetector;
-    private View.OnClickListener onArtClickListener;
+    private OnDoubleClickListener onArtClickListener;
 
     /**
      * Listener.
@@ -482,10 +483,18 @@ public class CircularSeekBar extends RoundedImageView {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 if (onArtClickListener != null) {
-                    onArtClickListener.onClick(CircularSeekBar.this);
+                    onArtClickListener.onSingleClick();
                     return true;
                 }
                 return false;
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                if (onArtClickListener != null) {
+                    onArtClickListener.onDoubleClick();
+                }
+                return super.onDoubleTap(e);
             }
 
             @Override
@@ -500,7 +509,7 @@ public class CircularSeekBar extends RoundedImageView {
         gestureDetector.setOnDoubleTapListener(gestureListener);
     }
 
-    public void setOnArtClickListener(View.OnClickListener onArtClickListener) {
+    public void setOnArtClickListener(OnDoubleClickListener onArtClickListener) {
         this.onArtClickListener = onArtClickListener;
     }
 

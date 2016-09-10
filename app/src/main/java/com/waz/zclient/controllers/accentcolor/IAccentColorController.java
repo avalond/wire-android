@@ -17,10 +17,8 @@
  */
 package com.waz.zclient.controllers.accentcolor;
 
-import com.waz.annotations.Controller;
 import com.waz.api.AccentColor;
 
-@Controller
 public interface IAccentColorController {
     void addAccentColorObserver(AccentColorObserver accentColorObserver);
 

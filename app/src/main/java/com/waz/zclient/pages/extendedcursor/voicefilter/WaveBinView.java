@@ -27,7 +27,6 @@ import com.waz.api.AudioOverview;
 import com.waz.zclient.R;
 
 public class WaveBinView extends View implements VoiceFilterController.PlaybackObserver {
-    public static final String TAG = WaveBinView.class.getSimpleName();
     private static final int MAX_NUM_OF_LEVELS = 56;
     private long duration;
     private long currentHead;

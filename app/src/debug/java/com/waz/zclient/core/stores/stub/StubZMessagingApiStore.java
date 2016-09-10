@@ -37,7 +37,6 @@ import com.waz.api.Logging;
 import com.waz.api.LoginListener;
 import com.waz.api.PermissionProvider;
 import com.waz.api.Search;
-import com.waz.api.SearchQuery;
 import com.waz.api.Self;
 import com.waz.api.Spotify;
 import com.waz.api.TrackingData;
@@ -144,11 +143,6 @@ public class StubZMessagingApiStore implements IZMessagingApiStore {
                                           KindOfVerification kindOfVerification,
                                           ZMessagingApi.PhoneNumberVerificationListener phoneNumberVerificationListener) {
 
-            }
-
-            @Override
-            public SearchQuery searchQuery() {
-                return null;
             }
 
             @Override

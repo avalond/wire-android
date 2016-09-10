@@ -143,7 +143,7 @@
         <!-- See http://checkstyle.sf.net/config_coding.html -->
         <!--module name="AvoidInlineConditionals"/-->
         <module name="CovariantEquals" />
-        <module name="EmptyStatement" />
+        <!--<module name="EmptyStatement" />-->
         <module name="EqualsAvoidNull" />
         <module name="EqualsHashCode" />
         <!--<module name="MagicNumber">-->
@@ -158,7 +158,7 @@
         <module name="StringLiteralEquality" />
         <module name="DefaultComesLast" />
         <!--<module name="UnnecessaryParentheses" />-->
-        <module name="OverloadMethodsDeclarationOrder" />
+        <!--<module name="OverloadMethodsDeclarationOrder" />-->
 
         <!-- Checks for class design                         -->
         <!-- See http://checkstyle.sf.net/config_design.html -->

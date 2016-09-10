@@ -21,59 +21,104 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import com.waz.api.Message;
 import com.waz.zclient.R;
-import com.waz.zclient.controllers.selection.MessageActionModeController;
+import com.waz.zclient.controllers.tracking.events.conversation.ReactedToMessageEvent;
+import com.waz.zclient.controllers.userpreferences.IUserPreferencesController;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
-import com.waz.zclient.pages.main.conversation.views.row.message.RetryMessageViewController;
+import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
+import com.waz.zclient.ui.utils.ResourceUtils;
 import com.waz.zclient.utils.ViewUtils;
+import com.waz.zclient.views.OnDoubleClickListener;
 
+public class TextMessageViewController extends MessageViewController {
 
-public class TextMessageViewController extends RetryMessageViewController implements MessageActionModeController.Selectable {
+    private View view;
+    private TextMessageLinkTextView textView;
 
-    private TouchFilterableLinearLayout view;
-    private TextMessageWithTimestamp textWithTimestamp;
+    private final View.OnClickListener onClickListener = new OnDoubleClickListener() {
+        @Override
+        public void onDoubleClick() {
+            if (message.isLikedByThisUser()) {
+                message.unlike();
+                messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.unlike(message.getConversation(),
+                                                                                                                           message,
+                                                                                                                           ReactedToMessageEvent.Method.DOUBLE_TAP));
+            } else {
+                message.like();
+                messageViewsContainer.getControllerFactory().getUserPreferencesController().setPerformedAction(IUserPreferencesController.LIKED_MESSAGE);
+                messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.like(message.getConversation(),
+                                                                                                                         message,
+                                                                                                                         ReactedToMessageEvent.Method.DOUBLE_TAP));
+            }
+        }
+        @Override
+        public void onSingleClick() {
+            if (footerActionCallback != null) {
+                footerActionCallback.toggleVisibility();
+            }
+        }
+    };
+
+    private final View.OnLongClickListener onLongClickListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            messageViewsContainer.onItemLongClick(message);
+            return true;
+        }
+    };
 
     @SuppressLint("InflateParams")
-    public TextMessageViewController(Context context, final MessageViewsContainer messageViewContainer) {
-        super(context, messageViewContainer);
+    public TextMessageViewController(Context context, final MessageViewsContainer messageViewsContainer) {
+        super(context, messageViewsContainer);
         LayoutInflater inflater = LayoutInflater.from(context);
-        view = (TouchFilterableLinearLayout) inflater.inflate(R.layout.row_conversation_text_message, null);
-        textWithTimestamp = ViewUtils.getView(view, R.id.tmwt__message_and_timestamp);
-        textWithTimestamp.setMessageViewsContainer(messageViewContainer);
-        textWithTimestamp.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (message == null ||
-                    messageViewContainer == null ||
-                    messageViewContainer.getControllerFactory() == null ||
-                    messageViewContainer.getControllerFactory().isTornDown()) {
-                    return false;
-                }
-                messageViewContainer.getControllerFactory().getMessageActionModeController().selectMessage(message);
-                return true;
-            }
-        });
+        view = inflater.inflate(R.layout.row_conversation_text_message, null);
+        textView = ViewUtils.getView(view, R.id.tmltv__row_conversation__message);
+        textView.setMessageViewsContainer(messageViewsContainer);
+        View textContainer = ViewUtils.getView(view, R.id.ll__row_conversation__message_container);
+        textContainer.setOnClickListener(onClickListener);
+        textContainer.setOnLongClickListener(onLongClickListener);
+        textView.setOnClickListener(onClickListener);
+        textView.setOnLongClickListener(onLongClickListener);
 
         afterInit();
     }
 
     @Override
     public void onSetMessage(Separator separator) {
-        super.onSetMessage(separator);
-        textWithTimestamp.setMessage(message);
+        textView.setMessage(message);
+        messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(textView);
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    protected void updateMessageEditingStatus() {
+        super.updateMessageEditingStatus();
+        float opacity = messageViewsContainer.getControllerFactory().getConversationScreenController().isMessageBeingEdited(message) ?
+                        ResourceUtils.getResourceFloat(context.getResources(), R.dimen.content__youtube__alpha_overlay) :
+                        1f;
+        textView.setAlpha(opacity);
+    }
+
+    @Override
+    protected void onHeaderClick() {
+        if (message.getMessageType() == Message.Type.RECALLED && footerActionCallback != null) {
+            footerActionCallback.toggleVisibility();
+        }
+    }
+
+    @Override
+    public View getView() {
         return view;
     }
 
     @Override
     public void recycle() {
-        textWithTimestamp.recycle();
+        if (!messageViewsContainer.isTornDown()) {
+            messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(textView);
+        }
+        textView.recycle();
         super.recycle();
     }
+
 }

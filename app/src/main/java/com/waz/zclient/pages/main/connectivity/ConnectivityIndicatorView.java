@@ -54,7 +54,6 @@ public class ConnectivityIndicatorView extends FrameLayout {
     private void init() {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         contentView = inflater.inflate(R.layout.connectivity_indicator, this, true);
-
         removedPosition = -getContext().getResources().getDimension(R.dimen.network_indicator__expanded_height);
         collapsedPosition = -getContext().getResources().getDimension(R.dimen.network_indicator__collapse_position);
 

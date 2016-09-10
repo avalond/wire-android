@@ -24,7 +24,7 @@
        android:layout_height="match_parent"
     >
 
-    <com.waz.zclient.calling.OutgoingControlsView
+    <com.waz.zclient.calling.views.OutgoingControlsView
         android:id="@+id/ocl_outgoing_controls"
         android:layout_width="@dimen/calling__ongoing_call_controls__max_diameter"
         android:visibility="gone"
@@ -33,7 +33,7 @@
         android:layout_marginBottom="@dimen/wire__margin__huge"
         />
 
-    <com.waz.zclient.calling.IncomingControlsView
+    <com.waz.zclient.calling.views.IncomingControlsView
         android:id="@+id/icl_incoming_controls"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

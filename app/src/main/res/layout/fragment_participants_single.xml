@@ -31,7 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/wire__padding__big"
-        android:paddingLeft="@dimen/wire__padding__big"
+        android:paddingStart="@dimen/wire__padding__big"
         />
 
     <LinearLayout
@@ -45,11 +45,11 @@
             android:id="@+id/sv__otr__verified_shield"
             android:layout_width="@dimen/wire__icon_button__diameter"
             android:layout_height="@dimen/wire__icon_button__diameter"
-            android:layout_marginLeft="@dimen/wire__padding__big"
+            android:layout_marginStart="@dimen/wire__padding__big"
             android:layout_marginTop="@dimen/wire__padding__big"
             android:paddingTop="@dimen/wire__otr__shield__padding__top"
-            android:paddingLeft="@dimen/wire__otr__shield__padding__left"
-            android:paddingRight="@dimen/wire__otr__shield__padding__right"
+            android:paddingStart="@dimen/wire__otr__shield__padding__left"
+            android:paddingEnd="@dimen/wire__otr__shield__padding__right"
             android:paddingBottom="@dimen/wire__otr__shield__padding__bottom"
             app:shieldVerified="true"
             />
@@ -96,7 +96,7 @@
             android:layout_gravity="top|right"
             android:layout_width="@dimen/wire__icon_button__diameter"
             android:layout_height="@dimen/wire__icon_button__diameter"
-            android:layout_marginRight="@dimen/wire__padding__big"
+            android:layout_marginEnd="@dimen/wire__padding__big"
             android:layout_marginTop="@dimen/wire__padding__big"
             android:gravity="center"
             android:text="@string/glyph__close"

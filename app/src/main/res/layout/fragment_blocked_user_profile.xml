@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/wire__padding__big"
-        android:paddingLeft="@dimen/wire__padding__big"
+        android:paddingStart="@dimen/wire__padding__big"
         />
 
     <com.waz.zclient.views.images.ImageAssetImageView
@@ -49,8 +49,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:paddingLeft="@dimen/framework__general__left_padding"
-        android:paddingRight="@dimen/framework__general__right_padding"
+        android:paddingStart="@dimen/framework__general__left_padding"
+        android:paddingEnd="@dimen/framework__general__right_padding"
         android:layout_marginBottom="@dimen/connect_request__common_users__pending_connection__margin_bottom"
         />
 
@@ -59,8 +59,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:paddingRight="@dimen/connect_request__padding"
-        android:paddingLeft="@dimen/connect_request__padding"
+        android:paddingStart="@dimen/connect_request__padding"
+        android:paddingEnd="@dimen/connect_request__padding"
         android:paddingBottom="@dimen/connect_request__padding"
         >
 
@@ -68,8 +68,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:paddingRight="@dimen/connect_request__padding_users"
-            android:paddingLeft="@dimen/connect_request__padding_users"
+            android:paddingStart="@dimen/connect_request__padding_users"
+            android:paddingEnd="@dimen/connect_request__padding_users"
             android:paddingBottom="@dimen/connect_request__padding_users"
             >
 
@@ -85,7 +85,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/framework_confirmation_menu_button_height"
                     android:layout_weight="1"
-                    android:layout_marginRight="@dimen/connect_request__common_users__chathead__vertical_padding"
+                    android:layout_marginEnd="@dimen/connect_request__common_users__chathead__vertical_padding"
                     android:gravity="center"
                     android:text="@string/connect_request__ignore_button__text"
                     app:font="@string/framework_confirmation_menu_button_font"
@@ -99,7 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/framework_confirmation_menu_button_height"
                     android:layout_weight="1"
-                    android:layout_marginLeft="@dimen/connect_request__common_users__chathead__vertical_padding"
+                    android:layout_marginStart="@dimen/connect_request__common_users__chathead__vertical_padding"
                     android:gravity="center"
                     android:text="@string/send_connect_request__connect_button__text"
                     app:font="@string/framework_confirmation_menu_button_font"

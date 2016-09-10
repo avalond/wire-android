@@ -20,12 +20,8 @@ package com.waz.zclient.pages.main.conversation.views.row.message.views;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.ColorDrawable;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
-import android.view.Gravity;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -35,48 +31,40 @@ import com.waz.api.Message;
 import com.waz.api.MessageContent;
 import com.waz.zclient.R;
 import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
-import com.waz.zclient.controllers.selection.MessageActionModeController;
-import com.waz.zclient.core.controllers.tracking.events.media.OpenedSharedLocationEvent;
+import com.waz.zclient.controllers.tracking.events.conversation.ReactedToMessageEvent;
+import com.waz.zclient.controllers.userpreferences.IUserPreferencesController;
 import com.waz.zclient.core.api.scala.ModelObserver;
+import com.waz.zclient.core.controllers.tracking.events.media.OpenedSharedLocationEvent;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
-import com.waz.zclient.pages.main.conversation.views.row.message.RetryMessageViewController;
+import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.separator.Separator;
 import com.waz.zclient.ui.text.GlyphTextView;
-import com.waz.zclient.ui.theme.ThemeUtils;
-import com.waz.zclient.ui.utils.ColorUtils;
-import com.waz.zclient.ui.views.FilledCircularBackgroundDrawable;
-import com.waz.zclient.ui.views.TouchFilterableLayout;
-import com.waz.zclient.ui.views.TouchFilterableLinearLayout;
 import com.waz.zclient.utils.IntentUtils;
 import com.waz.zclient.utils.LayoutSpec;
 import com.waz.zclient.utils.StringUtils;
 import com.waz.zclient.utils.ViewUtils;
+import com.waz.zclient.views.OnDoubleClickListener;
 import timber.log.Timber;
 
-public class LocationMessageViewController extends RetryMessageViewController implements OnClickListener,
-                                                                                         View.OnLongClickListener,
-                                                                                         AccentColorObserver,
-                                                                                         MessageActionModeController.Selectable {
+public class LocationMessageViewController extends MessageViewController implements AccentColorObserver {
 
     private static final String TAG = LocationMessageViewController.class.getName();
     private static final String FULL_IMAGE_LOADED = "FULL_IMAGE_LOADED";
 
-    private TouchFilterableLinearLayout view;
-    private CardView selectionContainer;
-    private FrameLayout errorViewContainer;
+    private View view;
     private FrameLayout imageContainer;
     private ImageView mapImageView;
     private TextView locationName;
+    private View pinImage;
+    private TextView mapPlaceholderText;
+    private GlyphTextView pinView;
 
     private ImageAsset imageAsset;
     private LoadHandle bitmapLoadHandle;
-    private GlyphTextView pinView;
-    private View pinImage;
-    private TextView mapPlaceholderText;
 
     private int imageWidth;
 
-    private ModelObserver<ImageAsset> imageAssetModelObserver = new ModelObserver<ImageAsset>() {
+    private final ModelObserver<ImageAsset> imageAssetModelObserver = new ModelObserver<ImageAsset>() {
         @Override
         public void updated(ImageAsset model) {
             if (context == null) {
@@ -86,7 +74,7 @@ public class LocationMessageViewController extends RetryMessageViewController im
         }
     };
 
-    private ModelObserver<Message> messageModelObserver = new ModelObserver<Message>() {
+    private final ModelObserver<Message> messageModelObserver = new ModelObserver<Message>() {
         @Override
         public void updated(Message model) {
             mapImageView.setTag(message.getId());
@@ -106,14 +94,46 @@ public class LocationMessageViewController extends RetryMessageViewController im
         }
     };
 
+    private final OnDoubleClickListener onDoubleClickListener = new OnDoubleClickListener() {
+        @Override
+        public void onDoubleClick() {
+            if (message.isLikedByThisUser()) {
+                message.unlike();
+                messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.unlike(message.getConversation(),
+                                                                                                                           message,
+                                                                                                                           ReactedToMessageEvent.Method.DOUBLE_TAP));
+            } else {
+                message.like();
+                messageViewsContainer.getControllerFactory().getUserPreferencesController().setPerformedAction(IUserPreferencesController.LIKED_MESSAGE);
+                messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(ReactedToMessageEvent.like(message.getConversation(),
+                                                                                                                         message,
+                                                                                                                         ReactedToMessageEvent.Method.DOUBLE_TAP));
+            }
+        }
+
+        @Override
+        public void onSingleClick() {
+            MessageContent.Location location = message.getLocation();
+            Intent intent = IntentUtils.getGoogleMapsIntent(context, location.getLatitude(), location.getLongitude(), location.getZoom(), location.getName());
+            if (intent == null) {
+                return;
+            }
+            messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(new OpenedSharedLocationEvent(
+                getConversationTypeString(),
+                !message.getUser().isMe()));
+            context.startActivity(intent);
+            if (footerActionCallback != null) {
+                footerActionCallback.toggleVisibility();
+            }
+        }
+    };
+
     public LocationMessageViewController(Context context, MessageViewsContainer messageViewContainer) {
         super(context, messageViewContainer);
-        view = (TouchFilterableLinearLayout) View.inflate(context, R.layout.row_conversation_location, null);
+        view = View.inflate(context, R.layout.row_conversation_location, null);
 
-        selectionContainer = ViewUtils.getView(view, R.id.cv__location_map_container);
-        errorViewContainer = ViewUtils.getView(view, R.id.fl__row_conversation__message_error_container);
         imageContainer = ViewUtils.getView(view, R.id.fl__row_conversation__map_image_container);
-        imageContainer.setOnClickListener(this);
+        imageContainer.setOnClickListener(onDoubleClickListener);
         imageContainer.setOnLongClickListener(this);
         mapImageView = ViewUtils.getView(view, R.id.biv__row_conversation__map_image);
         locationName = ViewUtils.getView(view, R.id.ttv__row_conversation_map_name);
@@ -121,26 +141,18 @@ public class LocationMessageViewController extends RetryMessageViewController im
         pinView = ViewUtils.getView(view, R.id.gtv__row_conversation__map_pin_glyph);
         pinImage = ViewUtils.getView(view, R.id.iv__row_conversation__map_pin_image);
         pinView.setTextColor(ContextCompat.getColor(context, R.color.accent_blue));
-        TextView unsentView = ViewUtils.getView(view, R.id.v__row_conversation__error);
-        final int circleFillColor = ThemeUtils.isDarkTheme(context) ? context.getResources().getColor(R.color.content__image__progress_circle_background_dark)
-                                                                    : context.getResources().getColor(R.color.content__image__progress_circle_background_light);
-        final int circleRadius = context.getResources().getDimensionPixelSize(R.dimen.content__message__unsend_indicator_background_radius);
-        final int circleDiameter = 2 * circleRadius;
-        unsentView.setBackground(new FilledCircularBackgroundDrawable(circleFillColor, circleDiameter));
-        unsentView.requestLayout();
 
         imageWidth = getImageWidth();
         afterInit();
     }
 
     @Override
-    public TouchFilterableLayout getView() {
+    public View getView() {
         return view;
     }
 
     @Override
     protected void onSetMessage(Separator separator) {
-        super.onSetMessage(separator);
         messageModelObserver.addAndUpdate(message);
         messageViewsContainer.getControllerFactory().getAccentColorController().addAccentColorObserver(this);
 
@@ -218,8 +230,6 @@ public class LocationMessageViewController extends RetryMessageViewController im
             messageViewsContainer.getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
         }
 
-        errorViewContainer.clearAnimation();
-        errorViewContainer.setVisibility(View.VISIBLE);
         mapImageView.animate().cancel();
         mapImageView.setVisibility(View.INVISIBLE);
         mapImageView.setImageDrawable(null);
@@ -240,53 +250,7 @@ public class LocationMessageViewController extends RetryMessageViewController im
     }
 
     @Override
-    public void onClick(View v) {
-        MessageContent.Location location = message.getLocation();
-        Intent intent = IntentUtils.getGoogleMapsIntent(context, location.getLatitude(), location.getLongitude(), location.getZoom(), location.getName());
-        if (intent == null) {
-            return;
-        }
-        messageViewsContainer.getControllerFactory().getTrackingController().tagEvent(new OpenedSharedLocationEvent(
-            getConversationTypeString(),
-            !message.getUser().isMe()));
-        context.startActivity(intent);
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        if (message == null ||
-            messageViewsContainer == null ||
-            messageViewsContainer.isTornDown() ||
-            getSelectionView() == null) {
-            return false;
-        }
-        messageViewsContainer.getControllerFactory().getMessageActionModeController().selectMessage(message);
-        return true;
-    }
-
-    @Override
-    protected void setSelected(boolean selected) {
-        super.setSelected(selected);
-        if (message == null ||
-            messageViewsContainer == null ||
-            messageViewsContainer.isTornDown() ||
-            getSelectionView() == null) {
-            return;
-        }
-        final int accentColor = messageViewsContainer.getControllerFactory().getAccentColorController().getColor();
-        int targetAccentColor;
-        if (selected) {
-            targetAccentColor = ColorUtils.injectAlpha(selectionAlpha, accentColor);
-        } else {
-            targetAccentColor = ContextCompat.getColor(context, R.color.transparent);
-        }
-        selectionContainer.setForeground(new ColorDrawable(targetAccentColor));
-        selectionContainer.setForegroundGravity(Gravity.FILL);
-    }
-
-    @Override
     public void onAccentColorHasChanged(Object sender, int color) {
-        super.onAccentColorHasChanged(sender, color);
         pinView.setTextColor(color);
     }
 }

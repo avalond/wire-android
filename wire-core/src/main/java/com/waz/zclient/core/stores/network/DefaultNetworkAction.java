@@ -17,10 +17,12 @@
  */
 package com.waz.zclient.core.stores.network;
 
+import com.waz.api.NetworkMode;
+
 public class DefaultNetworkAction implements NetworkAction {
 
     @Override
-    public void execute() {
+    public void execute(NetworkMode networkMode) {
         //Override this if needed
     }
 

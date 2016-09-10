@@ -19,6 +19,7 @@ package com.waz.zclient.pages.main.conversation.controller;
 
 import android.view.View;
 import com.waz.api.IConversation;
+import com.waz.api.Message;
 import com.waz.api.OtrClient;
 import com.waz.api.User;
 
@@ -55,4 +56,6 @@ public interface ConversationScreenControllerObserver {
     void onShowCurrentOtrClient();
 
     void onHideOtrClient();
+
+    void onShowLikesList(Message message);
 }

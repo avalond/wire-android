@@ -18,10 +18,8 @@
 package com.waz.zclient.controllers.orientation;
 
 import android.app.Activity;
-import com.waz.annotations.Controller;
 import com.waz.zclient.utils.SquareOrientation;
 
-@Controller(requiresActivity = true)
 public interface IOrientationController {
 
     void setActivity(Activity activity);

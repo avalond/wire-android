@@ -17,11 +17,9 @@
  */
 package com.waz.zclient.core.stores.api;
 
-import com.waz.annotations.Store;
 import com.waz.api.Avs;
 import com.waz.api.ZMessagingApi;
 
-@Store
 public interface IZMessagingApiStore {
 
     void addApiObserver(ZMessagingApiStoreObserver observer);

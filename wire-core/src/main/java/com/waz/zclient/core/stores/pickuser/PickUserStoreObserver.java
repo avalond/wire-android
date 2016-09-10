@@ -24,8 +24,6 @@ import com.waz.api.User;
 public interface PickUserStoreObserver {
     void onTopUsersUpdated(User[] users);
 
-    void onRecommendedUsersUpdated(User[] users);
-
     void onSearchResultsUpdated(User[] contacts, User[] otherUsers, IConversation[] conversations);
 
     void onContactsUpdated(Contacts contacts);

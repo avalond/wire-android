@@ -21,7 +21,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import com.waz.zclient.BaseActivity;
-import com.waz.zclient.ZApplication;
+import com.waz.zclient.notifications.controllers.ImageNotificationsController;
 import com.waz.zclient.utils.IntentUtils;
 
 public class ShareSavedImageActivity extends BaseActivity {
@@ -43,9 +43,8 @@ public class ShareSavedImageActivity extends BaseActivity {
             return;
         }
 
-        ZApplication.from(this)
-                    .getNotificationsHandler()
-                    .dismissImageSavedNotification(sharedImageUri);
+        injectJava(ImageNotificationsController.class).dismissImageSavedNotification();
+
         startActivity(IntentUtils.getSavedImageShareIntent(this, sharedImageUri));
         finish();
     }

@@ -24,9 +24,11 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import com.waz.api.IConversation;
+import com.waz.api.NetworkMode;
 import com.waz.zclient.R;
 import com.waz.zclient.controllers.mediaplayer.MediaPlayerState;
 import com.waz.zclient.controllers.streammediaplayer.IStreamMediaPlayerController;
+import com.waz.zclient.core.stores.network.DefaultNetworkAction;
 import com.waz.zclient.core.stores.network.INetworkStore;
 import com.waz.zclient.ui.text.CircleIconButton;
 import com.waz.zclient.utils.ViewUtils;
@@ -84,17 +86,18 @@ public class RightIndicatorView extends LinearLayout {
                 if (!streamMediaPlayerController.isSelectedConversation(conversation.getId())) {
                     return;
                 }
-                if (!networkStore.hasInternetConnection()) {
-                    networkStore.notifyNetworkAccessFailed();
-                    return;
-                }
 
-                final MediaPlayerState mediaPlayerState = streamMediaPlayerController.getMediaPlayerState(conversation.getId());
-                if (mediaPlayerState.isPauseControl()) {
-                    streamMediaPlayerController.pause(conversation.getId());
-                } else if (mediaPlayerState.isPlayControl()) {
-                    streamMediaPlayerController.play(conversation.getId());
-                }
+                networkStore.doIfHasInternetOrNotifyUser(new DefaultNetworkAction() {
+                    @Override
+                    public void execute(NetworkMode networkMode) {
+                        final MediaPlayerState mediaPlayerState = streamMediaPlayerController.getMediaPlayerState(conversation.getId());
+                        if (mediaPlayerState.isPauseControl()) {
+                            streamMediaPlayerController.pause(conversation.getId());
+                        } else if (mediaPlayerState.isPlayControl()) {
+                            streamMediaPlayerController.play(conversation.getId());
+                        }
+                    }
+                });
             }
         });
     }

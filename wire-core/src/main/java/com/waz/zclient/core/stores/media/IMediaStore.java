@@ -19,10 +19,8 @@ package com.waz.zclient.core.stores.media;
 
 import android.content.SharedPreferences;
 import android.support.annotation.RawRes;
-import com.waz.annotations.Store;
 import com.waz.zclient.core.stores.IStore;
 
-@Store
 public interface IMediaStore extends IStore {
 
     void playSound(@RawRes int resourceId);

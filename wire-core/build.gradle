@@ -21,8 +21,6 @@ android {
 }
 
 dependencies {
-    apt project(':annotations-processor')
-    compile project(':annotations')
     compile deps.appcompatv7
     compile deps.timber
 

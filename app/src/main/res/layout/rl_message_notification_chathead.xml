@@ -43,7 +43,7 @@
             tools:ignore="RtlSymmetry"
             >
 
-            <com.waz.zclient.views.chathead.ChatheadView
+            <com.waz.zclient.common.views.ChatheadView
                 android:id="@+id/cv_message_notification_chathead__avatar1"
                 android:layout_width="@dimen/message_notification_chathead__avatar__width"
                 android:layout_height="@dimen/message_notification_chathead__avatar__height"
@@ -51,7 +51,7 @@
                 app:swap_background_and_initial_colors="true"
                 />
 
-            <com.waz.zclient.views.chathead.ChatheadView
+            <com.waz.zclient.common.views.ChatheadView
                 android:id="@+id/cv_message_notification_chathead__avatar2"
                 android:layout_width="@dimen/message_notification_chathead__avatar__width"
                 android:layout_height="@dimen/message_notification_chathead__avatar__height"

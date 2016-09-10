@@ -24,6 +24,8 @@ import android.widget.BaseAdapter;
 import com.waz.api.Message;
 import com.waz.api.MessagesList;
 import com.waz.zclient.pages.main.conversation.views.MessageViewsContainer;
+import com.waz.zclient.pages.main.conversation.views.row.footer.FooterViewController;
+import com.waz.zclient.pages.main.conversation.views.row.footer.FooterViewControllerFactory;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageAndSeparatorViewController;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewController;
 import com.waz.zclient.pages.main.conversation.views.row.message.MessageViewControllerFactory;
@@ -126,7 +128,7 @@ public class MessageAdapter extends BaseAdapter {
 
         if (convertView == null) {
             messageAndSeparator = createNewMessageAndSeparatorViewController(parent, message);
-            convertView = messageAndSeparator.getView().getLayout();
+            convertView = messageAndSeparator.getView();
             convertView.setTag(messageAndSeparator);
         } else {
             messageAndSeparator = (MessageAndSeparatorViewController) convertView.getTag();
@@ -134,7 +136,7 @@ public class MessageAdapter extends BaseAdapter {
                 message.getMessageType() == Message.Type.RICH_MEDIA) {
                 // Link preview messages can change from TEXT type to RICH MEDIA
                 messageAndSeparator = createNewMessageAndSeparatorViewController(parent, message);
-                convertView = messageAndSeparator.getView().getLayout();
+                convertView = messageAndSeparator.getView();
                 convertView.setTag(messageAndSeparator);
             }
         }
@@ -149,7 +151,9 @@ public class MessageAdapter extends BaseAdapter {
         MessageViewController messageViewController = MessageViewControllerFactory.create(parent.getContext(),
                                                                                           message,
                                                                                           container);
+        FooterViewController footerViewController = FooterViewControllerFactory.create(parent.getContext(), message, container);
         return new MessageAndSeparatorViewController(messageViewController,
+                                                     footerViewController,
                                                      container,
                                                      parent.getContext());
     }

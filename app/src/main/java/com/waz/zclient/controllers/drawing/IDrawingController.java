@@ -18,9 +18,7 @@
 package com.waz.zclient.controllers.drawing;
 
 import com.waz.api.ImageAsset;
-import com.waz.annotations.Controller;
 
-@Controller
 public interface IDrawingController {
 
     enum DrawingDestination {

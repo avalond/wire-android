@@ -19,6 +19,7 @@ package com.waz.zclient
 
 import android.view.View
 import android.view.View._
+import com.waz.zclient.ui.utils.ResourceUtils
 
 package object utils {
 
@@ -34,5 +35,32 @@ package object utils {
         override def onClick(v: View): Unit = f
       })
     }
+  }
+
+  object ContextUtils {
+
+    import android.content.Context
+
+    def getColor(resId: Int)(implicit context: Context) = context.getResources.getColor(resId)
+
+    def getString(resId: Int)(implicit context: Context): String = context.getResources.getString(resId)
+    def getString(resId: Int, args: String*)(implicit context: Context): String = context.getResources.getString(resId, args:_*)
+
+    def getStringOrEmpty(resId: Int)(implicit context: Context): String = if (resId > 0) getString(resId) else ""
+    def getStringOrEmpty(resId: Int, args: String*)(implicit context: Context): String = if (resId > 0) getString(resId, args:_*) else ""
+
+    def getQuantityString(resId: Int, quantity: Int, args: AnyRef*)(implicit context: Context): String = context.getResources.getQuantityString(resId, quantity, args:_*)
+
+    def getDimenPx(resId: Int)(implicit context: Context) = context.getResources.getDimensionPixelSize(resId)
+    def getDimen(resId: Int)(implicit context: Context) = context.getResources.getDimension(resId)
+
+    def getDrawable(resId: Int)(implicit context: Context) = context.getResources.getDrawable(resId)
+
+    def getIntArray(resId: Int)(implicit context: Context) = context.getResources.getIntArray(resId)
+    def getResEntryName(resId: Int)(implicit context: Context) = context.getResources.getResourceEntryName(resId)
+
+    def getResourceFloat(resId: Int)(implicit context: Context) = ResourceUtils.getResourceFloat(context.getResources, resId)
+
+    def toPx(dp: Int)(implicit context: Context) = (dp * context.getResources.getDisplayMetrics.density).toInt
   }
 }

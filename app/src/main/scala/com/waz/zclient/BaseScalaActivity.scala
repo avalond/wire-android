@@ -17,31 +17,17 @@
  */
 package com.waz.zclient
 
-import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.waz.model.ConvId
-import com.waz.threading.Threading
-import com.waz.zclient.calling.{CallPermissionsController, CallingActivity}
+import com.waz.zclient.common.controllers.PermissionActivity
 
 class BaseScalaActivity extends AppCompatActivity with PermissionActivity {
 
-  //TODO all this stuff here is ugly and creates extra controllers in Activities that don't need them. Move all this
-  //TODO to a java friendly method in a controller that we can inject into a Java class
-  lazy val callPermissionsController = inject[CallPermissionsController]
+  def injectJava[T](cls: Class[T]) = inject[T](reflect.Manifest.classType(cls), injector)
 
-  override def onCreate(savedInstanceState: Bundle): Unit = {
-    super.onCreate(savedInstanceState)
-
-    callPermissionsController.globController.activeCall.on(Threading.Ui) {
-      case true =>
-        //This is needed to drag the user back to the calling activity if they open the app again during a call
-        CallingActivity.start(this)
-      case _ =>
-    }
+  override def onStart(): Unit = {
+    super.onStart()
+    onBaseActivityStart()
   }
 
-  def startCall(convId: String, withVideo: Boolean): Unit = {
-    callPermissionsController.startCall(ConvId(convId), withVideo)
-  }
-
+  def onBaseActivityStart(): Unit = ()
 }

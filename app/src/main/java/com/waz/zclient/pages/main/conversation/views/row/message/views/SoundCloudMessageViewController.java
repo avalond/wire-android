@@ -57,7 +57,7 @@ public class SoundCloudMessageViewController extends MediaPlayerViewController {
         messageViewsContainer.getControllerFactory()
                              .getTrackingController()
                              .tagEvent(new PlayedSoundCloudMessageEvent(!message.getUser().isMe(),
-                                                                        getConversationTypeString()));
+                                                                        messageViewsContainer.getStoreFactory().getConversationStore().getCurrentConversation()));
         messageViewsContainer.getControllerFactory()
                              .getTrackingController()
                              .updateSessionAggregates(RangedAttribute.SOUNDCLOUD_CONTENT_CLICKS);

@@ -18,15 +18,14 @@
 package com.waz.zclient.controllers.userpreferences;
 
 import android.support.annotation.IntDef;
-import com.waz.annotations.Controller;
-import com.waz.zclient.pages.main.profile.camera.manager.CameraDirection;
+import com.waz.zclient.camera.CameraFacing;
 
-@Controller
 public interface IUserPreferencesController {
 
     @IntDef(SEND_LOCATION_MESSAGE)
     @interface Action { }
     int SEND_LOCATION_MESSAGE = 0;
+    int LIKED_MESSAGE = 1;
 
     void tearDown();
 
@@ -38,9 +37,9 @@ public interface IUserPreferencesController {
 
     boolean showContactsDialog();
 
-    void setRecentCameraDirection(CameraDirection cameraDirection);
+    void setRecentCameraDirection(CameraFacing cameraFacing);
 
-    CameraDirection getRecentCameraDirection();
+    CameraFacing getRecentCameraDirection();
 
     void setReferralToken(String token);
 

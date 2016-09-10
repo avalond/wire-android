@@ -28,25 +28,23 @@ import com.waz.zclient.controllers.camera.ICameraController;
 import com.waz.zclient.controllers.confirmation.IConfirmationController;
 import com.waz.zclient.controllers.conversationlist.IConversationListController;
 import com.waz.zclient.controllers.currentfocus.IFocusController;
-import com.waz.zclient.controllers.location.ILocationController;
-import com.waz.zclient.controllers.password.IPasswordController;
-import com.waz.zclient.controllers.selection.IMessageActionModeController;
 import com.waz.zclient.controllers.deviceuser.IDeviceUserController;
 import com.waz.zclient.controllers.drawing.IDrawingController;
 import com.waz.zclient.controllers.giphy.IGiphyController;
 import com.waz.zclient.controllers.globallayout.IGlobalLayoutController;
 import com.waz.zclient.controllers.loadtimelogger.ILoadTimeLoggerController;
+import com.waz.zclient.controllers.location.ILocationController;
 import com.waz.zclient.controllers.mentioning.IMentioningController;
 import com.waz.zclient.controllers.navigation.INavigationController;
-import com.waz.zclient.controllers.notifications.INotificationsController;
 import com.waz.zclient.controllers.onboarding.IOnboardingController;
 import com.waz.zclient.controllers.orientation.IOrientationController;
+import com.waz.zclient.controllers.password.IPasswordController;
 import com.waz.zclient.controllers.permission.IRequestPermissionsController;
 import com.waz.zclient.controllers.sharing.ISharingController;
 import com.waz.zclient.controllers.singleimage.ISingleImageController;
 import com.waz.zclient.controllers.spotify.ISpotifyController;
 import com.waz.zclient.controllers.streammediaplayer.IStreamMediaPlayerController;
-import com.waz.zclient.controllers.stub.StubThemeController;
+import com.waz.zclient.controllers.stubs.StubThemeController;
 import com.waz.zclient.controllers.theme.IThemeController;
 import com.waz.zclient.controllers.tracking.ITrackingController;
 import com.waz.zclient.controllers.userpreferences.IUserPreferencesController;
@@ -162,22 +160,12 @@ public class StubControllerFactory implements IControllerFactory {
     }
 
     @Override
-    public INotificationsController getNotificationsController() {
-        return null;
-    }
-
-    @Override
     public IOnboardingController getOnboardingController() {
         return null;
     }
 
     @Override
     public IOrientationController getOrientationController() {
-        return null;
-    }
-
-    @Override
-    public IMessageActionModeController getMessageActionModeController() {
         return null;
     }
 

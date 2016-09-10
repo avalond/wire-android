@@ -39,6 +39,7 @@ import com.waz.api.CoreList;
 import com.waz.api.ErrorsList;
 import com.waz.api.IConversation;
 import com.waz.api.Message;
+import com.waz.api.OtrClient;
 import com.waz.api.SyncState;
 import com.waz.api.UpdateListener;
 import com.waz.api.Verification;
@@ -53,6 +54,7 @@ import com.waz.zclient.controllers.streammediaplayer.StreamMediaPlayerObserver;
 import com.waz.zclient.controllers.tracking.events.navigation.ClickedOnContactsHintEvent;
 import com.waz.zclient.controllers.tracking.events.navigation.OpenedArchiveEvent;
 import com.waz.zclient.controllers.tracking.events.navigation.OpenedContactsEvent;
+import com.waz.zclient.core.api.scala.ModelObserver;
 import com.waz.zclient.core.stores.conversation.ConversationChangeRequester;
 import com.waz.zclient.core.stores.conversation.ConversationStoreObserver;
 import com.waz.zclient.core.stores.conversation.InboxLoadRequester;
@@ -163,6 +165,12 @@ public class ConversationListFragment extends BaseFragment<ConversationListFragm
             getControllerFactory().getConversationScreenController().showConversationMenu(IConversationScreenController.CONVERSATION_LIST_LONG_PRESS,
                                                                                           conversation,
                                                                                           conversationListRowView);
+        }
+    };
+    private final ModelObserver<CoreList<OtrClient>> addedDevicesModelObserver = new ModelObserver<CoreList<OtrClient>>() {
+        @Override
+        public void updated(CoreList<OtrClient> model) {
+            listActionsView.showIndicatorDot(model.size() > 0);
         }
     };
 
@@ -397,10 +405,12 @@ public class ConversationListFragment extends BaseFragment<ConversationListFragm
                 archiveBox.setVisibility(View.VISIBLE);
             }
         });
+        addedDevicesModelObserver.setAndUpdate(getStoreFactory().getZMessagingApiStore().getApi().getSelf().getIncomingOtrClients());
     }
 
     @Override
     public void onStop() {
+        addedDevicesModelObserver.clear();
         activeVoiceChannels.removeUpdateListener(callUpdateListener);
         getControllerFactory().getConversationListController().removeConversationListObserver(this);
         getControllerFactory().getStreamMediaPlayerController().removeStreamMediaObserver(this);

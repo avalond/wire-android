@@ -17,7 +17,7 @@
  */
 package com.waz.testutils
 
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import com.waz.utils.events.{EventContext, Signal}
 import com.waz.zclient.WireContext
@@ -43,7 +43,13 @@ object TestUtils {
   }
 
   case class PrintSignalVals(debug: Boolean)
+
+  implicit class RichLatch(latch: CountDownLatch) {
+    def waitDuration(implicit duration: Duration): Unit = latch.await(duration.toMillis, TimeUnit.MILLISECONDS)
+  }
 }
 
 
 abstract class TestWireContext extends WireContext
+
+

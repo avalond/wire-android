@@ -39,14 +39,12 @@ import com.waz.zclient.OnBackPressedListener;
 import com.waz.zclient.R;
 import com.waz.zclient.controllers.accentcolor.AccentColorObserver;
 import com.waz.zclient.controllers.drawing.DrawingController;
-import com.waz.zclient.controllers.orientation.OrientationControllerObserver;
 import com.waz.zclient.pages.BaseFragment;
-import com.waz.zclient.ui.sketch.DrawingCanvasView;
-import com.waz.zclient.ui.colorpicker.ColorPickerDotLayout;
+import com.waz.zclient.ui.colorpicker.ColorPickerLayout;
 import com.waz.zclient.ui.colorpicker.ColorPickerScrollView;
+import com.waz.zclient.ui.sketch.DrawingCanvasView;
 import com.waz.zclient.ui.text.TypefaceTextView;
 import com.waz.zclient.utils.LayoutSpec;
-import com.waz.zclient.utils.SquareOrientation;
 import com.waz.zclient.utils.TrackingUtils;
 import com.waz.zclient.utils.ViewUtils;
 import com.waz.zclient.utils.debug.ShakeEventListener;
@@ -55,28 +53,22 @@ import net.hockeyapp.android.ExceptionHandler;
 import java.util.Locale;
 
 public class DrawingFragment extends BaseFragment<DrawingFragment.Container> implements OnBackPressedListener,
-                                                                                        ColorPickerDotLayout.OnColorSelectedListener,
-                                                                                        OrientationControllerObserver,
+                                                                                        ColorPickerLayout.OnColorSelectedListener,
                                                                                         DrawingCanvasView.DrawingCanvasCallback,
                                                                                         ViewTreeObserver.OnScrollChangedListener,
                                                                                         AccentColorObserver,
-                                                                                        ColorPickerDotLayout.OnWidthChangedListener {
+                                                                                        ColorPickerLayout.OnWidthChangedListener {
 
     public static final String TAG = DrawingFragment.class.getName();
     private static final String SAVED_INSTANCE_BITMAP = "SAVED_INSTANCE_BITMAP";
     private static final String ARGUMENT_BACKGROUND_IMAGE = "ARGUMENT_BACKGROUND_IMAGE";
     private static final String ARGUMENT_DRAWING_DESTINATION = "ARGUMENT_DRAWING_DESTINATION";
 
-    private final static int ROTATION_REVERSE = -180;
-    private final static int ROTATION_FLIP = 180;
-    private final static int ROTATION_FORWARD_90 = 90;
-    private final static int ROTATION_BACKWARD_90 = -90;
-
     private ShakeEventListener shakeEventListener;
     private SensorManager sensorManager;
 
     private DrawingCanvasView drawingCanvasView;
-    private ColorPickerDotLayout colorLayout;
+    private ColorPickerLayout colorLayout;
     private HorizontalScrollView colorPickerScrollContainer;
     private TypefaceTextView conversationTitle;
 
@@ -95,8 +87,6 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
 
     private DrawingController.DrawingDestination drawingDestination;
     private boolean includeBackgroundImage;
-
-    private SquareOrientation currentConfigOrientation = SquareOrientation.NONE;
 
     public static DrawingFragment newInstance(ImageAsset backgroundAsset, DrawingController.DrawingDestination drawingDestination) {
         DrawingFragment fragment = new DrawingFragment();
@@ -147,8 +137,8 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
 
         colorLayout = ViewUtils.getView(rootView, R.id.cpdl__color_layout);
         colorLayout.setOnColorSelectedListener(this);
-        colorLayout.setAccentColors(getResources().getIntArray(R.array.draw_color));
-        colorLayout.setCurrentColor(getControllerFactory().getAccentColorController().getColor());
+        int[] colors = getResources().getIntArray(R.array.draw_color);
+        colorLayout.setAccentColors(colors, getControllerFactory().getAccentColorController().getColor());
         colorLayout.getViewTreeObserver().addOnScrollChangedListener(this);
 
         colorPickerScrollBar = ViewUtils.getView(rootView, R.id.cpsb__color_picker_scrollbar);
@@ -241,7 +231,6 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
         sensorManager.registerListener(shakeEventListener,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
-        getControllerFactory().getOrientationController().addOrientationControllerObserver(this);
     }
 
     @Override
@@ -256,7 +245,6 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
     public void onStop() {
         getStoreFactory().getInAppNotificationStore().setUserSendingPicture(false);
         sensorManager.unregisterListener(shakeEventListener);
-        getControllerFactory().getOrientationController().removeOrientationControllerObserver(this);
         super.onStop();
     }
 
@@ -310,7 +298,8 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
                     if (!drawingCanvasView.isEmpty()) {
                         getStoreFactory().getConversationStore().sendMessage(getFinalSketchImage());
                         TrackingUtils.onSentSketchMessage(getControllerFactory().getTrackingController(),
-                                                          getStoreFactory().getConversationStore().getCurrentConversation());
+                                                          getStoreFactory().getConversationStore().getCurrentConversation(),
+                                                          drawingDestination);
 
                         getControllerFactory().getDrawingController().hideDrawing(drawingDestination, true);
                     }
@@ -352,12 +341,16 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
             int y;
             int width;
             int height;
-            if (currentConfigOrientation == SquareOrientation.LANDSCAPE_LEFT ||
-                    currentConfigOrientation == SquareOrientation.LANDSCAPE_RIGHT) {
-                x = drawingCanvasView.getTopTrimValue(true);
-                y = 0;
-                width = drawingCanvasView.getBottomTrimValue(true) - x;
-                height = finalBitmap.getHeight();
+            if (drawingCanvasView.isBackgroundImageLandscape()) {
+                x = 0;
+                y = drawingCanvasView.getTopTrimValue(true);
+                width = finalBitmap.getWidth();
+                height = drawingCanvasView.getBottomTrimValue(true) - y;
+
+                if (height < drawingCanvasView.getLandscapeBackgroundBitmapHeight()) {
+                    y = drawingCanvasView.getBackgroundBitmapTop();
+                    height = drawingCanvasView.getLandscapeBackgroundBitmapHeight();
+                }
             } else {
                 x = 0;
                 y = drawingCanvasView.getTopTrimValue(false);
@@ -370,29 +363,7 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
             ExceptionHandler.saveException(outOfMemoryError, null);
         }
 
-        return ImageAssetFactory.getImageAsset(finalBitmap, calculateFinalRotation());
-    }
-
-    private int calculateFinalRotation() {
-        int rotation = ExifInterface.ORIENTATION_UNDEFINED;
-        switch (currentConfigOrientation) {
-            case NONE:
-                rotation = ExifInterface.ORIENTATION_NORMAL;
-                break;
-            case PORTRAIT_STRAIGHT:
-                rotation = ExifInterface.ORIENTATION_NORMAL;
-                break;
-            case PORTRAIT_UPSIDE_DOWN:
-                rotation = ExifInterface.ORIENTATION_ROTATE_180;
-                break;
-            case LANDSCAPE_LEFT:
-                rotation = ExifInterface.ORIENTATION_ROTATE_270;
-                break;
-            case LANDSCAPE_RIGHT:
-                rotation = ExifInterface.ORIENTATION_ROTATE_90;
-                break;
-        }
-        return rotation;
+        return ImageAssetFactory.getImageAsset(finalBitmap, ExifInterface.ORIENTATION_NORMAL);
     }
 
     @Override
@@ -409,94 +380,17 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
     }
 
     @Override
-    public void onOrientationHasChanged(SquareOrientation squareOrientation) {
-        setConfigOrientation(squareOrientation);
-        drawingCanvasView.setConfigOrientation(squareOrientation);
-    }
-
-    public void setConfigOrientation(SquareOrientation configOrientation) {
-        if (skipSetOrientation(configOrientation)) {
-            return;
-        }
-
-        int currentOrientation = (int) cancelDrawingButton.getRotation();
-        int rotation = 0;
-
-        switch (configOrientation) {
-            case NONE:
-                break;
-            case PORTRAIT_STRAIGHT:
-                rotation = 0;
-                break;
-            case PORTRAIT_UPSIDE_DOWN:
-                rotation = 2 * currentOrientation;
-                break;
-            case LANDSCAPE_LEFT:
-                if (currentOrientation == ROTATION_REVERSE) {
-                    sendDrawingButton.setRotation(ROTATION_FLIP);
-                    cancelDrawingButton.setRotation(ROTATION_FLIP);
-                    undoSketchButton.setRotation(ROTATION_FLIP);
-                }
-                rotation = ROTATION_FORWARD_90;
-                break;
-            case LANDSCAPE_RIGHT:
-                if (currentOrientation == ROTATION_FLIP) {
-                    sendDrawingButton.setRotation(ROTATION_REVERSE);
-                    cancelDrawingButton.setRotation(ROTATION_REVERSE);
-                    undoSketchButton.setRotation(ROTATION_REVERSE);
-                }
-                rotation = ROTATION_BACKWARD_90;
-                break;
-        }
-
-        currentConfigOrientation = configOrientation;
-
-        sendDrawingButton.animate()
-                .rotation(rotation)
-                .start();
-
-        cancelDrawingButton.animate()
-                .rotation(rotation)
-                .start();
-
-        undoSketchButton.animate()
-                .rotation(rotation)
-                .start();
-    }
-
-    //reasons to not set the orientation (landscape photo etc)
-    private boolean skipSetOrientation(SquareOrientation configOrientation) {
-        if (configOrientation.equals(currentConfigOrientation) ||
-                configOrientation == SquareOrientation.PORTRAIT_UPSIDE_DOWN ||
-                sendDrawingButton == null ||
-                cancelDrawingButton == null ||
-                undoSketchButton == null) {
-            return true;
-        }
-
-        if (!includeBackgroundImage) {
-            return false;
-        }
-
-        if ((configOrientation == SquareOrientation.LANDSCAPE_RIGHT || configOrientation == SquareOrientation.LANDSCAPE_LEFT) &&
-            !drawingCanvasView.isBackgroundImageLandscape()) {
-            return true;
-        }
-
-        if (configOrientation == SquareOrientation.PORTRAIT_STRAIGHT &&
-            drawingCanvasView.isBackgroundImageLandscape()) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
     public void onColorSelected(int color, int strokeSize) {
         if (drawingCanvasView == null) {
             return;
         }
         drawingCanvasView.setDrawingColor(color);
         drawingCanvasView.setStrokeSize(strokeSize);
+    }
+
+    @Override
+    public void onEmojiSelected(String emoji, int size) {
+        drawingCanvasView.setEmoji(emoji, size);
     }
 
     @Override
@@ -513,12 +407,6 @@ public class DrawingFragment extends BaseFragment<DrawingFragment.Container> imp
         undoSketchButton.setClickable(false);
         sendDrawingButton.setTextColor(getResources().getColor(R.color.drawing__icon__disabled_color));
         sendDrawingButton.setClickable(false);
-    }
-
-    @Override
-    public void setRotation(int rotation) {
-        setConfigOrientation(SquareOrientation.getOrientation(rotation, getActivity()));
-        drawingViewTip.setRotation(-rotation);
     }
 
     @Override

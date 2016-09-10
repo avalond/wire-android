@@ -158,11 +158,6 @@ public class ScalaProfileStore extends ProfileStore {
     }
 
     @Override
-    public void deleteImage() {
-        selfUser.clearPicture();
-    }
-
-    @Override
     public void setUserPicture(ImageAsset imageAsset) {
         selfUser.setPicture(imageAsset);
     }

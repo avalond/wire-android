@@ -18,7 +18,6 @@
 package com.waz.zclient.controllers.streammediaplayer;
 
 import android.support.annotation.NonNull;
-import com.waz.annotations.Controller;
 import com.waz.api.MediaAsset;
 import com.waz.api.MediaProvider;
 import com.waz.api.Message;
@@ -26,7 +25,6 @@ import com.waz.zclient.controllers.mediaplayer.MediaPlayerState;
 
 import java.util.List;
 
-@Controller
 public interface IStreamMediaPlayerController {
 
     void addStreamMediaObserver(StreamMediaPlayerObserver streamMediaObserver);

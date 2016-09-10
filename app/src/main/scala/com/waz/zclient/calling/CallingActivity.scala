@@ -25,6 +25,9 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.{ViewGroup, WindowManager}
 import com.waz.threading.Threading
 import com.waz.zclient._
+import com.waz.zclient.calling.controllers.{GlobalCallingController, CurrentCallController}
+import com.waz.zclient.calling.views.VideoCallingView
+import com.waz.zclient.common.controllers.PermissionActivity
 import timber.log.Timber
 
 class CallingActivity extends AppCompatActivity with ActivityHelper with PermissionActivity {
@@ -61,20 +64,28 @@ class CallingActivity extends AppCompatActivity with ActivityHelper with Permiss
   override def onBackPressed(): Unit = ()
 
   override def onAttachedToWindow(): Unit = {
-    getWindow().addFlags(
+    getWindow.addFlags(
         WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
         WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
         WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-    );
+    )
   }
 }
 
-object CallingActivity {
+object CallingActivity extends Injectable {
 
   def start(context: Context): Unit = {
     val intent = new Intent(context, classOf[CallingActivity])
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     context.startActivity(intent)
+  }
+
+  def startIfCallIsActive(context: WireContext) = {
+    import context.injector
+    inject[GlobalCallingController].activeCall.head.foreach {
+      case true => start(context)
+      case false =>
+    } (Threading.Ui)
   }
 }

@@ -37,6 +37,7 @@
     <issue id="OldTargetApi" severity="ignore" />
     <issue id="AllowBackup" severity="ignore" />
     <issue id="IconColors" severity="ignore" />
+    <issue id="LogNotTimber" severity="ignore" />
 
     <issue id="NestedWeights" severity="ignore"/>
     <issue id="Overdraw" severity="ignore"/>
@@ -217,6 +218,11 @@
     <issue id="UnusedIds" severity="error" />
     <issue id="UnusedResources" severity="error">
         <ignore path="src/main/res/layout/calling*"/>
+        <ignore path="*ic_menu_end_call_w.png*"/>
+        <ignore path="*ic_menu_join_call_w.png*"/>
+        <ignore path="*ic_menu_save_image_gallery.png*"/>
+        <ignore path="*ic_menu_share.png*"/>
+        <ignore path="*ic_menu_silence_call_w.png*"/>
     </issue>
     <issue id="UnusedIds" severity="error" >
         <ignore path="src/main/res/layout/calling*"/>

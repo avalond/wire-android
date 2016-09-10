@@ -103,6 +103,10 @@ public class ChatheadImageView extends FrameLayout implements UpdateListener {
         updated();
     }
 
+    public User getUser() {
+        return user;
+    }
+
     private void removeOldUser() {
         if (user != null) {
             user.removeUpdateListener(this);

@@ -18,13 +18,11 @@
 package com.waz.zclient.core.stores.inappnotification;
 
 import android.support.annotation.Nullable;
-import com.waz.annotations.Store;
 import com.waz.api.ErrorsList;
 import com.waz.api.IConversation;
 import com.waz.api.Message;
 import com.waz.zclient.core.stores.IStore;
 
-@Store
 public interface IInAppNotificationStore extends IStore {
 
     /* adds an observer for incoming messages */

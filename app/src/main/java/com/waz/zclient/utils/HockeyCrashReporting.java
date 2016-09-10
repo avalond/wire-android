@@ -81,6 +81,19 @@ public class HockeyCrashReporting {
         });
     }
 
+    public static void deleteCrashReports(final Context context) {
+        Threading.IO().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    CrashManager.deleteStackTraces(new WeakReference<>(context));
+                } catch (Throwable t) {
+                    // ignore
+                }
+            }
+        });
+    }
+
     public static void checkForUpdates(Activity activity) {
         UpdateManager.register(activity);
     }

@@ -109,7 +109,7 @@ public class GiphySharingPreviewFragment extends BaseFragment<GiphySharingPrevie
     };
 
     @Override
-    public void onConnectivityChange(boolean hasInternet) {
+    public void onConnectivityChange(boolean hasInternet, boolean isServerError) {
         if (!hasInternet) {
             onLossOfNetworkConnection();
             return;
@@ -118,7 +118,7 @@ public class GiphySharingPreviewFragment extends BaseFragment<GiphySharingPrevie
     }
 
     @Override
-    public void onNetworkAccessFailed() {
+    public void onNoInternetConnection(boolean isServerError) {
 
     }
 
@@ -255,9 +255,7 @@ public class GiphySharingPreviewFragment extends BaseFragment<GiphySharingPrevie
             getStoreFactory().getConversationStore().sendMessage(getString(R.string.giphy_preview__message_via_search,
                                                                            searchTerm));
         }
-        if (!getStoreFactory().getNetworkStore().hasInternetConnection()) {
-            getStoreFactory().getNetworkStore().notifyNetworkAccessFailed();
-        }
+        getStoreFactory().getNetworkStore().doIfHasInternetOrNotifyUser(null);
         getStoreFactory().getConversationStore().sendMessage(foundImage);
         getControllerFactory().getGiphyController().close();
     }
@@ -269,7 +267,7 @@ public class GiphySharingPreviewFragment extends BaseFragment<GiphySharingPrevie
         giphyGridViewAdapter.setScrollGifCallback(this);
         getControllerFactory().getAccentColorController().addAccentColorObserver(this);
         getStoreFactory().getInAppNotificationStore().setUserSendingPicture(true);
-        getStoreFactory().getNetworkStore().addNetworkControllerObserver(this);
+        getStoreFactory().getNetworkStore().addNetworkStoreObserver(this);
         IConversation conversation = getStoreFactory().getConversationStore().getCurrentConversation();
         if (conversation != null) {
             conversation.addUpdateListener(conversationListUpdateListener);
@@ -281,7 +279,7 @@ public class GiphySharingPreviewFragment extends BaseFragment<GiphySharingPrevie
     public void onStop() {
         getStoreFactory().getInAppNotificationStore().setUserSendingPicture(false);
         getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
-        getStoreFactory().getNetworkStore().removeNetworkControllerObserver(this);
+        getStoreFactory().getNetworkStore().removeNetworkStoreObserver(this);
         IConversation conversation = getStoreFactory().getConversationStore().getCurrentConversation();
         if (conversation != null) {
             conversation.removeUpdateListener(conversationListUpdateListener);
@@ -391,7 +389,7 @@ public class GiphySharingPreviewFragment extends BaseFragment<GiphySharingPrevie
     }
 
     @Override
-    public void onBitmapLoadFinished() {
+    public void onBitmapLoadFinished(boolean bitmapLoaded) {
         confirmationMenu.setConfirmEnabled(true);
         loadingIndicator.hide();
         previewImageAssetView.setBitmapLoadedCallback(null);

@@ -18,94 +18,80 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<com.waz.zclient.ui.views.TouchFilterableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                      xmlns:sending="http://schemas.android.com/apk/res-auto"
-                                                      android:layout_width="match_parent"
-                                                      android:layout_height="match_parent"
-                                                      android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:sending="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
     >
 
     <FrameLayout
-        android:id="@+id/fl__single_image_container"
+        android:id="@+id/fl__row_conversation__message_image_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:paddingLeft="@dimen/content__padding_left"
+        android:paddingRight="@dimen/content__padding_right"
         >
 
-        <FrameLayout
-            android:id="@+id/fl__row_conversation__message_image_container"
+        <com.waz.zclient.pages.main.conversation.views.row.message.views.BlockingImageView
+            android:id="@+id/iv__row_conversation__message_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="left"
+            android:layout_marginBottom="@dimen/content__image__polka__loading_bar__total_height"
+            android:adjustViewBounds="false"
+            android:background="@null"
+            android:scaleType="fitXY"
+            android:visibility="gone"
+            />
+
+        <com.waz.zclient.pages.main.conversation.views.row.message.views.BlockingImageView
+            android:id="@+id/iv__row_conversation__message_polkadots"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="left"
+            android:layout_marginBottom="@dimen/content__image__polka__loading_bar__total_height"
+            android:adjustViewBounds="false"
+            android:background="@null"
+            android:scaleType="fitXY"
+            />
+
+        <!-- Polka dot image preview loading indicator -->
+        <com.waz.zclient.views.LoadingIndicatorView
+            android:id="@+id/lbv__row_conversation__message_polkadots"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:paddingLeft="@dimen/content__padding_left"
-            android:paddingRight="@dimen/content__padding_right"
-            >
+            android:layout_height="@dimen/loading_bar__stroke_width"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="@dimen/content__image__polka__loading_bar__margin_top"
+            />
 
-            <com.waz.zclient.pages.main.conversation.views.row.message.views.BlockingImageView
-                android:id="@+id/iv__row_conversation__message_image"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_gravity="left"
-                android:layout_marginBottom="@dimen/content__image__polka__loading_bar__total_height"
-                android:adjustViewBounds="false"
-                android:background="@null"
-                android:scaleType="fitXY"
-                android:visibility="gone"
-                />
+        <com.waz.zclient.ui.text.GlyphTextView
+            android:id="@+id/gtv__row_conversation__image_fullscreen"
+            android:layout_width="@dimen/content__image__button_size"
+            android:layout_height="@dimen/content__image__button_size"
+            android:layout_margin="@dimen/wire__padding__regular"
+            android:layout_gravity="bottom|end"
+            android:textSize="@dimen/wire__text_size__regular"
+            android:gravity="center"
+            android:background="@drawable/selector__icon_button__background__video_message"
+            android:textColor="@color/white"
+            android:text="@string/glyph__fullscreen"
+            />
 
-            <com.waz.zclient.pages.main.conversation.views.row.message.views.BlockingImageView
-                android:id="@+id/iv__row_conversation__message_polkadots"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_gravity="left"
-                android:layout_marginBottom="@dimen/content__image__polka__loading_bar__total_height"
-                android:adjustViewBounds="false"
-                android:background="@null"
-                android:scaleType="fitXY"
-                />
+        <com.waz.zclient.ui.text.GlyphTextView
+            android:id="@+id/gtv__row_conversation__image_sketch"
+            android:layout_width="@dimen/content__image__button_size"
+            android:layout_height="@dimen/content__image__button_size"
+            android:layout_margin="@dimen/wire__padding__regular"
+            android:layout_gravity="bottom|start"
+            android:textSize="@dimen/wire__text_size__regular"
+            android:gravity="center"
+            android:background="@drawable/selector__icon_button__background__video_message"
+            android:textColor="@color/white"
+            android:text="@string/glyph__paint"
+            />
 
-            <!-- Polka dot image preview loading indicator -->
-            <com.waz.zclient.views.LoadingIndicatorView
-                android:id="@+id/lbv__row_conversation__message_polkadots"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/loading_bar__stroke_width"
-                android:layout_gravity="bottom"
-                android:layout_marginTop="@dimen/content__image__polka__loading_bar__margin_top"
-                />
-
-        </FrameLayout>
-
-
-        <FrameLayout
-            android:id="@+id/fl__row_conversation__message_error_container"
-            android:layout_width="@dimen/content__image__progress_size"
-            android:layout_height="@dimen/content__image__progress_size"
-            android:layout_gravity="right|bottom"
-            >
-
-            <com.waz.zclient.views.SendingAnimationView
-                android:id="@+id/v__row_conversation__pending"
-                style="?messageStreamUnsentIndicator"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                sending:backgroundColor="?messageStreamUnsentIndicatorBackground"
-                sending:backgroundCircleRadius="@dimen/content__message__unsend_indicator_background_radius"
-                sending:circlePadding="@dimen/content__image__progress_circle_padding"
-                sending:circleRadius="@dimen/content__message__error_radius"
-                sending:pendingDuration="@integer/content__image__progress_duration"
-                sending:pendingStop="@integer/content__image__progress_pending_stop"
-                />
-
-            <com.waz.zclient.ui.text.GlyphTextView
-                android:id="@+id/v__row_conversation__error"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textColor="@color/text__secondary_light"
-                android:text="@string/glyph__redo"
-                android:textSize="@dimen/content__message__error_glyph_size"
-                />
-
-        </FrameLayout>
     </FrameLayout>
 
     <LinearLayout
@@ -141,4 +127,4 @@
 
     </LinearLayout>
 
-</com.waz.zclient.ui.views.TouchFilterableLinearLayout>
+</LinearLayout>

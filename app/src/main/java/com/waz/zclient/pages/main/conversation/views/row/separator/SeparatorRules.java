@@ -18,6 +18,7 @@
 package com.waz.zclient.pages.main.conversation.views.row.separator;
 
 import com.waz.api.Message;
+import com.waz.zclient.BuildConfig;
 import com.waz.zclient.utils.DateConvertUtils;
 import org.threeten.bp.ZonedDateTime;
 import timber.log.Timber;
@@ -26,94 +27,102 @@ public class SeparatorRules {
 
     private static final String TAG = SeparatorRules.class.getName();
 
-    public static boolean shouldHaveName(Separator separator) {
-        // First message with no previous messages e.g. when history has been cleared
-        if (separator.previousMessage == null &&
-                separator.nextMessage.getMessageType() != Message.Type.MEMBER_JOIN &&
-                separator.nextMessage.getMessageType() != Message.Type.MEMBER_LEAVE &&
-                separator.nextMessage.getMessageType() != Message.Type.CONNECT_REQUEST &&
-                separator.nextMessage.getMessageType() != Message.Type.KNOCK &&
-                separator.nextMessage.getMessageType() != Message.Type.RENAME &&
-                separator.nextMessage.getMessageType() != Message.Type.OTR_ERROR &&
-                separator.nextMessage.getMessageType() != Message.Type.OTR_VERIFIED &&
-                separator.nextMessage.getMessageType() != Message.Type.OTR_UNVERIFIED &&
-                separator.nextMessage.getMessageType() != Message.Type.STARTED_USING_DEVICE &&
-                separator.nextMessage.getMessageType() != Message.Type.OTR_DEVICE_ADDED &&
-                separator.nextMessage.getMessageType() != Message.Type.HISTORY_LOST &&
-                separator.nextMessage.getMessageType() != Message.Type.MISSED_CALL) {
+    public static boolean shouldHaveName(Message message, Separator separator) {
+        if (message.getMessageType() == Message.Type.UNKNOWN && !BuildConfig.SHOW_DEVELOPER_OPTIONS) {
+            return false;
+        }
+        if (message.isEdited()) {
             return true;
         }
 
-        return separator.previousMessage != null &&
+        // First message with no previous messages e.g. when history has been cleared
+        if (separator.getPreviousMessage() == null &&
+                separator.getNextMessage().getMessageType() != Message.Type.MEMBER_JOIN &&
+                separator.getNextMessage().getMessageType() != Message.Type.MEMBER_LEAVE &&
+                separator.getNextMessage().getMessageType() != Message.Type.CONNECT_REQUEST &&
+                separator.getNextMessage().getMessageType() != Message.Type.KNOCK &&
+                separator.getNextMessage().getMessageType() != Message.Type.RENAME &&
+                separator.getNextMessage().getMessageType() != Message.Type.OTR_ERROR &&
+                separator.getNextMessage().getMessageType() != Message.Type.OTR_VERIFIED &&
+                separator.getNextMessage().getMessageType() != Message.Type.OTR_UNVERIFIED &&
+                separator.getNextMessage().getMessageType() != Message.Type.STARTED_USING_DEVICE &&
+                separator.getNextMessage().getMessageType() != Message.Type.OTR_DEVICE_ADDED &&
+                separator.getNextMessage().getMessageType() != Message.Type.HISTORY_LOST &&
+                separator.getNextMessage().getMessageType() != Message.Type.MISSED_CALL) {
+            return true;
+        }
+
+        return separator.getPreviousMessage() != null &&
 
                // messages are from different users, or the previous message is not text or image or rich media
-               (!separator.previousMessage.getUser().getId().equals(separator.nextMessage.getUser().getId()) ||
-                (separator.previousMessage.getUser().getId().equals(separator.nextMessage.getUser().getId()) &&
-                 separator.previousMessage.getMessageType() != Message.Type.ASSET &&
-                 separator.previousMessage.getMessageType() != Message.Type.LOCATION &&
-                 separator.previousMessage.getMessageType() != Message.Type.TEXT &&
-                 separator.previousMessage.getMessageType() != Message.Type.RICH_MEDIA
+               (!separator.getPreviousMessage().getUser().getId().equals(separator.getNextMessage().getUser().getId()) ||
+                (separator.getPreviousMessage().getUser().getId().equals(separator.getNextMessage().getUser().getId()) &&
+                 separator.getPreviousMessage().getMessageType() != Message.Type.ASSET &&
+                 separator.getPreviousMessage().getMessageType() != Message.Type.LOCATION &&
+                 separator.getPreviousMessage().getMessageType() != Message.Type.TEXT &&
+                 separator.getPreviousMessage().getMessageType() != Message.Type.RICH_MEDIA
                 ) ||
-                separator.nextMessage.getMessageType() == Message.Type.ANY_ASSET
+                separator.getNextMessage().getMessageType() == Message.Type.ANY_ASSET ||
+                separator.getNextMessage().getMessageType() == Message.Type.RECALLED
                ) &&
 
                //next message is not a "system" message or a knock
-                separator.nextMessage.getMessageType() != Message.Type.MEMBER_JOIN &&
-                separator.nextMessage.getMessageType() != Message.Type.MEMBER_LEAVE &&
-                separator.nextMessage.getMessageType() != Message.Type.CONNECT_REQUEST &&
-                separator.nextMessage.getMessageType() != Message.Type.KNOCK &&
-                separator.nextMessage.getMessageType() != Message.Type.RENAME &&
-                separator.nextMessage.getMessageType() != Message.Type.OTR_ERROR &&
-                separator.nextMessage.getMessageType() != Message.Type.OTR_VERIFIED &&
-                separator.nextMessage.getMessageType() != Message.Type.OTR_UNVERIFIED &&
-                separator.nextMessage.getMessageType() != Message.Type.STARTED_USING_DEVICE &&
-                separator.nextMessage.getMessageType() != Message.Type.OTR_DEVICE_ADDED &&
-                separator.nextMessage.getMessageType() != Message.Type.HISTORY_LOST &&
-                separator.nextMessage.getMessageType() != Message.Type.MISSED_CALL;
+                separator.getNextMessage().getMessageType() != Message.Type.MEMBER_JOIN &&
+                separator.getNextMessage().getMessageType() != Message.Type.MEMBER_LEAVE &&
+                separator.getNextMessage().getMessageType() != Message.Type.CONNECT_REQUEST &&
+                separator.getNextMessage().getMessageType() != Message.Type.KNOCK &&
+                separator.getNextMessage().getMessageType() != Message.Type.RENAME &&
+                separator.getNextMessage().getMessageType() != Message.Type.OTR_ERROR &&
+                separator.getNextMessage().getMessageType() != Message.Type.OTR_VERIFIED &&
+                separator.getNextMessage().getMessageType() != Message.Type.OTR_UNVERIFIED &&
+                separator.getNextMessage().getMessageType() != Message.Type.STARTED_USING_DEVICE &&
+                separator.getNextMessage().getMessageType() != Message.Type.OTR_DEVICE_ADDED &&
+                separator.getNextMessage().getMessageType() != Message.Type.HISTORY_LOST &&
+                separator.getNextMessage().getMessageType() != Message.Type.MISSED_CALL;
     }
 
     public static boolean shouldHaveTimestamp(Separator separator, int timeBetweenMessagesToTriggerTimestamp) {
-        if (separator.previousMessage == null || separator.nextMessage == null) {
+        if (separator.getPreviousMessage() == null || separator.getNextMessage() == null) {
             return false;
         }
 
-        if (separator.nextMessage.getMessageType() == Message.Type.MISSED_CALL) {
+        if (separator.getNextMessage().getMessageType() == Message.Type.MISSED_CALL) {
             return false;
         }
 
         try {
-            ZonedDateTime previousMessageTime = DateConvertUtils.asZonedDateTime(separator.previousMessage.getTime());
-            ZonedDateTime nextMessageTIme = DateConvertUtils.asZonedDateTime(separator.nextMessage.getTime());
+            ZonedDateTime previousMessageTime = DateConvertUtils.asZonedDateTime(separator.getPreviousMessage().getTime());
+            ZonedDateTime nextMessageTIme = DateConvertUtils.asZonedDateTime(separator.getNextMessage().getTime());
             return previousMessageTime.isBefore(nextMessageTIme.minusSeconds(timeBetweenMessagesToTriggerTimestamp));
         } catch (Exception e) {
             Timber.e(e, "Failed Separator timestamp check! Couldn't parse received time: either '%s' or '%s', or both.",
-                separator.previousMessage.getTime(),
-                separator.nextMessage.getTime());
+                separator.getPreviousMessage().getTime(),
+                separator.getNextMessage().getTime());
             return false;
         }
     }
 
     public static boolean shouldHaveUnreadDot(Separator separator, int unreadMessageCount) {
         return unreadMessageCount > 0 &&
-               separator.lastReadMessage != null &&
-               separator.previousMessage != null &&
-               !separator.previousMessage.getId().equals(separator.nextMessage.getId()) &&
-               separator.lastReadMessage.getId().equals(separator.previousMessage.getId());
+               separator.getLastReadMessage() != null &&
+               separator.getPreviousMessage() != null &&
+               !separator.getPreviousMessage().getId().equals(separator.getNextMessage().getId()) &&
+               separator.getLastReadMessage().getId().equals(separator.getPreviousMessage().getId());
     }
 
     public static boolean shouldHaveBigTimestamp(Separator separator) {
-        if (separator.previousMessage == null || separator.nextMessage == null) {
+        if (separator.getPreviousMessage() == null || separator.getNextMessage() == null) {
             return false;
         }
 
         try {
-            ZonedDateTime previousMessageTime = DateConvertUtils.asZonedDateTime(separator.previousMessage.getTime());
-            ZonedDateTime nextMessageTime = DateConvertUtils.asZonedDateTime(separator.nextMessage.getTime());
+            ZonedDateTime previousMessageTime = DateConvertUtils.asZonedDateTime(separator.getPreviousMessage().getTime());
+            ZonedDateTime nextMessageTime = DateConvertUtils.asZonedDateTime(separator.getNextMessage().getTime());
             return previousMessageTime.toLocalDate().atStartOfDay().isBefore(nextMessageTime.toLocalDate().atStartOfDay());
         } catch (Exception e) {
             Timber.e(e, "Failed Separator timestamp check! Couldn't parse received time: either '%s' or '%s', or both.",
-                     separator.previousMessage.getTime(),
-                     separator.nextMessage.getTime());
+                     separator.getPreviousMessage().getTime(),
+                     separator.getNextMessage().getTime());
             return false;
         }
     }

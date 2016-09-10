@@ -17,12 +17,10 @@
  */
 package com.waz.zclient.core.stores.participants;
 
-import com.waz.annotations.Store;
 import com.waz.api.IConversation;
 import com.waz.api.UsersList;
 import com.waz.zclient.core.stores.IStore;
 
-@Store
 public interface IParticipantsStore extends IStore {
 
     // adds an observer on this store
